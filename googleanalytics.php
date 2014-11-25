@@ -168,8 +168,6 @@ class Googleanalytics extends Module
 
 	private function _getGoogleAnalyticsTag($back_office = false)
 	{
-		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
-		if (!empty($ga_account_id))
 			return '
 			<script type="text/javascript">
 				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
@@ -185,7 +183,12 @@ class Googleanalytics extends Module
 
 	public function hookDisplayHeader()
 	{
-		return $this->_getGoogleAnalyticsTag();
+		if (Configuration::get('GA_ACCOUNT_ID'))
+		{
+			$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+
+			return $this->_getGoogleAnalyticsTag();
+		}
 	}
 
 	/**
@@ -210,8 +213,6 @@ class Googleanalytics extends Module
 	*/
 	public function hookDisplayTop()
 	{
-		$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
 		if ($controller_name == 'orderconfirmation')
@@ -478,17 +479,20 @@ class Googleanalytics extends Module
 	*/
 	private function _runJs($js_code)
 	{
-		if ($this->_js_state != 1 && $this->context->controller->controller_type != 'admin')
-			$js_code .= 'ga(\'send\', \'pageview\');';
+		if (Configuration::get('GA_ACCOUNT_ID'))
+		{
+			if ($this->_js_state != 1 && $this->context->controller->controller_type != 'admin')
+				$js_code .= 'ga(\'send\', \'pageview\');';
 
-		return '
-		<script type="text/javascript">
-			jQuery(document).ready(function(){
-				var MBG = GoogleAnalyticEnhancedECommerce;
-				MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
-				'.$js_code.'
-			});
-		</script>';
+			return '
+			<script type="text/javascript">
+				jQuery(document).ready(function(){
+					var MBG = GoogleAnalyticEnhancedECommerce;
+					MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
+					'.$js_code.'
+				});
+			</script>';
+		}
 	}
 
 	/**
@@ -505,11 +509,12 @@ class Googleanalytics extends Module
 	 */
 	public function hookDisplayBackOfficeHeader()
 	{
-		$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
+
 		if (!empty($ga_account_id))
 		{
-			$this->context->smarty->assign('GA_ACCOUNT_ID', Configuration::get('GA_ACCOUNT_ID'));
+			$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
 			$ga_scripts = '';
 			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'googleanalytics` WHERE sent = 0');
