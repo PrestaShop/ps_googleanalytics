@@ -39,7 +39,6 @@ class Googleanalytics extends Module
 		$this->tab = 'analytics_stats';
 		$this->version = '1.0';
 		$this->author = 'PrestaShop';
-		$this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6');
 		$this->bootstrap = true;
 
 		parent::__construct();
@@ -55,23 +54,23 @@ class Googleanalytics extends Module
 			Shop::setContext(Shop::CONTEXT_ALL);
 
 		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder') || !$this->registerHook('footer') ||
-	!$this->registerHook('home') || !$this->registerHook('productfooter') || !$this->registerHook('top') ||
-	!$this->registerHook('backOfficeHeader') || !$this->registerHook('displayBackOfficeHeader') ||
-	!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave'))
+			!$this->registerHook('home') || !$this->registerHook('productfooter') || !$this->registerHook('top') ||
+			!$this->registerHook('backOfficeHeader') || !$this->registerHook('displayBackOfficeHeader') ||
+			!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave'))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'googleanalytics`');
 
 		if (!Db::getInstance()->Execute('
-		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'googleanalytics` (
-		  `id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
-		  `id_order` int(11) NOT NULL,
-		  `sent` tinyint(1) DEFAULT NULL,
-		  `date_add` datetime DEFAULT NULL,
-		  PRIMARY KEY (`id_google_analytics`),
-		  KEY `id_order` (`id_order`),
-		  KEY `sent` (`sent`)
-		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
+			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'googleanalytics` (
+				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
+				`id_order` int(11) NOT NULL,
+				`sent` tinyint(1) DEFAULT NULL,
+				`date_add` datetime DEFAULT NULL,
+				PRIMARY KEY (`id_google_analytics`),
+				KEY `id_order` (`id_order`),
+				KEY `sent` (`sent`)
+			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
 			return $this->uninstall();
 
 		return true;
@@ -211,7 +210,7 @@ class Googleanalytics extends Module
 	*/
 	public function hookDisplayTop()
 	{
-		$this->context->controller->addJs($this->_path.'js/GoogleAnalyticActionLib.js');
+		$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
 
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
@@ -223,14 +222,14 @@ class Googleanalytics extends Module
 				$order = new Order($this->context->controller->id_order);
 				if (!Validate::isLoadedObject($order))
 					return;
-				
+
 				$order_products = array();
 				foreach ($order->getProducts() as $order_product)
 					$order_products[] = $this->wrapProduct((int)$order_product['product_id'], array('qty' => $order_product['product_quantity']), 0, true);
-				
+
 				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'googleanalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
 				$ga_order_sent = 0;
-				
+
 				$transaction = array(
 					'orderid' => $order->reference,
 					'affiliation' => $this->context->shop->name,
@@ -347,7 +346,7 @@ class Googleanalytics extends Module
 	public function wrapProduct($product, $extras, $index = 0, $full = false)
 	{
 		$ga_product = '';
-		
+
 		$variant = null;
 		if (isset($product['attributes_small']))
 			$variant = $product['attributes_small'];
@@ -506,7 +505,7 @@ class Googleanalytics extends Module
 	 */
 	public function hookDisplayBackOfficeHeader()
 	{
-		$this->context->controller->addJs($this->_path.'js/GoogleAnalyticActionLib.js');
+		$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 		if (!empty($ga_account_id))
 		{
@@ -552,7 +551,7 @@ class Googleanalytics extends Module
 	{
 		if (!isset($this->context->cart))
 			return;
-			
+
 		$ga_scripts  = '';
 
 		$cart = array(
@@ -567,7 +566,7 @@ class Googleanalytics extends Module
 			foreach ($cart_products as $cart_product)
 				if ($cart_product['id_product'] == Tools::getValue('id_product'))
 					$add_product = $cart_product;
-					
+
 		if ($cart['removeAction'] == 'delete')
 		{
 			$add_product_object = new Product((int)Tools::getValue('id_product'), true, (int)Configuration::get('PS_LANG_DEFAULT'));
@@ -591,12 +590,12 @@ class Googleanalytics extends Module
 		if (isset($add_product))
 		{
 			$ga_products = $this->wrapProduct($add_product, array(), 0, true);
-		
+
 			if ($cart['removeAction'] == 'delete' || $cart['extraAction'] == 'down')
 				$ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($ga_products).');';
 			elseif (Tools::getValue('step') <= 0) // Sometimes cartsave is called in checkout
 				$ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($ga_products).');';
-		
+
 			$this->context->cookie->ga_cart .= $ga_scripts;
 		}
 	}
