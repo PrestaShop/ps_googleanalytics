@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 **/
+
 class GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
 	/*
@@ -31,7 +32,7 @@ class GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 	public function initContent()
 	{
 		parent::initContent();
-		
+
 		$order = new Order((int)Tools::getValue('orderid'));
 		if (!Validate::isLoadedObject($order) || $order->id_customer != $this->context->cookie->id_customer)
 			die;

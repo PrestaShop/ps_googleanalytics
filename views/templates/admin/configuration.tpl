@@ -26,8 +26,8 @@
 
 <div style="margin: 0 auto; width: 1100px;">
 	<div id="google_analytics_top">
-		<img src="{$module_dir|htmlspecialchars}img/ga_logo.png" alt="" style="margin-right: 333px;" />
-		<a href="https://support.google.com/analytics/answer/1008015" rel="external"><img src="{$module_dir|htmlspecialchars}img/create_account_btn.png" alt="" /></a>
+		<img src="{$module_dir|htmlspecialchars}views/img/ga_logo.png" alt="" style="margin-right: 333px;" />
+		<a href="https://support.google.com/analytics/answer/1008015" rel="external"><img src="{$module_dir|htmlspecialchars}views/img/create_account_btn.png" alt="" /></a>
 	</div>
 
 	<div id="google_analytics_left" style="width: 470px; height: 375px; float: left; margin: 20px 0;">
@@ -36,22 +36,22 @@
 		<p><b>{l s='With ecommerce functionality in Google Analytics you can gain clear insight into important metrics about shopper behavior and conversion, including:' mod='googleanalytics'}</b></p>
 		<table>
 			<tr>
-				<td style="width: 210px; height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/product_detail_icon.png" alt="" />&nbsp;&nbsp;{l s='Product detail views' mod='googleanalytics'}</td>
-				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/merchandising_tools_icon.png" alt="" />&nbsp;&nbsp;{l s='Internal merchandising Success' mod='googleanalytics'}</td>
+				<td style="width: 210px; height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/product_detail_icon.png" alt="" />&nbsp;&nbsp;{l s='Product detail views' mod='googleanalytics'}</td>
+				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/merchandising_tools_icon.png" alt="" />&nbsp;&nbsp;{l s='Internal merchandising Success' mod='googleanalytics'}</td>
 			</tr>
 			<tr>
-				<td style="height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/add_to_cart_icon.png" alt="" />&nbsp;&nbsp;{l s='"Add to cart" actions' mod='googleanalytics'}</td>
-				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/checkout_icon.png" alt="" />&nbsp;&nbsp;{l s='The checkout process' mod='googleanalytics'}</td>
+				<td style="height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/add_to_cart_icon.png" alt="" />&nbsp;&nbsp;{l s='"Add to cart" actions' mod='googleanalytics'}</td>
+				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/checkout_icon.png" alt="" />&nbsp;&nbsp;{l s='The checkout process' mod='googleanalytics'}</td>
 			</tr>
 			<tr>
-				<td style="height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/campaign_clicks_icon.png" alt="" />&nbsp;&nbsp;{l s='Internal campaign clicks' mod='googleanalytics'}</td>
-				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}img/purchase_icon.png" alt="" />&nbsp;&nbsp;{l s='And purchase' mod='googleanalytics'}</td>
+				<td style="height: 65px;"><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/campaign_clicks_icon.png" alt="" />&nbsp;&nbsp;{l s='Internal campaign clicks' mod='googleanalytics'}</td>
+				<td><img style="width: 62px;" src="{$module_dir|htmlspecialchars}views/img/purchase_icon.png" alt="" />&nbsp;&nbsp;{l s='And purchase' mod='googleanalytics'}</td>
 			</tr>
 		</table>
 	</div>
 
 	<div id="google_analytics_right" style="width: 610px; height: 375px; float: left; margin: 20px 0 10px 20px; text-align: right;">
-		<p><img src="{$module_dir|htmlspecialchars}img/stats.png" alt="" style="margin-bottom: 5px;" /><br />
+		<p><img src="{$module_dir|htmlspecialchars}views/img/stats.png" alt="" style="margin-bottom: 5px;" /><br />
 		<span style="font-size: 11px; font-style: italic;">{l s='Merchants are able to understand how far along users get in the buying process and where they are dropping off.' mod='googleanalytics'}</span><br /><br />
 		<b><a href="https://support.google.com/analytics/answer/1008015" rel="external">{l s='Create your account to get started.' mod='googleanalytics'}</a></b></p>
 	</div>
