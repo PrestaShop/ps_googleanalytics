@@ -27,7 +27,7 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class Googleanalytics extends Module
+class Ganalytics extends Module
 {
 	protected $_js_state = 0;
 	protected $_eligible = 0;
@@ -39,6 +39,7 @@ class Googleanalytics extends Module
 		$this->tab = 'analytics_stats';
 		$this->version = '1.0';
 		$this->author = 'PrestaShop';
+		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
 
 		parent::__construct();
@@ -53,10 +54,10 @@ class Googleanalytics extends Module
 		if (Shop::isFeatureActive())
 			Shop::setContext(Shop::CONTEXT_ALL);
 
-		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder') || !$this->registerHook('footer') ||
-			!$this->registerHook('home') || !$this->registerHook('productfooter') || !$this->registerHook('top') ||
-			!$this->registerHook('backOfficeHeader') || !$this->registerHook('displayBackOfficeHeader') ||
-			!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave'))
+		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
+			|| !$this->registerHook('footer') || !$this->registerHook('home') || !$this->registerHook('productfooter')
+			|| !$this->registerHook('top') || !$this->registerHook('backOfficeHeader')
+			|| !$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave'))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
