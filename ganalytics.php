@@ -138,7 +138,6 @@ class Ganalytics extends Module
 			),
 			'submit' => array(
 				'title' => $this->l('Save'),
-				'class' => 'button'
 			)
 		);
 
@@ -510,6 +509,21 @@ class Ganalytics extends Module
 	 */
 	public function hookDisplayBackOfficeHeader()
 	{
+		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
+		{
+			if (version_compare(_PS_VERSION_, '1.5', '>') == true)
+			{
+				$this->context->controller->addCSS($this->_path.'views/css/ganalytics.css');
+				if (version_compare(_PS_VERSION_, '1.6', '<') == true)
+					$this->context->controller->addCSS($this->_path.'views/css/ganalytics-nobootstrap.css');
+			}
+			else
+			{
+				echo '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />';
+				echo '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
+			}
+		}
+		
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
 		if (!empty($ga_account_id))
