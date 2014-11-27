@@ -34,7 +34,7 @@
 		</div>
 	</div>
 	<hr/>
-	<div id="google_analytics_left">
+	<div id="google_analytics_content">
 		<div class="row">
 			<div class="col-lg-6">
 				<p>
