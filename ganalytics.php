@@ -47,17 +47,24 @@ class Ganalytics extends Module
 		$this->displayName = $this->l('Google Analytics');
 		$this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
+		/* Backward compatibility */
+		if (version_compare(_PS_VERSION_, '1.5', '<'))
+			require(_PS_MODULE_DIR_.'paypalmx/backward_compatibility/backward.php');
 	}
 
 	public function install()
 	{
-		if (Shop::isFeatureActive())
+		if (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive())
 			Shop::setContext(Shop::CONTEXT_ALL);
 
 		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
-			|| !$this->registerHook('footer') || !$this->registerHook('home') || !$this->registerHook('productfooter')
-			|| !$this->registerHook('top') || !$this->registerHook('backOfficeHeader')
-			|| !$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave'))
+			|| !$this->registerHook('footer') || !$this->registerHook('home')
+			|| !$this->registerHook('productfooter') || !$this->registerHook('top')
+			|| !$this->registerHook('backOfficeHeader'))
+			return false;
+		echo 'lol2';
+		/*if (version_compare(_PS_VERSION_, '1.5', '>=') && 
+			(!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
@@ -72,7 +79,7 @@ class Ganalytics extends Module
 				KEY `id_order` (`id_order`),
 				KEY `sent` (`sent`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
-			return $this->uninstall();
+			return $this->uninstall();*/
 
 		return true;
 	}
@@ -163,7 +170,10 @@ class Ganalytics extends Module
 			}
 		}
 
-		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output.$this->displayForm();
+		if (version_compare(_PS_VERSION_, '1.5', '>='))
+			$output .= $this->displayForm();
+
+		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
 	}
 
 	private function _getGoogleAnalyticsTag($back_office = false)
@@ -181,7 +191,7 @@ class Ganalytics extends Module
 			</script>';
 	}
 
-	public function hookDisplayHeader()
+	public function hookHeader()
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
@@ -211,7 +221,7 @@ class Ganalytics extends Module
 	/**
 	* To track transactions
 	*/
-	public function hookDisplayTop()
+	public function hookTop()
 	{
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
@@ -248,7 +258,7 @@ class Ganalytics extends Module
 	/**
 	* hook footer to load JS script for standards actions such as product clicks
 	*/
-	public function hookDisplayFooter()
+	public function hookFooter()
 	{
 		$ga_scripts = '';
 
@@ -296,7 +306,7 @@ class Ganalytics extends Module
 	/**
 	* hook home to display generate the product list associated to home featured, news products and best sellers Modules
 	*/
-	public function hookDisplayHome()
+	public function hookHome()
 	{
 		$ga_scripts = '';
 
@@ -507,7 +517,7 @@ class Ganalytics extends Module
 	/**
 	 *  admin office header to add google analytics js
 	 */
-	public function hookDisplayBackOfficeHeader()
+	public function hookBackOfficeHeader()
 	{
 		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
 		{
@@ -519,8 +529,8 @@ class Ganalytics extends Module
 			}
 			else
 			{
-				echo '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />';
-				echo '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
+				return '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />'.
+					'<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
 			}
 		}
 		

@@ -52,7 +52,7 @@
 					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/purchase_icon.png" alt="" />{l s='And purchase' mod='ganalytics'}</div>
 				</div>
 			</div>
-			<div class="col-xs-6 text-center">
+			<div class="col-lg-6 text-center">
 				<p>
 					<img src="{$module_dir|htmlspecialchars}views/img/stats.png" alt="" /><br />
 					<span class="small"><em>{l s='Merchants are able to understand how far along users get in the buying process and where they are dropping off.' mod='ganalytics'}</em></span>

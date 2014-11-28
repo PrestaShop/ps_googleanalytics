@@ -1,9 +1,9 @@
-#content > * {
+#content .panel {
 	margin: 0 auto;
 	max-width: 1300px;
 }
 
-#content p {
+#content .panel p {
 	margin-bottom:2em;
 }
 

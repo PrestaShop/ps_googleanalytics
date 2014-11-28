@@ -39,18 +39,28 @@ padding: 10px 20px 20px 20px;
 	display: flex;
 }
 
+#content img {
+	max-width:100%;
+}
+
 #content .panel .col-lg-6,
 #content .panel .col-xs-6 {
-	width:49%;
 	display:inline-block;
 }
+
+#advantages_list > div,
+#google_analytics_top > div {
+	min-width:50%;
+	float: left;
+}
+
 
 #content hr {
 border-bottom: 1px solid rgb(230, 230, 230);
 }
 
-#google_analytics_top > div,
-#google_analytics_content > .row {
+#google_analytics_top.row,
+#google_analytics_content div {
 	background-color: white;
 }
 
