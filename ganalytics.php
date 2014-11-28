@@ -62,8 +62,8 @@ class Ganalytics extends Module
 			|| !$this->registerHook('productfooter') || !$this->registerHook('top')
 			|| !$this->registerHook('backOfficeHeader'))
 			return false;
-		echo 'lol2';
-		/*if (version_compare(_PS_VERSION_, '1.5', '>=') && 
+
+		if (version_compare(_PS_VERSION_, '1.5', '>=') && 
 			(!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
 			return false;
 
@@ -79,7 +79,7 @@ class Ganalytics extends Module
 				KEY `id_order` (`id_order`),
 				KEY `sent` (`sent`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
-			return $this->uninstall();*/
+			return $this->uninstall();
 
 		return true;
 	}
@@ -172,6 +172,13 @@ class Ganalytics extends Module
 
 		if (version_compare(_PS_VERSION_, '1.5', '>='))
 			$output .= $this->displayForm();
+		else
+		{
+			$this->context->smarty->assign(array(
+				'account_id' => Configuration::get('GA_ACCOUNT_ID'),
+			));
+			$output .= $this->display(__FILE__, 'views/templates/admin/form-ps14.tpl');
+		}
 
 		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
 	}
@@ -311,7 +318,7 @@ class Ganalytics extends Module
 		$ga_scripts = '';
 
 		// Home featured products
-		if (Module::isEnabled('homefeatured'))
+		if ($this->isModuleEnabled('homefeatured'))
 		{
 			$category = new Category($this->context->shop->getCategory(), $this->context->language->id);
 			$home_featured_products = $this->wrapProducts($category->getProducts((int)Context::getContext()->language->id, 1,
@@ -320,7 +327,7 @@ class Ganalytics extends Module
 		}
 
 		// New products
-		if (Module::isEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') || Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
+		if ($this->isModuleEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') || Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
 		{
 			$new_products = Product::getNewProducts((int)$this->context->language->id, 0, (int)Configuration::get('NEW_PRODUCTS_NBR'));
 			$new_products_list = $this->wrapProducts($new_products, array(), true);
@@ -328,13 +335,27 @@ class Ganalytics extends Module
 		}
 
 		// Best Sellers
-		if (Module::isEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE') || Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
+		if ($this->isModuleEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE') || Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
 		{
 			$ga_homebestsell_product_list = $this->wrapProducts(ProductSale::getBestSalesLight((int)$this->context->language->id, 0, 8), array(), true);
 			$ga_scripts .= $this->addProductImpression($ga_homebestsell_product_list).$this->addProductClick($ga_homebestsell_product_list);
 		}
 
 		return $this->_runJs($this->filter($ga_scripts));
+	}
+
+	/**
+	* hook home to display generate the product list associated to home featured, news products and best sellers Modules
+	*/
+	public function isModuleEnabled($name)
+	{
+		if (version_compare(_PS_VERSION_, '1.5', '>='))
+			return Module::isEnabled($name);
+		else
+		{
+			$module = Module::getInstanceByName($name);
+			return ($module && $module->active === true);
+		}
 	}
 
 	/**
@@ -468,7 +489,7 @@ class Ganalytics extends Module
 	/**
 	* hook product page footer to load JS for product details view
 	*/
-	public function hookDisplayFooterProduct($params)
+	public function hookFooterProduct($params)
 	{
 		$controller_name = Tools::getValue('controller');
 		if ($controller_name == 'product')
@@ -491,7 +512,8 @@ class Ganalytics extends Module
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
-			if ($this->_js_state != 1 && $this->context->controller->controller_type != 'admin')
+
+			if ($this->_js_state != 1 && !defined('_PS_ADMIN_DIR_'))
 				$js_code .= 'ga(\'send\', \'pageview\');';
 
 			return '
@@ -508,7 +530,7 @@ class Ganalytics extends Module
 	/**
 	* Hook admin order to send transactions and refunds details
 	*/
-	public function hookDisplayAdminOrder()
+	public function hookAdminOrder()
 	{
 		echo $this->_runJs($this->context->cookie->ga_admin_refund);
 		unset($this->context->cookie->ga_admin_refund);
@@ -519,6 +541,7 @@ class Ganalytics extends Module
 	 */
 	public function hookBackOfficeHeader()
 	{
+		$js = '';
 		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
 		{
 			if (version_compare(_PS_VERSION_, '1.5', '>') == true)
@@ -529,7 +552,7 @@ class Ganalytics extends Module
 			}
 			else
 			{
-				return '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />'.
+				$js .= '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />'.
 					'<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
 			}
 		}
@@ -538,24 +561,30 @@ class Ganalytics extends Module
 
 		if (!empty($ga_account_id))
 		{
-			$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+			if (version_compare(_PS_VERSION_, '1.5', '>=') == true)
+				$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+			else
+				$js .= '<script type="text/javascript" src="'.$this->_path.'views/js/GoogleAnalyticActionLib.js"></script>';
+
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
 			$ga_scripts = '';
 			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0');
 
-			foreach ($ga_order_records as $row)
-			{
-				$transaction = $this->wrapOrder($row['id_order']);
-				if (!empty($transaction))
+			if ($ga_order_records)
+				foreach ($ga_order_records as $row)
 				{
-					$transaction = Tools::jsonEncode($transaction);
-					$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+					$transaction = $this->wrapOrder($row['id_order']);
+					if (!empty($transaction))
+					{
+						$transaction = Tools::jsonEncode($transaction);
+						$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+					}
 				}
-			}
 
-			return $this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts);
+			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts);
 		}
+		else return $js;
 	}
 
 	/**
