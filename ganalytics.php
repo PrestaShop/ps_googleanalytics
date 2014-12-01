@@ -49,7 +49,7 @@ class Ganalytics extends Module
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
 		/* Backward compatibility */
 		if (version_compare(_PS_VERSION_, '1.5', '<'))
-			require(_PS_MODULE_DIR_.'paypalmx/backward_compatibility/backward.php');
+			require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
 	}
 
 	public function install()
