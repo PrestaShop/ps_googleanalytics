@@ -38,7 +38,7 @@
 		<div class="clear"></div>
 
 		<div class="margin-form">
-			<input class="button" type="submit" name="submitganalytics" value="Enregistrer" id="configuration_form_submit_btn">
+			<input class="button" type="submit" name="submitganalytics" value="{l s='Save' mod='ebay'}" id="configuration_form_submit_btn">
 		</div>
 
 		<div class="small"><sup>*</sup> Champ requis</div>
