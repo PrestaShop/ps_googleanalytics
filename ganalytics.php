@@ -366,8 +366,15 @@ class Ganalytics extends Module
 		$result_products = array();
 		if (!is_array($products))
 			return;
+
+		$currency = new Currency($this->context->currency->id);
+		$usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
 		foreach ($products as $index => $product)
+		{
+			if (!isset($product['price']))
+				$product['price'] = (float)Tools::displayPrice(Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
 			$result_products[] = $this->wrapProduct($product, $extras, $index, $full);
+		}
 
 		return $result_products;
 	}
@@ -398,10 +405,6 @@ class Ganalytics extends Module
 				$product_type = 'pack';
 			elseif (isset($product['virtual']) && $product['virtual'] == 1)
 				$product_type = 'virtual';
-
-			// Fix notice on PS 1.5
-			if (!isset($product['price']))
-				$product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $product);
 
 			$ga_product = array(
 				'id' => isset($product['reference']) ? $product['reference'] : $product['id_product'],
