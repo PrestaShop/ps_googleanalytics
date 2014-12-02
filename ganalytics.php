@@ -1,5 +1,5 @@
 <?php
-/*
+/**
 * 2007-2014 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -18,232 +18,651 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2011 PrestaShop SA
-*  @version  Release: $Revision$
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2014 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class GAnalytics extends Module
+class Ganalytics extends Module
 {
+	protected $js_state = 0;
+	protected $eligible = 0;
+	protected $filterable = 1;
+
 	public function __construct()
 	{
 		$this->name = 'ganalytics';
 		$this->tab = 'analytics_stats';
-		$this->version = '1.8.2';
+		$this->version = '2.0';
 		$this->author = 'PrestaShop';
-		$this->displayName = 'Google Analytics';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
+		$this->bootstrap = true;
 
 		parent::__construct();
 
-		if ($this->id && !Configuration::get('GANALYTICS_ID'))
-			$this->warning = $this->l('You have not yet set your Google Analytics ID');
-		$this->description = $this->l('Integrate Google Analytics script into your shop');
-		$this->confirmUninstall = $this->l('Are you sure you want to delete your details ?');
-
-		/** Backward compatibility */
-		require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
+		$this->displayName = $this->l('Google Analytics');
+		$this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
+		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
+		/* Backward compatibility */
+		if (version_compare(_PS_VERSION_, '1.5', '<'))
+			require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
 	}
 
 	public function install()
 	{
-		return (parent::install() && $this->registerHook('header') && $this->registerHook('orderConfirmation'));
+		if (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive())
+			Shop::setContext(Shop::CONTEXT_ALL);
+
+		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
+			|| !$this->registerHook('footer') || !$this->registerHook('home')
+			|| !$this->registerHook('productfooter') || !$this->registerHook('top')
+			|| !$this->registerHook('backOfficeHeader'))
+			return false;
+
+		if (version_compare(_PS_VERSION_, '1.5', '>=')
+			&& (!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
+			return false;
+
+		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
+
+		if (!Db::getInstance()->Execute('
+			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
+				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
+				`id_order` int(11) NOT NULL,
+				`sent` tinyint(1) DEFAULT NULL,
+				`date_add` datetime DEFAULT NULL,
+				PRIMARY KEY (`id_google_analytics`),
+				KEY `id_order` (`id_order`),
+				KEY `sent` (`sent`)
+			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
+			return $this->uninstall();
+
+		return true;
 	}
 
-	public function getContent()
+	public function uninstall()
 	{
-		$output = '<h2>Google Analytics</h2>';
-		if (Tools::isSubmit('submitGAnalytics'))
-		{
-			if (in_array(Tools::getValue('ganalytics_id'), array('UA-1234567-1', 'UA-XXXXXXX-X')) == false)
-				Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-			else
-				Configuration::deleteByName('GANALYTICS_CONFIGURATION_OK');
-			
-			Configuration::updateValue('GANALYTICS_ID', Tools::getValue('ganalytics_id'));
-			Configuration::updateValue('UGANALYTICS', Tools::getValue('universal_analytics'));
-			$output .= '
-			<div class="conf confirm">
-				<img src="../img/admin/ok.gif" alt="" title="" />
-				'.$this->l('Settings updated').'
-			</div>';
-		}
+		if (!parent::uninstall())
+			return false;
 
-		return $output.$this->displayForm();
+		return Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
 	}
 
 	public function displayForm()
 	{
-		$output = '
-		<form action="'.Tools::safeOutput($_SERVER['REQUEST_URI']).'" method="post">
-			<fieldset class="width2">
-				<legend><img src="../img/admin/cog.gif" alt="" class="middle" />'.$this->l('Settings').'</legend>
-				<label>'.$this->l('Your username').'</label>
-				<div class="margin-form">
-					<input type="text" name="ganalytics_id" value="'.Tools::safeOutput(Tools::getValue('ganalytics_id', Configuration::get('GANALYTICS_ID'))).'" />
-					<p class="clear">'.$this->l('Example:').' UA-1234567-1</p>
-					<input type="checkbox" name="universal_analytics" '.(Tools::getValue('universal_analytics', Configuration::get('UGANALYTICS')) ? 'checked="checked"' : '').' />
-					<p class="clear">'.$this->l('Universal Analytics Active').'</p>
-				</div>
-				<center><input type="submit" name="submitGAnalytics" value="'.$this->l('Update ID').'" class="button" /></center>
-			</fieldset>
-		</form>';
+		// Get default language
+		$default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
 
-		$output .= '
-		<fieldset class="space">
-			<legend><img src="../img/admin/unknown.gif" alt="" class="middle" />'.$this->l('Help').'</legend>
-			 <h3>'.$this->l('The first step of tracking e-commerce transactions is to enable e-commerce reporting for your website\'s profile.').'</h3>
-			 '.$this->l('To enable e-Commerce reporting, please follow these steps:').'
-			 <ol>
-			 	<li>'.$this->l('Log in to your account').'</li>
-			 	<li>'.$this->l('Click Edit next to the profile you would like to enable.').'</li>
-			 	<li>'.$this->l('On the Profile Settings page, click Edit (next to Main Website Profile Information).').'</li>
-			 	<li>'.$this->l('Change the e-Commerce Website radio button from No to Yes').'</li>
-			</ol>
-			<h3>'.$this->l('To set up your goals, enter Goal Information:').'</h3>
-			<ol>
-				<li>'.$this->l('Return to Your Account main page').'</li>
-				<li>'.$this->l('Find the profile for which you will be creating goals, then click Edit').'</li>
-				<li>'.$this->l('Select one of the 4 goal slots available for that profile, then click Edit').'</li>
-				<li>'.$this->l('Enter the Goal URL. Reaching this page marks a successful conversion.').'</li>
-				<li>'.$this->l('Enter the Goal name as it should appear in your Google Analytics account.').'</li>
-				<li>'.$this->l('Turn on Goal.').'</li>
-			</ol>
-			<h3>'.$this->l('Then, define a funnel by following these steps:').'</h3>
-			<ol>
-				<li>'.$this->l('Enter the URL of the first page of your conversion funnel. This page should be a common page to all users working their way towards your Goal.').'</li>
-				<li>'.$this->l('Enter a Name for this step.').'</li>
-				<li>'.$this->l('If this step is a required step in the conversion process, mark the checkbox to the right of the step.').'</li>
-				<li>'.$this->l('Continue entering goal steps until your funnel has been completely defined. You may enter up to 10 steps, or only one step.').'</li>
-			</ol>
-			'.$this->l('Finally, configure Additional settings by following the steps below:').'
-			<ol>
-				<li>'.$this->l('If the URLs entered above are case sensitive, mark the checkbox.').'</li>
-				<li>'.$this->l('Select the appropriate goal Match Type. (').'<a href="http://www.google.com/support/analytics/bin/answer.py?answer=72285">'.$this->l('Learn more').'</a> '.$this->l('about Match Types and how to choose the appropriate goal Match Type for your goal.)').'</li>
-				<li>'.$this->l('Enter a Goal value. This is the value used in Google Analytics\' ROI calculations.').'</li>
-				<li>'.$this->l('Click Save Changes to create this Goal and funnel, or Cancel to exit without saving.').'</li>
-			</ol>
-			<h3>'.$this->l('Demonstration: The order process').'</h3>
-			<ol>
-				<li>'.$this->l('After having enabled your e-commerce reports and selected the respective profile enter \'order-confirmation.php\' as the targeted page URL.').'</li>
-				<li>'.$this->l('Name this goal (for example \'Order process\')').'</li>
-				<li>'.$this->l('Activate the goal').'</li>
-				<li>'.$this->l('Add \'product.php\' as the first page of your conversion funnel').'</li>
-				<li>'.$this->l('Give it a name (for example, \'Product page\')').'</li>
-				<li>'.$this->l('Do not mark the \'required\' checkbox because the customer could be visiting directly from an \'adding to cart\' button such as in the homefeatured block on the homepage.').'</li>
-				<li>'.$this->l('Continue by entering the following URLs as goal steps:').'
-					<ul>
-						<li>order/step0.html '.$this->l('(required)').'</li>
-						<li>authentication.php '.$this->l('(required)').'</li>
-						<li>order/step1.html '.$this->l('(required)').'</li>
-						<li>order/step2.html '.$this->l('(required)').'</li>
-						<li>order/step3.html '.$this->l('(required)').'</li>
-					</ul>
-				</li>
-				<li>'.$this->l('Check the \'Case sensitive\' option').'</li>
-				<li>'.$this->l('Save this new goal').'</li>
-			</ol>
-		</fieldset>';
+		$helper = new HelperForm();
 
-		return $output;
+		// Module, token and currentIndex
+		$helper->module = $this;
+		$helper->name_controller = $this->name;
+		$helper->token = Tools::getAdminTokenLite('AdminModules');
+		$helper->currentIndex = AdminController::$currentIndex.'&configure='.$this->name;
+
+		// Language
+		$helper->default_form_language = $default_lang;
+		$helper->allow_employee_form_lang = $default_lang;
+
+		// Title and toolbar
+		$helper->title = $this->displayName;
+		$helper->show_toolbar = true;        // false -> remove toolbar
+		$helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
+		$helper->submit_action = 'submit'.$this->name;
+		$helper->toolbar_btn = array(
+			'save' =>
+				array(
+					'desc' => $this->l('Save'),
+					'href' => AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
+					'&token='.Tools::getAdminTokenLite('AdminModules'),
+				),
+			'back' => array(
+				'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
+				'desc' => $this->l('Back to list')
+			)
+		);
+
+		$fields_form = array();
+		// Init Fields form array
+		$fields_form[0]['form'] = array(
+			'legend' => array(
+				'title' => $this->l('Settings'),
+			),
+			'input' => array(
+				array(
+					'type' => 'text',
+					'label' => $this->l('Google Analytics Tracking ID'),
+					'name' => 'GA_ACCOUNT_ID',
+					'size' => 20,
+					'required' => true,
+					'hint' => $this->l('This information is available in your Google Analytics account')
+				),
+			),
+			'submit' => array(
+				'title' => $this->l('Save'),
+			)
+		);
+
+		// Load current value
+		$helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
+
+		return $helper->generateForm($fields_form);
 	}
 
-	public function hookHeader($params)
+	/**
+	* back office module configuration page content
+	*/
+	public function getContent()
 	{
-		if ((method_exists('Language', 'isMultiLanguageActivated') && Language::isMultiLanguageActivated())
-			|| Language::countActiveLanguages() > 1
-		)
-			$multilang = (string)Tools::getValue('isolang').'/';
-		else
-			$multilang = '';
-
-		$default_meta_order = Meta::getMetaByPage('order', $this->context->language->id);
-		if (strpos($_SERVER['REQUEST_URI'], __PS_BASE_URI__.'order.php') === 0 || strpos($_SERVER['REQUEST_URI'], __PS_BASE_URI__.$multilang.$default_meta_order['url_rewrite']) === 0)
-			$this->context->smarty->assign('pageTrack', '/order/step'.(int)Tools::getValue('step').'.html');
-
-		$this->context->smarty->assign('ganalytics_id', Configuration::get('GANALYTICS_ID'));
-		$this->context->smarty->assign('universal_analytics', Configuration::get('UGANALYTICS'));
-		$this->context->smarty->assign('isOrder', false);
-
-		return $this->display(__FILE__, 'views/templates/hook/header.tpl');
-	}
-
-	public function hookFooter($params)
-	{
-		// for retrocompatibility
-		if (!$this->isRegisteredInHook('header'))
-			$this->registerHook('header');
-	}
-
-	public function hookOrderConfirmation($params)
-	{
-		// Setting parameters
-		$parameters = Configuration::getMultiple(array('PS_LANG_DEFAULT'));
-
-		$order = $params['objOrder'];
-		if (Validate::isLoadedObject($order))
+		$output = '';
+		if (Tools::isSubmit('submit'.$this->name))
 		{
-			$delivery_address = new Address((int)$order->id_address_delivery);
-
-			$conversion_rate = 1;
-			$currency = new Currency((int)$order->id_currency);
-
-			if ($order->id_currency != Configuration::get('PS_CURRENCY_DEFAULT'))
-				$conversion_rate = (int)$currency->conversion_rate;
-
-			$state_name = '';
-			if ((int)$delivery_address->id_state > 0)
+			$ga_account_id = Tools::getValue('GA_ACCOUNT_ID');
+			if (!empty($ga_account_id))
 			{
-				$state = New State($delivery_address->id_state);
-				$state_name = $state->name;
+				Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
+				$output .= $this->displayConfirmation($this->l('Settings updated successfully'));
 			}
+		}
 
-			// Order general information
-			$trans = array(
-				'id' => (int)$order->id,
-				'store' => htmlentities(Configuration::get('PS_SHOP_NAME')),
-				'total' => Tools::ps_round((float)$order->total_paid / (float)$conversion_rate, 2),
-				'tax' => $order->getTotalProductsWithTaxes() - $order->getTotalProductsWithoutTaxes(),
-				'shipping' => Tools::ps_round((float)$order->total_shipping / (float)$conversion_rate, 2),
-				'city' => addslashes($delivery_address->city),
-				'state' => $state_name,
-				'country' => addslashes($delivery_address->country),
-				'currency' => $currency->iso_code
+		if (version_compare(_PS_VERSION_, '1.5', '>='))
+			$output .= $this->displayForm();
+		else
+		{
+			$this->context->smarty->assign(array(
+				'account_id' => Configuration::get('GA_ACCOUNT_ID'),
+			));
+			$output .= $this->display(__FILE__, 'views/templates/admin/form-ps14.tpl');
+		}
+
+		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
+	}
+
+	private function _getGoogleAnalyticsTag($back_office = false)
+	{
+			return '
+			<script type="text/javascript">
+				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
+				(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
+				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
+				'.($back_office ? 'ga(\'require\', \'ecommerce\');' : '').'
+				ga(\'require\', \'ec\');
+			</script>';
+	}
+
+	public function hookHeader()
+	{
+		if (Configuration::get('GA_ACCOUNT_ID'))
+		{
+			$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+
+			return $this->_getGoogleAnalyticsTag();
+		}
+	}
+
+	/**
+	* Return a detailed transaction for Google Analytics
+	*/
+	public function wrapOrder($id_order)
+	{
+		$order = new Order((int)$id_order);
+
+		if (Validate::isLoadedObject($order))
+			return array(
+				'orderid' => $id_order,
+				'storename' => $this->context->shop->name,
+				'grandtotal' => $order->total_paid,
+				'shipping' => $order->total_shipping,
+				'tax' => $order->total_paid_tax_incl,
+				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
+	}
+
+	/**
+	* To track transactions
+	*/
+	public function hookTop()
+	{
+		// Add Google Analytics order - Only on Order's confirmation page
+		$controller_name = Tools::getValue('controller');
+		if ($controller_name == 'orderconfirmation')
+		{
+			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
+			if ($ga_order_sent === false)
+			{
+				$order = new Order($this->context->controller->id_order);
+				if (!Validate::isLoadedObject($order))
+					return;
+
+				$order_products = array();
+				foreach ($order->getProducts() as $order_product)
+					$order_products[] = $this->wrapProduct((int)$order_product['product_id'], array('qty' => $order_product['product_quantity']), 0, true);
+
+				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
+				$ga_order_sent = 0;
+
+				$transaction = array(
+					'orderid' => $order->reference,
+					'affiliation' => $this->context->shop->name,
+					'revenue' => $order->total_paid,
+					'shipping' => $order->total_shipping,
+					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
+				$ga_scripts = $this->addTransaction($order_products, $transaction);
+
+				return $this->_runJs($ga_scripts);
+			}
+		}
+	}
+
+	/**
+	* hook footer to load JS script for standards actions such as product clicks
+	*/
+	public function hookFooter()
+	{
+		$ga_scripts = '';
+
+		if (isset($this->context->cookie->ga_cart))
+		{
+			$this->filterable = 0;
+			$ga_scripts .= $this->context->cookie->ga_cart;
+			unset($this->context->cookie->ga_cart);
+		}
+
+		$controller_name = Tools::getValue('controller');
+
+		if ($controller_name == 'order')
+		{
+			$this->eligible = 1;
+			$step = Tools::getValue('step');
+			if (empty($step))
+				$step = 0;
+			$products = $this->wrapProducts($this->context->smarty->getTemplateVars('products'), array(), true);
+			$ga_scripts .= $this->addProductFromCheckout($products, $step);
+			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
+		}
+
+		if ($controller_name == 'order-confirmation')
+			$this->eligible = 1;
+
+		if (isset($products) && count($products))
+		{
+			if ($this->eligible == 0)
+				$ga_scripts .= $this->addProductImpression($products);
+			$ga_scripts .= $this->addProductClick($products);
+		}
+
+		return $this->_runJs($ga_scripts);
+	}
+
+	protected function filter($ga_scripts)
+	{
+		if ($this->filterable = 1)
+			return implode(';', array_unique(explode(';', $ga_scripts)));
+
+		return $ga_scripts;
+	}
+
+	/**
+	* hook home to display generate the product list associated to home featured, news products and best sellers Modules
+	*/
+	public function hookHome()
+	{
+		$ga_scripts = '';
+
+		// Home featured products
+		if ($this->isModuleEnabled('homefeatured'))
+		{
+			$category = new Category($this->context->shop->getCategory(), $this->context->language->id);
+			$home_featured_products = $this->wrapProducts($category->getProducts((int)Context::getContext()->language->id, 1,
+			(Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8), 'position'), array(), true);
+			$ga_scripts .= $this->addProductImpression($home_featured_products).$this->addProductClick($home_featured_products);
+		}
+
+		// New products
+		if ($this->isModuleEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') || Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
+		{
+			$new_products = Product::getNewProducts((int)$this->context->language->id, 0, (int)Configuration::get('NEW_PRODUCTS_NBR'));
+			$new_products_list = $this->wrapProducts($new_products, array(), true);
+			$ga_scripts .= $this->addProductImpression($new_products_list).$this->addProductClick($new_products_list);
+		}
+
+		// Best Sellers
+		if ($this->isModuleEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE') || Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
+		{
+			$ga_homebestsell_product_list = $this->wrapProducts(ProductSale::getBestSalesLight((int)$this->context->language->id, 0, 8), array(), true);
+			$ga_scripts .= $this->addProductImpression($ga_homebestsell_product_list).$this->addProductClick($ga_homebestsell_product_list);
+		}
+
+		return $this->_runJs($this->filter($ga_scripts));
+	}
+
+	/**
+	* hook home to display generate the product list associated to home featured, news products and best sellers Modules
+	*/
+	public function isModuleEnabled($name)
+	{
+		if (version_compare(_PS_VERSION_, '1.5', '>='))
+			return Module::isEnabled($name);
+		else
+		{
+			$module = Module::getInstanceByName($name);
+			return ($module && $module->active === true);
+		}
+	}
+
+	/**
+	* wrap products to provide a standard products information for google analytics script
+	*/
+	public function wrapProducts($products, $extras = array(), $full = false)
+	{
+		$result_products = array();
+		if (!is_array($products))
+			return;
+
+		$currency = new Currency($this->context->currency->id);
+		$usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
+		foreach ($products as $index => $product)
+		{
+			if (!isset($product['price']))
+				$product['price'] = (float)Tools::displayPrice(Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
+			$result_products[] = $this->wrapProduct($product, $extras, $index, $full);
+		}
+
+		return $result_products;
+	}
+
+	/**
+	* wrap product to provide a standard product information for google analytics script
+	*/
+	public function wrapProduct($product, $extras, $index = 0, $full = false)
+	{
+		$ga_product = '';
+
+		$variant = null;
+		if (isset($product['attributes_small']))
+			$variant = $product['attributes_small'];
+		elseif (isset($extras['attributes_small']))
+			$variant = $extras['attributes_small'];
+
+		$product_qty = 1;
+		if (isset($extras['qty']))
+			$product_qty = $extras['qty'];
+		elseif (isset($product['cart_quantity']))
+			$product_qty = $product['cart_quantity'];
+
+		if ($full)
+		{
+			$product_type = 'typical';
+			if (isset($product['pack']) && $product['pack'] == 1)
+				$product_type = 'pack';
+			elseif (isset($product['virtual']) && $product['virtual'] == 1)
+				$product_type = 'virtual';
+
+			$ga_product = array(
+				'id' => isset($product['reference']) ? $product['reference'] : $product['id_product'],
+				'name' => $product['name'],
+				'category' => $product['category'],
+				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
+				'variant' => $variant,
+				'type' => $product_type,
+				'position' => $index ? $index : '0',
+				'quantity' => $product_qty,
+				'list' => Tools::getValue('controller'),
+				'url' => isset($product['link']) ? $product['link'] : '',
+				'price' => number_format($product['price'], '2')
 			);
+		}
 
-			// Product information
-			$products = $order->getProducts();
-			$items = array();
-			foreach ($products as $product)
+		return $ga_product;
+	}
+
+	/**
+	* add order transaction
+	*/
+	public function addTransaction($products, $order)
+	{
+		if (!is_array($products))
+			return;
+
+		$js = '';
+		foreach ($products as $product)
+			$js .= 'MBG.add('.Tools::jsonEncode($product).');';
+
+		return $js.'MBG.addTransaction('.Tools::jsonEncode($order).');';
+	}
+
+	/**
+	* add product impression js and product click js
+	*/
+	public function addProductImpression($products)
+	{
+		if (!is_array($products))
+			return;
+
+		$js = '';
+		foreach ($products as $product)
+			$js .= 'MBG.add('.Tools::jsonEncode($product).",'',true);";
+
+		return $js;
+	}
+
+	public function addProductClick($products)
+	{
+		if (!is_array($products))
+			return;
+
+		$js = '';
+		foreach ($products as $product)
+			$js .= 'MBG.addProductClick('.Tools::jsonEncode($product).');';
+
+		return $js;
+	}
+
+	public function addProductClickByHttpReferal($products)
+	{
+		if (!is_array($products))
+			return;
+
+		$js = '';
+		foreach ($products as $product)
+			$js .= 'MBG.addProductClickByHttpReferal('.Tools::jsonEncode($product).');';
+
+		return $js;
+	}
+
+	/**
+	* Add product checkout info
+	*/
+	public function addProductFromCheckout($products)
+	{
+		if (!is_array($products))
+			return;
+
+		$js = '';
+		foreach ($products as $product)
+			$js .= 'MBG.add('.Tools::jsonEncode($product).');';
+
+		return $js;
+	}
+
+	/**
+	* hook product page footer to load JS for product details view
+	*/
+	public function hookFooterProduct($params)
+	{
+		$controller_name = Tools::getValue('controller');
+		if ($controller_name == 'product')
+		{
+			// Add product view
+			$ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
+			$js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
+
+			if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0)
+				$js .= $this->addProductClickByHttpReferal(array($ga_product));
+
+			return $this->_runJs($js);
+		}
+	}
+
+	/**
+	* Generate Google Analytics js
+	*/
+	private function _runJs($js_code)
+	{
+		if (Configuration::get('GA_ACCOUNT_ID'))
+		{
+
+			if ($this->js_state != 1 && !defined('_PS_ADMIN_DIR_'))
+				$js_code .= 'ga(\'send\', \'pageview\');';
+
+			return '
+			<script type="text/javascript">
+				jQuery(document).ready(function(){
+					var MBG = GoogleAnalyticEnhancedECommerce;
+					MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
+					'.$js_code.'
+				});
+			</script>';
+		}
+	}
+
+	/**
+	* Hook admin order to send transactions and refunds details
+	*/
+	public function hookAdminOrder()
+	{
+		echo $this->_runJs($this->context->cookie->ga_admin_refund);
+		unset($this->context->cookie->ga_admin_refund);
+	}
+
+	/**
+	 *  admin office header to add google analytics js
+	 */
+	public function hookBackOfficeHeader()
+	{
+		$js = '';
+		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
+		{
+			if (version_compare(_PS_VERSION_, '1.5', '>') == true)
 			{
-				$category = Db::getInstance()->getRow('
-								SELECT name FROM `'._DB_PREFIX_.'category_lang` , '._DB_PREFIX_.'product 
-								WHERE `id_product` = '.(int)$product['product_id'].' AND `id_category_default` = `id_category`
-								AND `id_lang` = '.(int)$parameters['PS_LANG_DEFAULT']);
-
-				$items[] = array(
-					'OrderId' => (int)$order->id,
-					'SKU' => addslashes($product['product_id']),
-					'Product' => addslashes($product['product_name']),
-					'Category' => addslashes($category['name']),
-					'Price' => Tools::ps_round((float)$product['product_price_wt'] / (float)$conversion_rate, 2),
-					'Quantity' => addslashes((int)$product['product_quantity'])
-				);
+				$this->context->controller->addCSS($this->_path.'views/css/ganalytics.css');
+				if (version_compare(_PS_VERSION_, '1.6', '<') == true)
+					$this->context->controller->addCSS($this->_path.'views/css/ganalytics-nobootstrap.css');
 			}
-			$ganalytics_id = Configuration::get('GANALYTICS_ID');
+			else
+			{
+				$js .= '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />'.
+					'<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
+			}
+		}
 
-			$this->context->smarty->assign('items', $items);
-			$this->context->smarty->assign('trans', $trans);
-			$this->context->smarty->assign('ganalytics_id', $ganalytics_id);
-			$this->context->smarty->assign('universal_analytics', Configuration::get('UGANALYTICS'));
-			$this->context->smarty->assign('isOrder', true);
+		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
-			return $this->display(__FILE__, 'views/templates/hook/header.tpl');
+		if (!empty($ga_account_id))
+		{
+			if (version_compare(_PS_VERSION_, '1.5', '>=') == true)
+				$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+			else
+				$js .= '<script type="text/javascript" src="'.$this->_path.'views/js/GoogleAnalyticActionLib.js"></script>';
+
+			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
+
+			$ga_scripts = '';
+			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0');
+
+			if ($ga_order_records)
+				foreach ($ga_order_records as $row)
+				{
+					$transaction = $this->wrapOrder($row['id_order']);
+					if (!empty($transaction))
+					{
+						$transaction = Tools::jsonEncode($transaction);
+						$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+					}
+				}
+
+			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts);
+		}
+		else return $js;
+	}
+
+	/**
+	 * Hook admin office header to add google analytics js
+	*/
+	public function hookActionProductCancel($params)
+	{
+		$qty_refunded = Tools::getValue('cancelQuantity');
+		$ga_scripts = '';
+		foreach ($qty_refunded as $orderdetail_id => $qty)
+		{
+			// Display GA refund product
+			$order_detail = new OrderDetail($orderdetail_id);
+			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => $order_detail->product_reference, 'quantity' => $qty)).');';
+		}
+		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->reference)).');';
+	}
+
+	/**
+	 * hook save cart event to implement addtocart and remove from cart functionality
+	*/
+	public function hookActionCartSave()
+	{
+		if (!isset($this->context->cart))
+			return;
+
+		$ga_scripts  = '';
+
+		$cart = array(
+			'controller' => Tools::getValue('controller'),
+			'addAction' => Tools::getValue('add') ? 'add' : '',
+			'removeAction' => Tools::getValue('delete') ? 'delete' : '',
+			'extraAction' => Tools::getValue('op'),
+			'qty' => (int)Tools::getValue('qty') ? : '1');
+
+		$cart_products = $this->context->cart->getProducts();
+		if (isset($cart_products) && count($cart_products))
+			foreach ($cart_products as $cart_product)
+				if ($cart_product['id_product'] == Tools::getValue('id_product'))
+					$add_product = $cart_product;
+
+		if ($cart['removeAction'] == 'delete')
+		{
+			$add_product_object = new Product((int)Tools::getValue('id_product'), true, (int)Configuration::get('PS_LANG_DEFAULT'));
+			if (Validate::isLoadedObject($add_product_object))
+			{
+				$add_product['name'] = $add_product_object->name;
+				$add_product['manufacturer_name'] = $add_product_object->manufacturer_name;
+				$add_product['category'] = $add_product_object->category;
+				$add_product['reference'] = $add_product_object->reference;
+				$add_product['link_rewrite'] = $add_product_object->link_rewrite;
+				$add_product['link'] = $add_product_object->link_rewrite;
+				$add_product['price'] = $add_product_object->price;
+				$add_product['ean13'] = $add_product_object->ean13;
+				$add_product['id_product'] = Tools::getValue('id_product');
+				$add_product['id_category_default'] = $add_product_object->id_category_default;
+				$add_product['out_of_stock'] = $add_product_object->out_of_stock;
+				$add_product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $add_product);
+			}
+		}
+
+		if (isset($add_product))
+		{
+			$ga_products = $this->wrapProduct($add_product, array(), 0, true);
+
+			if ($cart['removeAction'] == 'delete' || $cart['extraAction'] == 'down')
+				$ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($ga_products).');';
+			elseif (Tools::getValue('step') <= 0) // Sometimes cartsave is called in checkout
+				$ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($ga_products).');';
+
+			$this->context->cookie->ga_cart .= $ga_scripts;
 		}
 	}
 }

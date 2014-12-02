@@ -1,5 +1,4 @@
-<?php
-/*
+{*
 * 2007-2014 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -20,16 +19,28 @@
 *
 *  @author PrestaShop SA <contact@prestashop.com>
 *  @copyright  2007-2014 PrestaShop SA
+*  @version  Release: $Revision: 7040 $
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
-*/
+*}
+<form enctype="multipart/form-data" method="post" class="defaultForm ganalytics" id="configuration_form">
+	<fieldset id="fieldset_0">
+		<legend>
+			Paramètres
+		</legend>
 
-header('Expires: Mon, 26 Jul 1998 05:00:00 GMT');
-header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+		<label>Google Analytics Tracking ID </label>							
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
+		<div class="margin-form">
+			<input type="text" size="20" class="" value="{$account_id|escape:htmlall}" id="GA_ACCOUNT_ID" name="GA_ACCOUNT_ID">&nbsp;<sup>*</sup>
+			<span name="help_box" class="hint" style="display: none;">This information is available in your Google Analytics account<span class="hint-pointer"></span></span>  
+		</div>
+		<div class="clear"></div>
 
-header('Location: ../');
-exit;
+		<div class="margin-form">
+			<input class="button" type="submit" name="submitganalytics" value="{l s='Save' mod='ganalytics'}" id="configuration_form_submit_btn">
+		</div>
+
+		<div class="small"><sup>*</sup> Champ requis</div>
+	</fieldset>
+</form>

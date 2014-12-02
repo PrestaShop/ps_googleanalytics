@@ -1,0 +1,17 @@
+#content .panel {
+	margin: 0 auto;
+	max-width: 1300px;
+}
+
+#content .panel p {
+	margin-bottom:2em;
+}
+
+#advantages_list .col-xs-6 {
+	height:5em;
+}
+
+#advantages_list div > img {
+	margin: 1em;
+	width: 60px;
+}
