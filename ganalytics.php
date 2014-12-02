@@ -399,6 +399,10 @@ class Ganalytics extends Module
 			elseif (isset($product['virtual']) && $product['virtual'] == 1)
 				$product_type = 'virtual';
 
+			// Fix notice on PS 1.5
+			if (!isset($product['price']))
+				$product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $product);
+
 			$ga_product = array(
 				'id' => isset($product['reference']) ? $product['reference'] : $product['id_product'],
 				'name' => $product['name'],
