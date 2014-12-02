@@ -22,16 +22,16 @@
 *  @copyright 2007-2014 PrestaShop SA
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
-**/
+*/
 
 if (!defined('_PS_VERSION_'))
 	exit;
 
 class Ganalytics extends Module
 {
-	protected $_js_state = 0;
-	protected $_eligible = 0;
-	protected $_filterable = 1;
+	protected $js_state = 0;
+	protected $eligible = 0;
+	protected $filterable = 1;
 
 	public function __construct()
 	{
@@ -63,8 +63,8 @@ class Ganalytics extends Module
 			|| !$this->registerHook('backOfficeHeader'))
 			return false;
 
-		if (version_compare(_PS_VERSION_, '1.5', '>=') && 
-			(!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
+		if (version_compare(_PS_VERSION_, '1.5', '>=')
+			&& (!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
@@ -271,7 +271,7 @@ class Ganalytics extends Module
 
 		if (isset($this->context->cookie->ga_cart))
 		{
-			$this->_filterable = 0;
+			$this->filterable = 0;
 			$ga_scripts .= $this->context->cookie->ga_cart;
 			unset($this->context->cookie->ga_cart);
 		}
@@ -280,7 +280,7 @@ class Ganalytics extends Module
 
 		if ($controller_name == 'order')
 		{
-			$this->_eligible = 1;
+			$this->eligible = 1;
 			$step = Tools::getValue('step');
 			if (empty($step))
 				$step = 0;
@@ -290,11 +290,11 @@ class Ganalytics extends Module
 		}
 
 		if ($controller_name == 'order-confirmation')
-			$this->_eligible = 1;
+			$this->eligible = 1;
 
 		if (isset($products) && count($products))
 		{
-			if ($this->_eligible == 0)
+			if ($this->eligible == 0)
 				$ga_scripts .= $this->addProductImpression($products);
 			$ga_scripts .= $this->addProductClick($products);
 		}
@@ -304,7 +304,7 @@ class Ganalytics extends Module
 
 	protected function filter($ga_scripts)
 	{
-		if ($this->_filterable = 1)
+		if ($this->filterable = 1)
 			return implode(';', array_unique(explode(';', $ga_scripts)));
 
 		return $ga_scripts;
@@ -520,7 +520,7 @@ class Ganalytics extends Module
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
 
-			if ($this->_js_state != 1 && !defined('_PS_ADMIN_DIR_'))
+			if ($this->js_state != 1 && !defined('_PS_ADMIN_DIR_'))
 				$js_code .= 'ga(\'send\', \'pageview\');';
 
 			return '
@@ -563,7 +563,7 @@ class Ganalytics extends Module
 					'<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
 			}
 		}
-		
+
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
 		if (!empty($ga_account_id))
