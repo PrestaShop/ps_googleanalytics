@@ -625,7 +625,7 @@ class Ganalytics extends Module
 			'addAction' => Tools::getValue('add') ? 'add' : '',
 			'removeAction' => Tools::getValue('delete') ? 'delete' : '',
 			'extraAction' => Tools::getValue('op'),
-			'qty' => (int)Tools::getValue('qty') ? : '1');
+			'qty' => (int)Tools::getValue('qty') ? (int)Tools::getValue('qty') : '1');
 
 		$cart_products = $this->context->cart->getProducts();
 		if (isset($cart_products) && count($cart_products))
