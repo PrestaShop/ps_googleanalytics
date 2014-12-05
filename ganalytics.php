@@ -37,7 +37,7 @@ class Ganalytics extends Module
 	{
 		$this->name = 'ganalytics';
 		$this->tab = 'analytics_stats';
-		$this->version = '2.0';
+		$this->version = '2.0.1';
 		$this->author = 'PrestaShop';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
@@ -625,7 +625,7 @@ class Ganalytics extends Module
 			'addAction' => Tools::getValue('add') ? 'add' : '',
 			'removeAction' => Tools::getValue('delete') ? 'delete' : '',
 			'extraAction' => Tools::getValue('op'),
-			'qty' => (int)Tools::getValue('qty') ? (int)Tools::getValue('qty') : '1');
+			'qty' => (int)Tools::getValue('qty', 1);
 
 		$cart_products = $this->context->cart->getProducts();
 		if (isset($cart_products) && count($cart_products))
