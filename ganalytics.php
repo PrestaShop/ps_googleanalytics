@@ -8,7 +8,7 @@
 * that is bundled with this package in the file LICENSE.txt.
 * It is also available through the world-wide-web at this URL:
 * http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
+* If you did not receive a copy of the license and are unable toc
 * obtain it through the world-wide-web, please send an email
 * to license@prestashop.com so we can send you a copy immediately.
 *
@@ -232,7 +232,7 @@ class Ganalytics extends Module
 	{
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
-		if ($controller_name == 'order-confirmation')
+		if ($controller_name == 'orderconfirmation')
 		{
 			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
 			if ($ga_order_sent === false)
@@ -289,7 +289,7 @@ class Ganalytics extends Module
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
 
-		if ($controller_name == 'order-confirmation')
+		if ($controller_name == 'orderconfirmation')
 			$this->eligible = 1;
 
 		if (isset($products) && count($products))
