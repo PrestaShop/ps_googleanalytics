@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class GoogleanalyticsActionModuleFrontController extends ModuleFrontController
+class ganalyticsactionModuleFrontController extends ModuleFrontController
 {
 	/*
 	 * @see FrontController::initContent()
