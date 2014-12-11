@@ -232,7 +232,7 @@ class Ganalytics extends Module
 	{
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
-		if ($controller_name == 'orderconfirmation')
+		if ($controller_name == 'order-confirmation')
 		{
 			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
 			if ($ga_order_sent === false)
