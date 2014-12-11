@@ -496,7 +496,7 @@ class Ganalytics extends Module
 	/**
 	* hook product page footer to load JS for product details view
 	*/
-	public function hookDisplayFooterProduct($params)
+	public function hookProductFooter($params)
 	{
 		$controller_name = Tools::getValue('controller');
 		if ($controller_name == 'product')
