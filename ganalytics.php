@@ -249,7 +249,7 @@ class Ganalytics extends Module
 				$ga_order_sent = 0;
 
 				$transaction = array(
-					'orderid' => $order->reference,
+					'id' => $order->reference,
 					'affiliation' => $this->context->shop->name,
 					'revenue' => $order->total_paid,
 					'shipping' => $order->total_shipping,
