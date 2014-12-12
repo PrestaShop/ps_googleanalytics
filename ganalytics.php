@@ -242,8 +242,9 @@ class Ganalytics extends Module
 					return;
 
 				$order_products = array();
-				foreach ($order->getProducts() as $order_product)
-					$order_products[] = $this->wrapProduct((int)$order_product['product_id'], array('qty' => $order_product['product_quantity']), 0, true);
+                                $cart = new Cart($order->id_cart);
+				foreach ($cart->getProducts() as $order_product)
+					$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
 				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
 				$ga_order_sent = 0;
@@ -407,7 +408,7 @@ class Ganalytics extends Module
 				$product_type = 'virtual';
 
 			$ga_product = array(
-				'id' => isset($product['reference']) ? $product['reference'] : $product['id_product'],
+				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
 				'name' => $product['name'],
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
