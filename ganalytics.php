@@ -257,6 +257,7 @@ class Ganalytics extends Module
 					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
 				$ga_scripts = $this->addTransaction($order_products, $transaction);
 
+				$this->js_state = 1;
 				return $this->_runJs($ga_scripts);
 			}
 		}
@@ -290,7 +291,15 @@ class Ganalytics extends Module
 		}
 
 		if ($controller_name == 'orderconfirmation')
+		{
+			$this->js_state = 1;
 			$this->eligible = 1;
+		}
+		
+		if($controller_name == 'product')
+		{
+			$this->js_state = 1;
+		}
 
 		if (isset($products) && count($products))
 		{
@@ -523,14 +532,15 @@ class Ganalytics extends Module
 			if ($this->js_state != 1 && !defined('_PS_ADMIN_DIR_'))
 				$js_code .= 'ga(\'send\', \'pageview\');';
 
-			return '
-			<script type="text/javascript">
-				jQuery(document).ready(function(){
-					var MBG = GoogleAnalyticEnhancedECommerce;
-					MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
-					'.$js_code.'
-				});
-			</script>';
+			if (!empty($js_code))
+				return '
+				<script type="text/javascript">
+					jQuery(document).ready(function(){
+						var MBG = GoogleAnalyticEnhancedECommerce;
+						MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
+						'.$js_code.'
+					});
+				</script>';
 		}
 	}
 
