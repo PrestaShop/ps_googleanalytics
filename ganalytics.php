@@ -231,34 +231,30 @@ class Ganalytics extends Module
 	public function hookOrderConfirmation()
 	{
 		// Add Google Analytics order - Only on Order's confirmation page
-		$controller_name = Tools::getValue('controller');
-		if ($controller_name == 'orderconfirmation')
+		$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
+		if ($ga_order_sent === false)
 		{
-			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
-			if ($ga_order_sent === false)
-			{
-				$order = new Order($this->context->controller->id_order);
-				if (!Validate::isLoadedObject($order))
-					return;
+			$order = new Order($this->context->controller->id_order);
+			if (!Validate::isLoadedObject($order))
+				return;
 
-				$order_products = array();
-				foreach ($order->getProducts() as $order_product)
-					$order_products[] = $this->wrapProduct((int)$order_product['product_id'], array('qty' => $order_product['product_quantity']), 0, true);
+			$order_products = array();
+			foreach ($order->getProducts() as $order_product)
+				$order_products[] = $this->wrapProduct((int)$order_product['product_id'], array('qty' => $order_product['product_quantity']), 0, true);
 
-				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
-				$ga_order_sent = 0;
+			Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
+			$ga_order_sent = 0;
 
-				$transaction = array(
-					'orderid' => $order->reference,
-					'affiliation' => $this->context->shop->name,
-					'revenue' => $order->total_paid,
-					'shipping' => $order->total_shipping,
-					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
-				$ga_scripts = $this->addTransaction($order_products, $transaction);
+			$transaction = array(
+				'orderid' => $order->reference,
+				'affiliation' => $this->context->shop->name,
+				'revenue' => $order->total_paid,
+				'shipping' => $order->total_shipping,
+				'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
+			$ga_scripts = $this->addTransaction($order_products, $transaction);
 
-				return $this->_runJs($ga_scripts);
-			}
+			return $this->_runJs($ga_scripts);
 		}
 	}
 
