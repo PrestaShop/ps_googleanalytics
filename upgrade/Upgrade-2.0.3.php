@@ -11,5 +11,6 @@ function upgrade_module_2_0_3($object)
       && $object->registerHook('footer')
       && $object->registerHook('home')
       && $object->registerHook('backOfficeHeader')
-      && $object->registerHook('productfooter'));
+      && $object->registerHook('productfooter')
+      && $object->registerHook('orderConfirmation'));
 }
