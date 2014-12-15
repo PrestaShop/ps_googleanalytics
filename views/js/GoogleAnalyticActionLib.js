@@ -76,7 +76,7 @@ var GoogleAnalyticEnhancedECommerce = {
 	addProductDetailView: function(Product) {
 		this.add(Product);
 		ga('ec:setAction', 'detail');
-		ga('send', 'event', 'UX', 'click', 'Product Detail View');
+		ga('send', 'event', 'UX', 'detail', 'Product Detail View',{'nonInteraction': 1});
 	},
 
 	addToCart: function(Product) {
@@ -144,6 +144,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		});
 
 		ga('send', 'event', 'Product Click', 'click', Product.list, {
+			'nonInteraction': 1,
 			'hitCallback': function() {
 				return !ga.loaded;
 			}
