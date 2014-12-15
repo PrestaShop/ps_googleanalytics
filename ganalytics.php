@@ -59,7 +59,7 @@ class Ganalytics extends Module
 
 		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
 			|| !$this->registerHook('footer') || !$this->registerHook('home')
-			|| !$this->registerHook('productfooter') || !$this->registerHook('top')
+			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
 			|| !$this->registerHook('backOfficeHeader'))
 			return false;
 
@@ -228,7 +228,7 @@ class Ganalytics extends Module
 	/**
 	* To track transactions
 	*/
-	public function hookTop()
+	public function hookOrderConfirmation()
 	{
 		// Add Google Analytics order - Only on Order's confirmation page
 		$controller_name = Tools::getValue('controller');
@@ -289,7 +289,8 @@ class Ganalytics extends Module
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
 
-		if ($controller_name == 'orderconfirmation')
+		$confirmation_hook_id = Hook::getIdByName('orderConfirmation');
+		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
 			$this->eligible = 1;
 
 		if (isset($products) && count($products))
