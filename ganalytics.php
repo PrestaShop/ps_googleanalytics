@@ -222,7 +222,7 @@ class Ganalytics extends Module
 				'grandtotal' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl,
-				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
+				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true));
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Ganalytics extends Module
 					'revenue' => $order->total_paid,
 					'shipping' => $order->total_shipping,
 					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
+					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true));
 				$ga_scripts = $this->addTransaction($order_products, $transaction);
 
 				return $this->_runJs($ga_scripts);
