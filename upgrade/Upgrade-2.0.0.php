@@ -25,8 +25,8 @@
 */
 
 if (!defined('_PS_VERSION_'))
-    exit;
- 
+	exit;
+
 function upgrade_module_2_0_0($object)
 {
 	Configuration::updateValue('GANALYTICS', '2.0.0');
