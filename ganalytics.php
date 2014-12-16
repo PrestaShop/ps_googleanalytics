@@ -278,7 +278,7 @@ class Ganalytics extends Module
 
 		$controller_name = Tools::getValue('controller');
 
-		if ($controller_name == 'order')
+		if ($controller_name == 'order' || $controller_name == 'orderopc')
 		{
 			$this->eligible = 1;
 			$step = Tools::getValue('step');
