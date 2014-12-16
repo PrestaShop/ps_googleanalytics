@@ -37,7 +37,7 @@ class Ganalytics extends Module
 	{
 		$this->name = 'ganalytics';
 		$this->tab = 'analytics_stats';
-		$this->version = '2.0.2';
+		$this->version = '2.0.4';
 		$this->author = 'PrestaShop';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
@@ -50,6 +50,8 @@ class Ganalytics extends Module
 		/* Backward compatibility */
 		if (version_compare(_PS_VERSION_, '1.5', '<'))
 			require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
+
+		$this->checkForUpdates();
 	}
 
 	public function install()
@@ -665,5 +667,20 @@ class Ganalytics extends Module
 
 			$this->context->cookie->ga_cart .= $ga_scripts;
 		}
+	}
+
+	private function checkForUpdates()
+	{
+		// Used by PrestaShop 1.3 & 1.4
+		if (version_compare(_PS_VERSION_, '1.5', '<') && self::isInstalled($this->name))
+			foreach (array('2.0.4') as $version)
+			{
+				$file = dirname(__FILE__).'/upgrade/Upgrade-'.$version.'.php';
+				if (Configuration::get('GANALYTICS') < $version && file_exists($file))
+				{
+					include_once($file);
+					call_user_func('upgrade_module_'.str_replace('.', '_', $version), $this);
+				}
+			}
 	}
 }
