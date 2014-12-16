@@ -673,7 +673,7 @@ class Ganalytics extends Module
 	{
 		// Used by PrestaShop 1.3 & 1.4
 		if (version_compare(_PS_VERSION_, '1.5', '<') && self::isInstalled($this->name))
-			foreach (array('2.0.4') as $version)
+			foreach (array('2.0.0', '2.0.4') as $version)
 			{
 				$file = dirname(__FILE__).'/upgrade/Upgrade-'.$version.'.php';
 				if (Configuration::get('GANALYTICS') < $version && file_exists($file))
