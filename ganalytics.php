@@ -291,9 +291,7 @@ class Ganalytics extends Module
 		}
 
 		if ($controller_name == 'orderconfirmation')
-		{
 			$this->eligible = 1;
-		}
 
 		if (isset($products) && count($products))
 		{
