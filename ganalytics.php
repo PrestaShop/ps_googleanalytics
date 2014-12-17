@@ -292,7 +292,7 @@ class Ganalytics extends Module
 
 		if ($controller_name == 'orderconfirmation')
 		{
-			$this->js_enable = 1;
+			$this->js_state = 1;
 			$this->eligible = 1;
 		}
 
