@@ -290,7 +290,10 @@ class Ganalytics extends Module
 		}
 
 		if ($controller_name == 'orderconfirmation')
+		{
+			$this->js_state = 1;
 			$this->eligible = 1;
+		}
 
 		$home_hook_id = Hook::getIdByName('home');
 		if (isset($products) && count($products) && !isset(Hook::$executed_hooks[$home_hook_id]))
