@@ -292,13 +292,7 @@ class Ganalytics extends Module
 
 		if ($controller_name == 'orderconfirmation')
 		{
-			$this->js_state = 1;
 			$this->eligible = 1;
-		}
-		
-		if($controller_name == 'product')
-		{
-			$this->js_state = 1;
 		}
 
 		if (isset($products) && count($products))
@@ -350,6 +344,7 @@ class Ganalytics extends Module
 			$ga_scripts .= $this->addProductImpression($ga_homebestsell_product_list).$this->addProductClick($ga_homebestsell_product_list);
 		}
 
+		$this->js_state = 1;
 		return $this->_runJs($this->filter($ga_scripts));
 	}
 
@@ -517,6 +512,7 @@ class Ganalytics extends Module
 			if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0)
 				$js .= $this->addProductClickByHttpReferal(array($ga_product));
 
+			$this->js_state = 1;
 			return $this->_runJs($js);
 		}
 	}
