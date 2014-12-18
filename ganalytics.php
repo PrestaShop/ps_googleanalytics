@@ -217,7 +217,7 @@ class Ganalytics extends Module
 
 		if (Validate::isLoadedObject($order))
 			return array(
-				'orderid' => $id_order,
+				'id' => $id_order,
 				'storename' => $this->context->shop->name,
 				'grandtotal' => $order->total_paid,
 				'shipping' => $order->total_shipping,
