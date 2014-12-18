@@ -218,8 +218,8 @@ class Ganalytics extends Module
 		if (Validate::isLoadedObject($order))
 			return array(
 				'id' => $id_order,
-				'storename' => $this->context->shop->name,
-				'grandtotal' => $order->total_paid,
+				'affiliation' => $this->context->shop->name,
+				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl,
 				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax'));
