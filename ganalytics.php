@@ -280,6 +280,7 @@ class Ganalytics extends Module
 		}
 
 		$controller_name = Tools::getValue('controller');
+		$products = $this->wrapProducts($this->context->smarty->getTemplateVars('products'), array(), true);
 
 		if ($controller_name == 'order' || $controller_name == 'orderopc')
 		{
@@ -287,7 +288,6 @@ class Ganalytics extends Module
 			$step = Tools::getValue('step');
 			if (empty($step))
 				$step = 0;
-			$products = $this->wrapProducts($this->context->smarty->getTemplateVars('products'), array(), true);
 			$ga_scripts .= $this->addProductFromCheckout($products, $step);
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
@@ -298,7 +298,7 @@ class Ganalytics extends Module
 			$this->eligible = 1;
 		}
 
-		if (isset($products) && count($products))
+		if (isset($products) && count($products) && $controller_name != 'index'))
 		{
 			if ($this->eligible == 0)
 				$ga_scripts .= $this->addProductImpression($products);
