@@ -231,8 +231,8 @@ class Ganalytics extends Module
 	public function hookOrderConfirmation()
 	{
 		$order = $params['objOrder'];
-                if (Validate::isLoadedObject($order))
-                {
+		if (Validate::isLoadedObject($order))
+		{
 			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
 			if ($ga_order_sent === false)
 			{
@@ -254,7 +254,7 @@ class Ganalytics extends Module
 
 				return $this->_runJs($ga_scripts);
 			}
-                }
+		}
 	}
 
 	/**
