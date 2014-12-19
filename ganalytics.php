@@ -298,7 +298,7 @@ class Ganalytics extends Module
 			$this->eligible = 1;
 		}
 
-		if (isset($products) && count($products) && $controller_name != 'index'))
+		if (isset($products) && count($products) && $controller_name != 'index')
 		{
 			if ($this->eligible == 0)
 				$ga_scripts .= $this->addProductImpression($products);
