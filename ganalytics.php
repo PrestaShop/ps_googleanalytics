@@ -606,7 +606,7 @@ class Ganalytics extends Module
 		{
 			// Display GA refund product
 			$order_detail = new OrderDetail($orderdetail_id);
-			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => $order_detail->product_reference, 'quantity' => $qty)).');';
+			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => epmty($order_detail->product_reference)?$order_detail->product_id:$order_detail->product_reference, 'quantity' => $qty)).');';
 		}
 		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->reference)).');';
 	}
@@ -643,7 +643,7 @@ class Ganalytics extends Module
 				$add_product['name'] = $add_product_object->name;
 				$add_product['manufacturer_name'] = $add_product_object->manufacturer_name;
 				$add_product['category'] = $add_product_object->category;
-				$add_product['reference'] = $add_product_object->reference;
+				$add_product['reference'] = empty($add_product_object->reference)?$add_product_object->id:$add_product_object->reference;
 				$add_product['link_rewrite'] = $add_product_object->link_rewrite;
 				$add_product['link'] = $add_product_object->link_rewrite;
 				$add_product['price'] = $add_product_object->price;
