@@ -643,7 +643,7 @@ class Ganalytics extends Module
 				$add_product['name'] = $add_product_object->name;
 				$add_product['manufacturer_name'] = $add_product_object->manufacturer_name;
 				$add_product['category'] = $add_product_object->category;
-				$add_product['reference'] = empty($add_product_object->reference)?$add_product_object->id:$add_product_object->reference;
+				$add_product['reference'] = $add_product_object->reference;
 				$add_product['link_rewrite'] = $add_product_object->link_rewrite;
 				$add_product['link'] = $add_product_object->link_rewrite;
 				$add_product['price'] = $add_product_object->price;
