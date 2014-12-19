@@ -249,7 +249,7 @@ class Ganalytics extends Module
 				$ga_order_sent = 0;
 
 				$transaction = array(
-					'id' => $order->reference,
+					'id' => $order->id,
 					'affiliation' => $this->context->shop->name,
 					'revenue' => $order->total_paid,
 					'shipping' => $order->total_shipping,
@@ -607,7 +607,7 @@ class Ganalytics extends Module
 			$order_detail = new OrderDetail($orderdetail_id);
 			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => $order_detail->product_reference, 'quantity' => $qty)).');';
 		}
-		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->reference)).');';
+		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
 	}
 
 	/**
