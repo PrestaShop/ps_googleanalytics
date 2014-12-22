@@ -159,7 +159,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		ga('send', 'pageview', {
 			'hitCallback': function() {
 				$.get(Order.url, {
-					orderid: Order.orderid
+					orderid: Order.id
 				});
 			}
 		});

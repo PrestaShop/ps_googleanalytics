@@ -219,9 +219,9 @@ class Ganalytics extends Module
 
 		if (Validate::isLoadedObject($order))
 			return array(
-				'orderid' => $id_order,
-				'storename' => $this->context->shop->name,
-				'grandtotal' => $order->total_paid,
+				'id' => $id_order,
+				'affiliation' => $this->context->shop->name,
+				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl,
 				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true));
@@ -251,7 +251,7 @@ class Ganalytics extends Module
 				$ga_order_sent = 0;
 
 				$transaction = array(
-					'orderid' => $order->reference,
+					'id' => $order->id,
 					'affiliation' => $this->context->shop->name,
 					'revenue' => $order->total_paid,
 					'shipping' => $order->total_shipping,
@@ -616,7 +616,7 @@ class Ganalytics extends Module
 			$order_detail = new OrderDetail($orderdetail_id);
 			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => $order_detail->product_reference, 'quantity' => $qty)).');';
 		}
-		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->reference)).');';
+		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
 	}
 
 	/**
