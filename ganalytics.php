@@ -228,7 +228,7 @@ class Ganalytics extends Module
 	/**
 	* To track transactions
 	*/
-	public function hookOrderConfirmation()
+	public function hookOrderConfirmation($params)
 	{
 		$order = $params['objOrder'];
 		if (Validate::isLoadedObject($order))
