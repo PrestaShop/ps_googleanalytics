@@ -26,6 +26,7 @@
 
 class GanalyticsActionModuleFrontController extends ModuleFrontController
 {
+	public $ssl = true;
 	/*
 	 * @see FrontController::initContent()
 	 */

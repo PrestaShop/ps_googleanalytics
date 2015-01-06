@@ -26,6 +26,7 @@
 
 class GanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
+	public $ssl = true;
 	/*
 	 * @see FrontController::initContent()
 	 */
