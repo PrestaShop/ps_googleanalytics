@@ -272,6 +272,7 @@ class Ganalytics extends Module
 	public function hookFooter()
 	{
 		$ga_scripts = '';
+		$this->js_state = 0;
 
 		if (isset($this->context->cookie->ga_cart))
 		{
