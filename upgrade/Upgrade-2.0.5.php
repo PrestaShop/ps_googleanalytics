@@ -44,5 +44,6 @@ function upgrade_module_2_0_5($object)
 		&& $object->registerHook('home')
 		&& $object->registerHook('backOfficeHeader')
 		&& $object->registerHook('orderConfirmation')
+		&& $object->unregisterHook('top')
 		&& $object->registerHook('productfooter'));
 }
