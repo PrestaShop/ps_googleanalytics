@@ -61,7 +61,7 @@ class Ganalytics extends Module
 
 		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
 			|| !$this->registerHook('footer') || !$this->registerHook('home')
-			|| !$this->registerHook('productfooter') || !$this->registerHook('top')
+			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
 			|| !$this->registerHook('backOfficeHeader'))
 			return false;
 
@@ -230,25 +230,20 @@ class Ganalytics extends Module
 	/**
 	* To track transactions
 	*/
-	public function hookTop()
+	public function hookOrderConfirmation($params)
 	{
-		// Add Google Analytics order - Only on Order's confirmation page
-		$controller_name = Tools::getValue('controller');
-		if ($controller_name == 'orderconfirmation')
+		$order = $params['objOrder'];
+		if (Validate::isLoadedObject($order))
 		{
-			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$this->context->controller->id_order);
+			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
 			if ($ga_order_sent === false)
 			{
-				$order = new Order($this->context->controller->id_order);
-				if (!Validate::isLoadedObject($order))
-					return;
-
 				$order_products = array();
                                 $cart = new Cart($order->id_cart);
 				foreach ($cart->getProducts() as $order_product)
 					$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
-				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$this->context->controller->id_order.', 0, NOW())');
+				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$order->id.', 0, NOW())');
 				$ga_order_sent = 0;
 
 				$transaction = array(
@@ -294,7 +289,8 @@ class Ganalytics extends Module
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
 
-		if ($controller_name == 'orderconfirmation')
+		$confirmation_hook_id = Hook::getIdByName('orderConfirmation');
+		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
 		{
 			$this->js_state = 1;
 			$this->eligible = 1;
