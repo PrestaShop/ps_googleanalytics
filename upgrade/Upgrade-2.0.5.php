@@ -28,22 +28,6 @@ if (!defined('_PS_VERSION_'))
 function upgrade_module_2_0_5($object)
 {
 	Configuration::updateValue('GANALYTICS', '2.0.5');
-	return (Db::getInstance()->execute('
-		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
-			`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
-			`id_order` int(11) NOT NULL,
-			`sent` tinyint(1) DEFAULT NULL,
-			`date_add` datetime DEFAULT NULL,
-			PRIMARY KEY (`id_google_analytics`),
-			KEY `id_order` (`id_order`),
-			KEY `sent` (`sent`)
-		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1')
-		&& $object->registerHook('header')
-		&& $object->registerHook('adminOrder')
-		&& $object->registerHook('footer')
-		&& $object->registerHook('home')
-		&& $object->registerHook('backOfficeHeader')
-		&& $object->registerHook('orderConfirmation')
-		&& $object->unregisterHook('top')
-		&& $object->registerHook('productfooter'));
+	return ($object->registerHook('orderConfirmation')
+		&& $object->unregisterHook('top'));
 }
