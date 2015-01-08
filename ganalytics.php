@@ -412,7 +412,7 @@ class Ganalytics extends Module
 				$product_type = 'virtual';
 
 			$ga_product = array(
-				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
+				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : isset($product['id_product']) ? $product['id_product'] : $product['id'],
 				'name' => urlencode($product['name']),
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
