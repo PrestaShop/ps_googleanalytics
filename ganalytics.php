@@ -413,7 +413,7 @@ class Ganalytics extends Module
 
 			$ga_product = array(
 				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
-				'name' => $product['name'],
+				'name' => urlencode($product['name']),
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
 				'variant' => $variant,
