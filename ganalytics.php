@@ -412,7 +412,7 @@ class Ganalytics extends Module
 				$product_type = 'virtual';
 
 			$ga_product = array(
-				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : isset($product['id_product']) ? $product['id_product'] : $product['id'],
+				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
 				'name' => urlencode($product['name']),
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
@@ -507,7 +507,9 @@ class Ganalytics extends Module
 		if ($controller_name == 'product')
 		{
 			// Add product view
-			$ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
+			$product = (array)$params['product'];
+			$product['id_product'] = $product['id'];
+			$ga_product = $this->wrapProduct($product, null, 0, true);
 			$js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
 
 			if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0)
