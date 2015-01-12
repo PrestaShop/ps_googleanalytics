@@ -376,6 +376,9 @@ class Ganalytics extends Module
 		$usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
 		foreach ($products as $index => $product)
 		{
+			if ($product instanceof Product)
+				$product = (array)$product;
+
 			if (!isset($product['price']))
 				$product['price'] = (float)Tools::displayPrice(Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
 			$result_products[] = $this->wrapProduct($product, $extras, $index, $full);
