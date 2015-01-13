@@ -405,6 +405,14 @@ class Ganalytics extends Module
 
 		if ($full)
 		{
+		        $product_id = 0;
+		        if (!empty($product['reference']))
+		            $product_id = $product['reference'];
+		        else if (!empty($product['id_product']))
+		            $product_id = $product['id_product'];
+		        else if (!empty($product['id']))
+		            $product_id = $product['id'];
+			
 			$product_type = 'typical';
 			if (isset($product['pack']) && $product['pack'] == 1)
 				$product_type = 'pack';
@@ -412,7 +420,7 @@ class Ganalytics extends Module
 				$product_type = 'virtual';
 
 			$ga_product = array(
-				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
+				'id' => $product_id,
 				'name' => urlencode($product['name']),
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
@@ -507,9 +515,7 @@ class Ganalytics extends Module
 		if ($controller_name == 'product')
 		{
 			// Add product view
-			$product = (array)$params['product'];
-			$product['id_product'] = $product['id'];
-			$ga_product = $this->wrapProduct($product, null, 0, true);
+			$ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
 			$js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
 
 			if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0)
