@@ -59,7 +59,7 @@ class Ganalytics extends Module
 		if (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive())
 			Shop::setContext(Shop::CONTEXT_ALL);
 
-		if (!parent::install() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
+		if (!parent::install() || !$this->installTab() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
 			|| !$this->registerHook('footer') || !$this->registerHook('home')
 			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
 			|| !$this->registerHook('backOfficeHeader'))
@@ -88,10 +88,35 @@ class Ganalytics extends Module
 
 	public function uninstall()
 	{
-		if (!parent::uninstall())
+		if (!$this->uninstallTab() || !parent::uninstall())
 			return false;
 
 		return Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
+	}
+
+	public function installTab()
+	{
+		$tab = new Tab();
+		$tab->active = 0;
+		$tab->class_name = "AdminGanalyticsAjax";
+		$tab->name = array();
+		foreach (Language::getLanguages(true) as $lang)
+			$tab->name[$lang['id_lang']] = "Google Analytics Ajax";
+		$tab->id_parent = -1;//(int)Tab::getIdFromClassName('AdminAdmin');
+		$tab->module = $this->name;
+		return $tab->add();
+	}
+
+	public function uninstallTab()
+	{
+		$id_tab = (int)Tab::getIdFromClassName('AdminGanalyticsAjax');
+		if ($id_tab)
+		{
+			$tab = new Tab($id_tab);
+			return $tab->delete();
+		}
+		else
+			return false;
 	}
 
 	public function displayForm()
@@ -224,7 +249,7 @@ class Ganalytics extends Module
 				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl,
-				'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true));
+				'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'));
 	}
 
 	/**
