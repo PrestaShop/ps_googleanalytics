@@ -37,7 +37,7 @@ class Ganalytics extends Module
 	{
 		$this->name = 'ganalytics';
 		$this->tab = 'analytics_stats';
-		$this->version = '2.0.5';
+		$this->version = '2.0.6';
 		$this->author = 'PrestaShop';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
@@ -96,6 +96,9 @@ class Ganalytics extends Module
 
 	public function installTab()
 	{
+		if (version_compare(_PS_VERSION_, '1.5', '<'))
+			return true;
+
 		$tab = new Tab();
 		$tab->active = 0;
 		$tab->class_name = "AdminGanalyticsAjax";
@@ -109,6 +112,9 @@ class Ganalytics extends Module
 
 	public function uninstallTab()
 	{
+		if (version_compare(_PS_VERSION_, '1.5', '<'))
+			return true;
+
 		$id_tab = (int)Tab::getIdFromClassName('AdminGanalyticsAjax');
 		if ($id_tab)
 		{
@@ -716,7 +722,7 @@ class Ganalytics extends Module
 	{
 		// Used by PrestaShop 1.3 & 1.4
 		if (version_compare(_PS_VERSION_, '1.5', '<') && self::isInstalled($this->name))
-			foreach (array('2.0.0', '2.0.4', '2.0.5') as $version)
+			foreach (array('2.0.0', '2.0.4', '2.0.5', '2.0.6') as $version)
 			{
 				$file = dirname(__FILE__).'/upgrade/Upgrade-'.$version.'.php';
 				if (Configuration::get('GANALYTICS') < $version && file_exists($file))
