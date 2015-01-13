@@ -408,6 +408,14 @@ class Ganalytics extends Module
 
 		if ($full)
 		{
+		        $product_id = 0;
+		        if (!empty($product['reference']))
+		            $product_id = $product['reference'];
+		        else if (!empty($product['id_product']))
+		            $product_id = $product['id_product'];
+		        else if (!empty($product['id']))
+		            $product_id = $product['id'];
+			
 			$product_type = 'typical';
 			if (isset($product['pack']) && $product['pack'] == 1)
 				$product_type = 'pack';
@@ -415,7 +423,7 @@ class Ganalytics extends Module
 				$product_type = 'virtual';
 
 			$ga_product = array(
-				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
+				'id' => $product_id,
 				'name' => $product['name'],
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
