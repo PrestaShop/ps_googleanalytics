@@ -30,8 +30,8 @@ function upgrade_module_2_0_6($object)
 	Configuration::updateValue('GANALYTICS', '2.0.6');
 
 	// This tab won't be used on PS 1.4
-	if (version_compare(PS_VERSION, '1.5', '<'))
-			return true;
+	if (version_compare(_PS_VERSION_, '1.5', '<'))
+		return true;
 
 	return $object->installTab();
 }
