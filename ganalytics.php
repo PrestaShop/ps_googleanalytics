@@ -416,7 +416,7 @@ class Ganalytics extends Module
 
 			$ga_product = array(
 				'id' => (isset($product['reference']) && !empty($product['reference'])) ? $product['reference'] : $product['id_product'],
-				'name' => urlencode($product['name']),
+				'name' => $product['name'],
 				'category' => $product['category'],
 				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
 				'variant' => $variant,
@@ -427,6 +427,8 @@ class Ganalytics extends Module
 				'url' => isset($product['link']) ? $product['link'] : '',
 				'price' => number_format($product['price'], '2')
 			);
+
+			$ga_product = array_map('urlencode', $ga_product);
 		}
 
 		return $ga_product;
