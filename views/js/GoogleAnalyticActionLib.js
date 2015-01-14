@@ -114,7 +114,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		//this.add(Product);
 
 		ga('ec:setAction', 'refund', {
-			'id': Order.Id, // Transaction ID is required for partial refund.
+			'id': Order.id, // Transaction ID is required for partial refund.
 		});
 		//ga('send', 'pageview');
 	},
