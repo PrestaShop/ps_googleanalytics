@@ -322,10 +322,7 @@ class Ganalytics extends Module
 
 		$confirmation_hook_id = Hook::getIdByName('orderConfirmation');
 		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
-		{
-			$this->js_state = 1;
 			$this->eligible = 1;
-		}
 
 		if (isset($products) && count($products) && $controller_name != 'index')
 		{
