@@ -199,6 +199,7 @@ class Ganalytics extends Module
 			if (!empty($ga_account_id))
 			{
 				Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
+				Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
 				$output .= $this->displayConfirmation($this->l('Settings updated successfully'));
 			}
 		}
