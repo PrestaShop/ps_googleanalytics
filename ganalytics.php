@@ -628,7 +628,7 @@ class Ganalytics extends Module
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
 			$ga_scripts = '';
-			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0');
+			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 20 minute) < NOW()');
 
 			if ($ga_order_records)
 				foreach ($ga_order_records as $row)
