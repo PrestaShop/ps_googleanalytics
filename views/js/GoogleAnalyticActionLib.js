@@ -105,6 +105,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		ga('ec:setAction', 'refund', {
 			'id': Order.id // Transaction ID is only required field for full refund.
 		});
+		ga('send', 'event', 'Ecommerce', 'Refund', {'nonInteraction': 1});
 	},
 
 	refundByProduct: function(Order) {
@@ -116,7 +117,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		ga('ec:setAction', 'refund', {
 			'id': Order.id, // Transaction ID is required for partial refund.
 		});
-		//ga('send', 'pageview');
+		ga('send', 'event', 'Ecommerce', 'Refund', {'nonInteraction': 1});
 	},
 
 	addProductClick: function(Product) {
@@ -156,7 +157,7 @@ var GoogleAnalyticEnhancedECommerce = {
 
 		//this.add(Product);
 		ga('ec:setAction', 'purchase', Order);
-		ga('send', 'pageview', {
+		ga('send', 'event','Transaction','purchase', {
 			'hitCallback': function() {
 				$.get(Order.url, {
 					orderid: Order.id
