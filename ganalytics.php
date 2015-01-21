@@ -255,7 +255,7 @@ class Ganalytics extends Module
 				'affiliation' => $this->context->shop->name,
 				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
-				'tax' => $order->total_paid_tax_incl,
+				'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
 				'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'));
 	}
 
