@@ -1,6 +1,6 @@
 <?php
 /**
-* 2007-2014 PrestaShop
+* 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2014 PrestaShop SA
+*  @copyright 2007-2015 PrestaShop SA
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -101,10 +101,10 @@ class Ganalytics extends Module
 
 		$tab = new Tab();
 		$tab->active = 0;
-		$tab->class_name = "AdminGanalyticsAjax";
+		$tab->class_name = 'AdminGanalyticsAjax';
 		$tab->name = array();
 		foreach (Language::getLanguages(true) as $lang)
-			$tab->name[$lang['id_lang']] = "Google Analytics Ajax";
+			$tab->name[$lang['id_lang']] = 'Google Analytics Ajax';
 		$tab->id_parent = -1;//(int)Tab::getIdFromClassName('AdminAdmin');
 		$tab->module = $this->name;
 		return $tab->add();
@@ -271,7 +271,7 @@ class Ganalytics extends Module
 			if ($ga_order_sent === false)
 			{
 				$order_products = array();
-                                $cart = new Cart($order->id_cart);
+				$cart = new Cart($order->id_cart);
 				foreach ($cart->getProducts() as $order_product)
 					$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
@@ -360,7 +360,8 @@ class Ganalytics extends Module
 		}
 
 		// New products
-		if ($this->isModuleEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT') || Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
+		if ($this->isModuleEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT')
+				|| Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
 		{
 			$new_products = Product::getNewProducts((int)$this->context->language->id, 0, (int)Configuration::get('NEW_PRODUCTS_NBR'));
 			$new_products_list = $this->wrapProducts($new_products, array(), true);
@@ -368,7 +369,8 @@ class Ganalytics extends Module
 		}
 
 		// Best Sellers
-		if ($this->isModuleEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE') || Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
+		if ($this->isModuleEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE')
+				|| Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
 		{
 			$ga_homebestsell_product_list = $this->wrapProducts(ProductSale::getBestSalesLight((int)$this->context->language->id, 0, 8), array(), true);
 			$ga_scripts .= $this->addProductImpression($ga_homebestsell_product_list).$this->addProductClick($ga_homebestsell_product_list);
@@ -438,13 +440,13 @@ class Ganalytics extends Module
 		if ($full)
 		{
 		        $product_id = 0;
-		        if (!empty($product['reference']))
-		            $product_id = $product['reference'];
-		        else if (!empty($product['id_product']))
-		            $product_id = $product['id_product'];
-		        else if (!empty($product['id']))
-		            $product_id = $product['id'];
-			
+			if (!empty($product['reference']))
+				$product_id = $product['reference'];
+			else if (!empty($product['id_product']))
+				$product_id = $product['id_product'];
+			else if (!empty($product['id']))
+				$product_id = $product['id'];
+
 			$product_type = 'typical';
 			if (isset($product['pack']) && $product['pack'] == 1)
 				$product_type = 'pack';
