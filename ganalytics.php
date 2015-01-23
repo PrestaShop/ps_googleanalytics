@@ -32,6 +32,7 @@ class Ganalytics extends Module
 	protected $js_state = 0;
 	protected $eligible = 0;
 	protected $filterable = 1;
+	protected static $products = array();
 
 	public function __construct()
 	{
@@ -705,8 +706,9 @@ class Ganalytics extends Module
 			}
 		}
 
-		if (isset($add_product))
+		if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), static::$products))
 		{
+			static::$products[] = (int)Tools::getValue('id_product');
 			$ga_products = $this->wrapProduct($add_product, array(), 0, true);
 
 			if ($cart['removeAction'] == 'delete' || $cart['extraAction'] == 'down')
