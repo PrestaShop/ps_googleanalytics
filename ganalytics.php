@@ -667,7 +667,7 @@ class Ganalytics extends Module
 	{
 		if (!isset($this->context->cart))
 			return;
-		
+
 		$ga_scripts  = '';
 
 		$cart = array(
