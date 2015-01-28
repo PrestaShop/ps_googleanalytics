@@ -566,12 +566,12 @@ class Ganalytics extends Module
 	/**
 	* Generate Google Analytics js
 	*/
-	private function _runJs($js_code)
+	private function _runJs($js_code, $backoffice=0)
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
 
-			if ($this->js_state != 1 && !defined('_PS_ADMIN_DIR_'))
+			if ($this->js_state != 1 && $backoffice == 0)
 				$js_code .= 'ga(\'send\', \'pageview\');';
 
 			if (!empty($js_code))
@@ -591,7 +591,7 @@ class Ganalytics extends Module
 	*/
 	public function hookAdminOrder()
 	{
-		echo $this->_runJs($this->context->cookie->ga_admin_refund);
+		echo $this->_runJs($this->context->cookie->ga_admin_refund, 1);
 		unset($this->context->cookie->ga_admin_refund);
 	}
 
@@ -641,7 +641,7 @@ class Ganalytics extends Module
 					}
 				}
 
-			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts);
+			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts,1);
 		}
 		else return $js;
 	}
