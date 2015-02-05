@@ -566,12 +566,12 @@ class Ganalytics extends Module
 	/**
 	* Generate Google Analytics js
 	*/
-	private function _runJs($js_code, $backoffice=0)
+	private function _runJs($js_code, $backoffice = 0)
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
 
-			if ($this->js_state != 1 && $backoffice == 0)
+			if (($this->js_state) != 1 && ($backoffice == 0))
 				$js_code .= 'ga(\'send\', \'pageview\');';
 
 			if (!empty($js_code))
