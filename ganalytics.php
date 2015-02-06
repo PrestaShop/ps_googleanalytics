@@ -253,7 +253,7 @@ class Ganalytics extends Module
 		if (Validate::isLoadedObject($order))
 			return array(
 				'id' => $id_order,
-				'affiliation' => $this->context->shop->name,
+				'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
 				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
@@ -281,7 +281,7 @@ class Ganalytics extends Module
 
 				$transaction = array(
 					'id' => $order->id,
-					'affiliation' => $this->context->shop->name,
+					'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
 					'revenue' => $order->total_paid,
 					'shipping' => $order->total_shipping,
 					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
