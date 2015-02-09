@@ -706,9 +706,9 @@ class Ganalytics extends Module
 			}
 		}
 
-		if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), static::$products))
+		if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), self::$products))
 		{
-			static::$products[] = (int)Tools::getValue('id_product');
+			self::$products[] = (int)Tools::getValue('id_product');
 			$ga_products = $this->wrapProduct($add_product, array(), 0, true);
 
 			if ($cart['removeAction'] == 'delete' || $cart['extraAction'] == 'down')
