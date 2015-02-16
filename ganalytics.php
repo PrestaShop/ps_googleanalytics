@@ -322,9 +322,17 @@ class Ganalytics extends Module
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
 
-		$confirmation_hook_id = Hook::getIdByName('orderConfirmation');
-		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
-			$this->eligible = 1;
+		if (version_compare(_PS_VERSION_, '1.5', '<'))
+		{
+			if ($controller_name == 'orderconfirmation')
+				$this->eligible = 1;
+		}
+		else
+		{
+			$confirmation_hook_id = (int)Hook::getIdByName('orderConfirmation');
+			if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
+				$this->eligible = 1;
+		}
 
 		if (isset($products) && count($products) && $controller_name != 'index')
 		{
