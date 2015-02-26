@@ -122,8 +122,8 @@ class Ganalytics extends Module
 			$tab = new Tab($id_tab);
 			return $tab->delete();
 		}
-		else
-			return false;
+
+		return true;
 	}
 
 	public function displayForm()
