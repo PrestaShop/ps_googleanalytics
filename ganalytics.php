@@ -34,6 +34,8 @@ class Ganalytics extends Module
 	protected $filterable = 1;
 	protected static $products = array();
 
+	protected $_debug = 0;
+
 	public function __construct()
 	{
 		$this->name = 'ganalytics';
@@ -305,7 +307,18 @@ class Ganalytics extends Module
 		if (isset($this->context->cookie->ga_cart))
 		{
 			$this->filterable = 0;
-			$ga_scripts .= $this->context->cookie->ga_cart;
+
+			$gacarts = unserialize($this->context->cookie->ga_cart);			
+			foreach($gacarts as $gacart)
+			{
+				if ($gacart['quantity'] > 0)
+					$ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($gacart).');';
+				elseif ($gacart['quantity'] < 0)
+				{
+					$gacart['quantity'] = abs($gacart['quantity']);
+					$ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($gacart).');';
+				}
+			}
 			unset($this->context->cookie->ga_cart);
 		}
 
@@ -678,8 +691,6 @@ class Ganalytics extends Module
 		if (!isset($this->context->cart))
 			return;
 
-		$ga_scripts  = '';
-
 		$cart = array(
 			'controller' => Tools::getValue('controller'),
 			'addAction' => Tools::getValue('add') ? 'add' : '',
@@ -717,14 +728,32 @@ class Ganalytics extends Module
 		if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), self::$products))
 		{
 			self::$products[] = (int)Tools::getValue('id_product');
-			$ga_products = $this->wrapProduct($add_product, array(), 0, true);
+			$ga_products = $this->wrapProduct($add_product, $cart, 0, true);
 
-			if ($cart['removeAction'] == 'delete' || $cart['extraAction'] == 'down')
-				$ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($ga_products).');';
+			if ($ga_products['id_product_attribute'] != '' && $ga_products['id_product_attribute'] != 0)
+				$id_product = $ga_products['id_product_attribute'];
+			else
+				$id_product = Tools::getValue('id_product');
+
+			$gacart = unserialize($this->context->cookie->ga_cart);
+
+			if ($cart['removeAction'] == 'delete')
+				$ga_products['quantity'] = -1;
+			elseif ($cart['extraAction'] == 'down')
+			{
+				if (array_key_exists($id_product, $gacart))
+					$ga_products['quantity'] = $gacart['quantity'] - $cart['qty'];
+				else
+					$ga_products['quantity'] = $cart['qty'] * -1;					
+			}
 			elseif (Tools::getValue('step') <= 0) // Sometimes cartsave is called in checkout
-				$ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($ga_products).');';
+			{
+				if (array_key_exists($id_product, $gacart))
+					$ga_products['quantity'] = $gacart['quantity'] + $cart['qty'];
+			}
 
-			$this->context->cookie->ga_cart .= $ga_scripts;
+			$gacart[$id_product] = $ga_products;
+			$this->context->cookie->ga_cart = serialize($gacart);		
 		}
 	}
 
@@ -741,5 +770,17 @@ class Ganalytics extends Module
 					call_user_func('upgrade_module_'.str_replace('.', '_', $version), $this);
 				}
 			}
+	}
+
+	private function _debugLog($function, $log) 
+	{
+		if (!$this->_debug)
+			return true;
+
+		$myFile = _PS_MODULE_DIR_.$this->name."/logs/analytics.log";
+		$fh = fopen($myFile, 'a');
+		fwrite($fh, date("F j, Y, g:i a")." ".$function."\n");
+		fwrite($fh, print_r($log,true)."\n\n");
+		fclose($fh);
 	}
 }
