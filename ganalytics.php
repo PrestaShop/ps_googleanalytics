@@ -742,14 +742,14 @@ class Ganalytics extends Module
 			elseif ($cart['extraAction'] == 'down')
 			{
 				if (array_key_exists($id_product, $gacart))
-					$ga_products['quantity'] = $gacart['quantity'] - $cart['qty'];
+					$ga_products['quantity'] = $gacart[$id_product]['quantity'] - $cart['qty'];
 				else
 					$ga_products['quantity'] = $cart['qty'] * -1;					
 			}
 			elseif (Tools::getValue('step') <= 0) // Sometimes cartsave is called in checkout
 			{
 				if (array_key_exists($id_product, $gacart))
-					$ga_products['quantity'] = $gacart['quantity'] + $cart['qty'];
+					$ga_products['quantity'] = $gacart[$id_product]['quantity'] + $cart['qty'];
 			}
 
 			$gacart[$id_product] = $ga_products;
