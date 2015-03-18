@@ -730,7 +730,7 @@ class Ganalytics extends Module
 			self::$products[] = (int)Tools::getValue('id_product');
 			$ga_products = $this->wrapProduct($add_product, $cart, 0, true);
 
-			if ($ga_products['id_product_attribute'] != '' && $ga_products['id_product_attribute'] != 0)
+			if (array_key_exists('id_product_attribute', $ga_products) && $ga_products['id_product_attribute'] != '' && $ga_products['id_product_attribute'] != 0)
 				$id_product = $ga_products['id_product_attribute'];
 			else
 				$id_product = Tools::getValue('id_product');
