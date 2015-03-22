@@ -735,7 +735,7 @@ class Ganalytics extends Module
 			else
 				$id_product = Tools::getValue('id_product');
 
-			if ($this->context->cookie->ga_cart)
+			if (isset($this->context->cookie->ga_cart))
 				$gacart = unserialize($this->context->cookie->ga_cart);
 			else
 				$gacart = array();
