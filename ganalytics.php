@@ -735,7 +735,10 @@ class Ganalytics extends Module
 			else
 				$id_product = Tools::getValue('id_product');
 
-			$gacart = unserialize($this->context->cookie->ga_cart);
+			if ($this->context->cookie->ga_cart)
+				$gacart = unserialize($this->context->cookie->ga_cart);
+			else
+				$gacart = array();
 
 			if ($cart['removeAction'] == 'delete')
 				$ga_products['quantity'] = -1;
