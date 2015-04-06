@@ -271,7 +271,7 @@ class Ganalytics extends Module
 		if (Validate::isLoadedObject($order))
 		{
 			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
-			if ($ga_order_sent === false)
+			if ($ga_order_sent === false && $order->id_customer == $this->context->cookie->id_customer)
 			{
 				$order_products = array();
 				$cart = new Cart($order->id_cart);
@@ -648,20 +648,23 @@ class Ganalytics extends Module
 
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
-			$ga_scripts = '';
-			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 20 minute) < NOW()');
+			if ($this->context->controller->controller_name == 'AdminOrders')
+			{
+				$ga_scripts = '';
+				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
 
-			if ($ga_order_records)
-				foreach ($ga_order_records as $row)
-				{
-					$transaction = $this->wrapOrder($row['id_order']);
-					if (!empty($transaction))
+				if ($ga_order_records)
+					foreach ($ga_order_records as $row)
 					{
-						$transaction = Tools::jsonEncode($transaction);
-						$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+						$transaction = $this->wrapOrder($row['id_order']);
+						if (!empty($transaction))
+						{
+							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' LIMIT 1');
+							$transaction = Tools::jsonEncode($transaction);
+							$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+						}
 					}
-				}
-
+			}
 			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts,1);
 		}
 		else return $js;
