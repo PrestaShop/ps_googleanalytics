@@ -27,13 +27,9 @@
 class AdminGanalyticsAjaxController extends ModuleAdminController
 {
 	public $ssl = true;
-	/*
-	 * @see FrontController::initContent()
-	 */
-	public function initContent()
-	{
-		parent::initContent();
 
+	public function init()
+	{
 		$order = new Order((int)Tools::getValue('orderid'));
 		$context = Context::getContext();
 		if (Validate::isLoadedObject($order) && (isset($context->employee->id) && $context->employee->id))
