@@ -160,7 +160,8 @@ var GoogleAnalyticEnhancedECommerce = {
 		ga('send', 'event','Transaction','purchase', {
 			'hitCallback': function() {
 				$.get(Order.url, {
-					orderid: Order.id
+					orderid: Order.id,
+					customer: Order.customer
 				});
 			}
 		});
