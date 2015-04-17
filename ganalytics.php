@@ -259,7 +259,8 @@ class Ganalytics extends Module
 				'revenue' => $order->total_paid,
 				'shipping' => $order->total_shipping,
 				'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-				'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'));
+				'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
+				'customer' => $order->id_customer);
 	}
 
 	/**
@@ -270,28 +271,30 @@ class Ganalytics extends Module
 		$order = $params['objOrder'];
 		if (Validate::isLoadedObject($order))
 		{
-			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
+			$ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
 			if ($ga_order_sent === false)
 			{
-				$order_products = array();
-				$cart = new Cart($order->id_cart);
-				foreach ($cart->getProducts() as $order_product)
-					$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
-
 				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$order->id.', 0, NOW())');
-				$ga_order_sent = 0;
+				if ($order->id_customer == $this->context->cookie->id_customer)
+				{
+					$order_products = array();
+					$cart = new Cart($order->id_cart);
+					foreach ($cart->getProducts() as $order_product)
+						$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
-				$transaction = array(
-					'id' => $order->id,
-					'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-					'revenue' => $order->total_paid,
-					'shipping' => $order->total_shipping,
-					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true));
-				$ga_scripts = $this->addTransaction($order_products, $transaction);
+					$transaction = array(
+						'id' => $order->id,
+						'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+						'revenue' => $order->total_paid,
+						'shipping' => $order->total_shipping,
+						'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+						'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true),
+						'customer' => $order->id_customer);
+					$ga_scripts = $this->addTransaction($order_products, $transaction);
 
-				$this->js_state = 1;
-				return $this->_runJs($ga_scripts);
+					$this->js_state = 1;
+					return $this->_runJs($ga_scripts);
+				}
 			}
 		}
 	}
@@ -649,19 +652,22 @@ class Ganalytics extends Module
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
 			$ga_scripts = '';
-			$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 20 minute) < NOW()');
+			if ($this->context->controller->controller_name == 'AdminOrders')
+			{
+				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
 
-			if ($ga_order_records)
-				foreach ($ga_order_records as $row)
-				{
-					$transaction = $this->wrapOrder($row['id_order']);
-					if (!empty($transaction))
+				if ($ga_order_records)
+					foreach ($ga_order_records as $row)
 					{
-						$transaction = Tools::jsonEncode($transaction);
-						$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+						$transaction = $this->wrapOrder($row['id_order']);
+						if (!empty($transaction))
+						{
+							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' LIMIT 1');
+							$transaction = Tools::jsonEncode($transaction);
+							$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+						}
 					}
-				}
-
+			}
 			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts,1);
 		}
 		else return $js;
