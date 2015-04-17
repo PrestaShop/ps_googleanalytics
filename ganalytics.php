@@ -651,9 +651,9 @@ class Ganalytics extends Module
 
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
+			$ga_scripts = '';
 			if ($this->context->controller->controller_name == 'AdminOrders')
 			{
-				$ga_scripts = '';
 				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
 
 				if ($ga_order_records)
