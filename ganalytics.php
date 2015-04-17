@@ -271,29 +271,30 @@ class Ganalytics extends Module
 		$order = $params['objOrder'];
 		if (Validate::isLoadedObject($order))
 		{
-			$ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
-			if ($ga_order_sent === false && $order->id_customer == $this->context->cookie->id_customer)
+			$ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
+			if ($ga_order_sent === false)
 			{
-				$order_products = array();
-				$cart = new Cart($order->id_cart);
-				foreach ($cart->getProducts() as $order_product)
-					$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
-
 				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$order->id.', 0, NOW())');
-				$ga_order_sent = 0;
+				if ($order->id_customer == $this->context->cookie->id_customer)
+				{
+					$order_products = array();
+					$cart = new Cart($order->id_cart);
+					foreach ($cart->getProducts() as $order_product)
+						$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
-				$transaction = array(
-					'id' => $order->id,
-					'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-					'revenue' => $order->total_paid,
-					'shipping' => $order->total_shipping,
-					'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-					'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true),
-					'customer' => $order->id_customer);
-				$ga_scripts = $this->addTransaction($order_products, $transaction);
+					$transaction = array(
+						'id' => $order->id,
+						'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+						'revenue' => $order->total_paid,
+						'shipping' => $order->total_shipping,
+						'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+						'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true),
+						'customer' => $order->id_customer);
+					$ga_scripts = $this->addTransaction($order_products, $transaction);
 
-				$this->js_state = 1;
-				return $this->_runJs($ga_scripts);
+					$this->js_state = 1;
+					return $this->_runJs($ga_scripts);
+				}
 			}
 		}
 	}
