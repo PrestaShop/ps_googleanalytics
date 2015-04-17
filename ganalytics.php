@@ -78,6 +78,8 @@ class Ganalytics extends Module
 			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
 				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
 				`id_order` int(11) NOT NULL,
+				`id_customer` int(10) NOT NULL,
+				`id_shop` int(11) NOT NULL,
 				`sent` tinyint(1) DEFAULT NULL,
 				`date_add` datetime DEFAULT NULL,
 				PRIMARY KEY (`id_google_analytics`),
