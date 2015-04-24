@@ -222,7 +222,7 @@ class Ganalytics extends Module
 		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
 	}
 
-	private function _getGoogleAnalyticsTag($back_office = false)
+	protected function _getGoogleAnalyticsTag($back_office = false)
 	{
 			return '
 			<script type="text/javascript">
@@ -592,7 +592,7 @@ class Ganalytics extends Module
 	/**
 	* Generate Google Analytics js
 	*/
-	private function _runJs($js_code, $backoffice = 0)
+	protected function _runJs($js_code, $backoffice = 0)
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
@@ -768,7 +768,7 @@ class Ganalytics extends Module
 		}
 	}
 
-	private function checkForUpdates()
+	protected function checkForUpdates()
 	{
 		// Used by PrestaShop 1.3 & 1.4
 		if (version_compare(_PS_VERSION_, '1.5', '<') && self::isInstalled($this->name))
@@ -783,7 +783,7 @@ class Ganalytics extends Module
 			}
 	}
 
-	private function _debugLog($function, $log) 
+	protected function _debugLog($function, $log) 
 	{
 		if (!$this->_debug)
 			return true;
