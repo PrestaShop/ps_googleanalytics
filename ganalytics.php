@@ -467,9 +467,7 @@ class Ganalytics extends Module
 		if ($full)
 		{
 			$product_id = 0;
-			if (!empty($product['reference']))
-				$product_id = $product['reference'];
-			else if (!empty($product['id_product']))
+			if (!empty($product['id_product']))
 				$product_id = $product['id_product'];
 			else if (!empty($product['id']))
 				$product_id = $product['id'];
