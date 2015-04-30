@@ -271,7 +271,7 @@ class Ganalytics extends Module
 	public function hookOrderConfirmation($params)
 	{
 		$order = $params['objOrder'];
-		if (Validate::isLoadedObject($order))
+		if (Validate::isLoadedObject($order) && $order->current_state != (int)Configuration::get('PS_OS_ERROR'))
 		{
 			$ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
 			if ($ga_order_sent === false)
