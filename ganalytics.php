@@ -40,7 +40,7 @@ class Ganalytics extends Module
 	{
 		$this->name = 'ganalytics';
 		$this->tab = 'analytics_stats';
-		$this->version = '2.0.9';
+		$this->version = '2.1.0';
 		$this->author = 'PrestaShop';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
