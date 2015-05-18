@@ -467,12 +467,13 @@ class Ganalytics extends Module
 		if ($full)
 		{
 			$product_id = 0;
-			if (!empty($product['reference']))
-				$product_id = $product['reference'];
-			else if (!empty($product['id_product']))
+			if (!empty($product['id_product']))
 				$product_id = $product['id_product'];
 			else if (!empty($product['id']))
 				$product_id = $product['id'];
+				
+			if (!empty($product['id_product_attribute']))
+				$product_id .= '-'. $product['id_product_attribute'];
 
 			$product_type = 'typical';
 			if (isset($product['pack']) && $product['pack'] == 1)
@@ -686,7 +687,7 @@ class Ganalytics extends Module
 		{
 			// Display GA refund product
 			$order_detail = new OrderDetail($orderdetail_id);
-			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => empty($order_detail->product_reference)?$order_detail->product_id:$order_detail->product_reference, 'quantity' => $qty)).');';
+			$ga_scripts .= 'MBG.add('.Tools::jsonEncode(array('id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id, 'quantity' => $qty)).');';
 		}
 		$this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
 	}
