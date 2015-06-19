@@ -699,6 +699,9 @@ class Ganalytics extends Module
 	{
 		if (!isset($this->context->cart))
 			return;
+		
+		if (!Tools::getIsset('id_product'))
+			return;
 
 		$cart = array(
 			'controller' => Tools::getValue('controller'),
