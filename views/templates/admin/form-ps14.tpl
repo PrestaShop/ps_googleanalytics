@@ -32,7 +32,7 @@
 		<label>Google Analytics Tracking ID </label>							
 
 		<div class="margin-form">
-			<input type="text" size="20" class="" value="{$account_id|escape:htmlall}" id="GA_ACCOUNT_ID" name="GA_ACCOUNT_ID">&nbsp;<sup>*</sup>
+			<input type="text" size="20" class="" value="{$account_id|escape:'htmlall':'UTF-8'}" id="GA_ACCOUNT_ID" name="GA_ACCOUNT_ID">&nbsp;<sup>*</sup>
 			<span name="help_box" class="hint" style="display: none;">This information is available in your Google Analytics account<span class="hint-pointer"></span></span>  
 		</div>
 		<div class="clear"></div>

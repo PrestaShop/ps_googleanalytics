@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 if (!defined('_PS_VERSION_'))
 	exit;
 function upgrade_module_2_1_0($object)

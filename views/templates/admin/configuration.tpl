@@ -27,10 +27,10 @@
 <div class="panel">
 	<div class="row" id="google_analytics_top">
 		<div class="col-lg-6">
-			<img src="{$module_dir|htmlspecialchars}views/img/ga_logo.png" alt="Google Analytics" />
+			<img src="{$module_dir|escape:'html':'UTF-8'}views/img/ga_logo.png" alt="Google Analytics" />
 		</div>
 		<div class="col-lg-6 text-right">
-			<a href="https://support.google.com/analytics/answer/1008015" rel="external"><img src="{$module_dir|htmlspecialchars}views/img/create_account_btn.png" alt="" /></a>
+			<a href="https://support.google.com/analytics/answer/1008015" rel="external"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/create_account_btn.png" alt="" /></a>
 		</div>
 	</div>
 	<hr/>
@@ -44,17 +44,17 @@
 				</p>
 				<p><b>{l s='With ecommerce functionality in Google Analytics you can gain clear insight into important metrics about shopper behavior and conversion, including:' mod='ganalytics'}</b></p>
 				<div id="advantages_list">
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/product_detail_icon.png" alt="" />{l s='Product detail views' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/merchandising_tools_icon.png" alt="" />{l s='Internal merchandising Success' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/add_to_cart_icon.png" alt="" />{l s='"Add to cart" actions' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/checkout_icon.png" alt="" />{l s='The checkout process' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/campaign_clicks_icon.png" alt="" />{l s='Internal campaign clicks' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir|htmlspecialchars}views/img/purchase_icon.png" alt="" />{l s='And purchase' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/product_detail_icon.png" alt="" />{l s='Product detail views' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/merchandising_tools_icon.png" alt="" />{l s='Internal merchandising Success' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/add_to_cart_icon.png" alt="" />{l s='"Add to cart" actions' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/checkout_icon.png" alt="" />{l s='The checkout process' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/campaign_clicks_icon.png" alt="" />{l s='Internal campaign clicks' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir|escape:'html':'UTF-8'}views/img/purchase_icon.png" alt="" />{l s='And purchase' mod='ganalytics'}</div>
 				</div>
 			</div>
 			<div class="col-lg-6 text-center">
 				<p>
-					<img src="{$module_dir|htmlspecialchars}views/img/stats.png" alt="" /><br />
+					<img src="{$module_dir|escape:'html':'UTF-8'}views/img/stats.png" alt="" /><br />
 					<span class="small"><em>{l s='Merchants are able to understand how far along users get in the buying process and where they are dropping off.' mod='ganalytics'}</em></span>
 				</p>
 				<p class="text-right">
