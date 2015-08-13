@@ -413,7 +413,13 @@ class Ganalytics extends Module
 	public function isModuleEnabled($name)
 	{
 		if (version_compare(_PS_VERSION_, '1.5', '>='))
-			return Module::isEnabled($name);
+			if(Module::isEnabled($name))
+			{
+				$module = Module::getInstanceByName($name);
+				return $module->isRegisteredInHook('home');
+			}
+			else
+				return false;
 		else
 		{
 			$module = Module::getInstanceByName($name);
