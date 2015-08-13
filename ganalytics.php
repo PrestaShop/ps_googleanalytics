@@ -483,19 +483,17 @@ class Ganalytics extends Module
 
 			$ga_product = array(
 				'id' => $product_id,
-				'name' => $product['name'],
-				'category' => $product['category'],
-				'brand' => isset($product['manufacturer_name']) ? $product['manufacturer_name'] : '',
-				'variant' => $variant,
+				'name' => json_encode($product['name']),
+				'category' => json_encode($product['category']),
+				'brand' => isset($product['manufacturer_name']) ? json_encode($product['manufacturer_name']) : '',
+				'variant' => json_encode($variant),
 				'type' => $product_type,
 				'position' => $index ? $index : '0',
 				'quantity' => $product_qty,
 				'list' => Tools::getValue('controller'),
-				'url' => isset($product['link']) ? $product['link'] : '',
+				'url' => isset($product['link']) ? urlencode($product['link']) : '',
 				'price' => number_format($product['price'], '2')
 			);
-
-			$ga_product = array_map('urlencode', $ga_product);
 		}
 
 		return $ga_product;
