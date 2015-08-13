@@ -275,7 +275,7 @@ class Ganalytics extends Module
 			$ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
 			if ($ga_order_sent === false)
 			{
-				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, sent, date_add) VALUES ('.(int)$order->id.', 0, NOW())');
+				Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)$order->id.', '.(int)$this->context->shop->id.', 0, NOW())');
 				if ($order->id_customer == $this->context->cookie->id_customer)
 				{
 					$order_products = array();
@@ -656,7 +656,7 @@ class Ganalytics extends Module
 			$ga_scripts = '';
 			if ($this->context->controller->controller_name == 'AdminOrders')
 			{
-				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
+				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
 
 				if ($ga_order_records)
 					foreach ($ga_order_records as $row)
@@ -664,7 +664,7 @@ class Ganalytics extends Module
 						$transaction = $this->wrapOrder($row['id_order']);
 						if (!empty($transaction))
 						{
-							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' LIMIT 1');
+							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\' LIMIT 1');
 							$transaction = Tools::jsonEncode($transaction);
 							$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
 						}
