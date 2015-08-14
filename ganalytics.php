@@ -483,10 +483,10 @@ class Ganalytics extends Module
 
 			$ga_product = array(
 				'id' => $product_id,
-				'name' => json_encode($product['name']),
-				'category' => json_encode($product['category']),
-				'brand' => isset($product['manufacturer_name']) ? json_encode($product['manufacturer_name']) : '',
-				'variant' => json_encode($variant),
+				'name' => Tools::jsonEncode($product['name']),
+				'category' => Tools::jsonEncode($product['category']),
+				'brand' => isset($product['manufacturer_name']) ? Tools::jsonEncode($product['manufacturer_name']) : '',
+				'variant' => Tools::jsonEncode($variant),
 				'type' => $product_type,
 				'position' => $index ? $index : '0',
 				'quantity' => $product_qty,
