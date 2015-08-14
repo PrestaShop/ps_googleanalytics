@@ -507,7 +507,7 @@ class Ganalytics extends Module
 		{
 			$ga_product = array(
 				'id' => $product_id,
-				'name' => json_encode($product['name'])
+				'name' => Tools::jsonEncode($product['name'])
 			);				
 		}
 		return $ga_product;
