@@ -437,6 +437,12 @@ class Ganalytics extends Module
 
 		$currency = new Currency($this->context->currency->id);
 		$usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
+
+		if (count($products) > 20)
+			$full = false;
+		else
+			$full = true;
+
 		foreach ($products as $index => $product)
 		{
 			if ($product instanceof Product)
@@ -469,23 +475,23 @@ class Ganalytics extends Module
 		elseif (isset($product['cart_quantity']))
 			$product_qty = $product['cart_quantity'];
 
+		$product_id = 0;
+		if (!empty($product['id_product']))
+			$product_id = $product['id_product'];
+		else if (!empty($product['id']))
+			$product_id = $product['id'];
+			
+		if (!empty($product['id_product_attribute']))
+			$product_id .= '-'. $product['id_product_attribute'];
+
+		$product_type = 'typical';
+		if (isset($product['pack']) && $product['pack'] == 1)
+			$product_type = 'pack';
+		elseif (isset($product['virtual']) && $product['virtual'] == 1)
+			$product_type = 'virtual';
+
 		if ($full)
 		{
-			$product_id = 0;
-			if (!empty($product['id_product']))
-				$product_id = $product['id_product'];
-			else if (!empty($product['id']))
-				$product_id = $product['id'];
-
-			if (!empty($product['id_product_attribute']))
-				$product_id .= '-'.$product['id_product_attribute'];
-
-			$product_type = 'typical';
-			if (isset($product['pack']) && $product['pack'] == 1)
-				$product_type = 'pack';
-			elseif (isset($product['virtual']) && $product['virtual'] == 1)
-				$product_type = 'virtual';
-
 			$ga_product = array(
 				'id' => $product_id,
 				'name' => $product['name'],
@@ -502,7 +508,13 @@ class Ganalytics extends Module
 
 			$ga_product = array_map('urlencode', $ga_product);
 		}
-
+		else
+		{
+			$ga_product = array(
+				'id' => $product_id,
+				'name' => Tools::jsonEncode($product['name'])
+			);				
+		}
 		return $ga_product;
 	}
 
