@@ -180,12 +180,22 @@ class Ganalytics extends Module
 					'hint' => $this->l('This information is available in your Google Analytics account')
 				),
 				array(
-					'type' => 'bool',
-					'cast' => 'boolval',
-					'validation' => 'isBool',
+					'type' => 'radio',
 					'label' => $this->l('Enable User-ID tracking'),
 					'name' => 'GA_USERID_ENABLED',
-					'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID')
+					'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
+					'values'    => array(
+						array(
+							'id' => 'ga_userid_enabled',
+							'value' => 1,
+							'label' => $this->l('Enabled')
+						),
+						array(
+							'id' => 'ga_userid_disabled',
+							'value' => 0,
+							'label' => $this->l('Disabled')
+						),
+					),
 				),
 			),
 			'submit' => array(
@@ -218,7 +228,7 @@ class Ganalytics extends Module
 			$ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
 			if (null !== $ga_userid_enabled)
 			{
-				Configuration::updateValue('GA_ACCOUNT_ID', (bool)$ga_userid_enabled);
+				Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
 				$output .= $this->displayConfirmation($this->l('Settings for User-ID updated successfully'));
 			}
 		}
@@ -238,10 +248,10 @@ class Ganalytics extends Module
 
 	protected function _getGoogleAnalyticsTag($back_office = false)
 	{
-		$user_id = null; 
+		$user_id = null;
 		if (Configuration::get('GA_USERID_ENABLED'))
 		{
-			if ($this->context->customer->isLogged())
+			if ($this->context->customer && $this->context->customer->isLogged())
 			{
 				$user_id = (int)$this->context->customer->id;
 			}
@@ -255,10 +265,10 @@ class Ganalytics extends Module
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
-				ga(\'require\', \'ec\');
-				'.($user_id ? 'ga(\‘set\’, \‘&uid\’, \''.$user_id.'\');': '').'
-				'.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '').'
-			</script>';
+				ga(\'require\', \'ec\');'
+				.($user_id ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
+				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
+			.'</script>';
 	}
 
 	public function hookHeader()
