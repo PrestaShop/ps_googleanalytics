@@ -239,9 +239,14 @@ class Ganalytics extends Module
 	protected function _getGoogleAnalyticsTag($back_office = false)
 	{
 		$user_id = null; 
-		if (Configuration::get('GA_USERID_ENABLED')) {
-			//TODO: retrieve user id if user is logged-in
+		if (Configuration::get('GA_USERID_ENABLED'))
+		{
+			if ($this->context->customer->isLogged())
+			{
+				$user_id = (int)$this->context->customer->id;
+			}
 		}
+
 		return '
 			<script type="text/javascript">
 				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
