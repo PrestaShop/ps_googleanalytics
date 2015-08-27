@@ -266,7 +266,7 @@ class Ganalytics extends Module
 				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
 				ga(\'require\', \'ec\');'
-				.($user_id ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
+				.(($user_id && !$back_office) ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
 				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
 			.'</script>';
 	}
