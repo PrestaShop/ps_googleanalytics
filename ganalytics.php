@@ -179,6 +179,14 @@ class Ganalytics extends Module
 					'required' => true,
 					'hint' => $this->l('This information is available in your Google Analytics account')
 				),
+				array(
+					'type' => 'bool',
+					'cast' => 'boolval',
+					'validation' => 'isBool',
+					'label' => $this->l('Enable User-ID tracking'),
+					'name' => 'GA_USERID_ENABLED',
+					'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID')
+				),
 			),
 			'submit' => array(
 				'title' => $this->l('Save'),
@@ -187,6 +195,7 @@ class Ganalytics extends Module
 
 		// Load current value
 		$helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
+		$helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
 
 		return $helper->generateForm($fields_form);
 	}
@@ -204,7 +213,13 @@ class Ganalytics extends Module
 			{
 				Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
 				Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-				$output .= $this->displayConfirmation($this->l('Settings updated successfully'));
+				$output .= $this->displayConfirmation($this->l('Account ID updated successfully'));
+			}
+			$ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
+			if (null !== $ga_userid_enabled)
+			{
+				Configuration::updateValue('GA_ACCOUNT_ID', (bool)$ga_userid_enabled);
+				$output .= $this->displayConfirmation($this->l('Settings for User-ID updated successfully'));
 			}
 		}
 
@@ -223,6 +238,10 @@ class Ganalytics extends Module
 
 	protected function _getGoogleAnalyticsTag($back_office = false)
 	{
+		$user_id = null; 
+		if (Configuration::get('GA_USERID_ENABLED')) {
+			//TODO: retrieve user id if user is logged-in
+		}
 		return '
 			<script type="text/javascript">
 				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
@@ -232,6 +251,7 @@ class Ganalytics extends Module
 				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
 				ga(\'require\', \'ec\');
+				'.($user_id ? 'ga(\‘set\’, \‘&uid\’, \''.$user_id.'\');': '').'
 				'.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '').'
 			</script>';
 	}
