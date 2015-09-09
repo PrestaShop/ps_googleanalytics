@@ -798,7 +798,7 @@ class Ganalytics extends Module
 			foreach (array('2.0.0', '2.0.4', '2.0.5', '2.0.6', '2.1.0') as $version)
 			{
 				$file = dirname(__FILE__).'/upgrade/Upgrade-'.$version.'.php';
-				if (Configuration::get('GANALYTICS') < $version && file_exists($file))
+				if (version_compare(Configuration::get('GANALYTICS'), $version, '<') && file_exists($file))
 				{
 					include_once($file);
 					call_user_func('upgrade_module_'.str_replace('.', '_', $version), $this);
