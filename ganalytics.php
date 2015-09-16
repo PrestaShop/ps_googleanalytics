@@ -249,12 +249,10 @@ class Ganalytics extends Module
 	protected function _getGoogleAnalyticsTag($back_office = false)
 	{
 		$user_id = null;
-		if (Configuration::get('GA_USERID_ENABLED'))
-		{
-			if ($this->context->customer && $this->context->customer->isLogged())
-			{
-				$user_id = (int)$this->context->customer->id;
-			}
+		if (Configuration::get('GA_USERID_ENABLED') &&
+			$this->context->customer && $this->context->customer->isLogged()
+		){
+			$user_id = (int)$this->context->customer->id;
 		}
 
 		return '
