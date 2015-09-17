@@ -705,19 +705,32 @@ class Ganalytics extends Module
 			$ga_scripts = '';
 			if ($this->context->controller->controller_name == 'AdminOrders')
 			{
-				$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
-
-				if ($ga_order_records)
-					foreach ($ga_order_records as $row)
+				if (Tools::getValue('id_order'))
+				{
+					$ga_order_records = Db::getInstance()->ExecuteS($sql='SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order=\''.Tools::getValue('id_order').'\' AND sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\'');
+					if (!$ga_order_records) 
 					{
-						$transaction = $this->wrapOrder($row['id_order']);
-						if (!empty($transaction))
-						{
-							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\' LIMIT 1');
-							$transaction = Tools::jsonEncode($transaction);
-							$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
-						}
+						$order = new Order(Tools::getValue('id_order'));
+						Db::getInstance()->Execute($sql='INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)$order->id.', '.(int)$this->context->shop->id.', 0, NOW())');
 					}
+				}
+				else
+				{
+					$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
+	
+					if ($ga_order_records)
+						foreach ($ga_order_records as $row)
+						{
+							$transaction = $this->wrapOrder($row['id_order']);
+							if (!empty($transaction))
+							{
+								Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\' LIMIT 1');
+								$transaction = Tools::jsonEncode($transaction);
+								$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
+							}
+						}
+				
+				}
 			}
 			return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts, 1);
 		}
