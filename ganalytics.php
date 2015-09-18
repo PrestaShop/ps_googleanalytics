@@ -706,9 +706,7 @@ class Ganalytics extends Module
 			if ($this->context->controller->controller_name == 'AdminOrders')
 			{
 				if (Tools::getValue('id_order'))
-				{
 					Db::getInstance()->Execute($sql='INSERT IGNORE INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)$order->id.', '.(int)$this->context->shop->id.', 0, NOW())');
-				}
 				else
 				{
 					$ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
