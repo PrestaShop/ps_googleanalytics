@@ -645,12 +645,9 @@ class Ganalytics extends Module
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
-
-			if (($this->js_state) != 1 && ($backoffice == 0))
-				$js_code .= 'ga(\'send\', \'pageview\');';
-
+			$runjs_code = '';
 			if (!empty($js_code))
-				return '
+				$runjs_code .= '
 				<script type="text/javascript">
 					jQuery(document).ready(function(){
 						var MBG = GoogleAnalyticEnhancedECommerce;
@@ -658,6 +655,14 @@ class Ganalytics extends Module
 						'.$js_code.'
 					});
 				</script>';
+				
+			if (($this->js_state) != 1 && ($backoffice == 0))
+				$runjs_code .= '
+				<script type="text/javascript">
+					ga(\'send\', \'pageview\');
+				</script>';
+			
+			return $runjs_code;
 		}
 	}
 
