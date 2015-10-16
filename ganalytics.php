@@ -181,7 +181,7 @@ class Ganalytics extends Module
 				),
 				array(
 					'type' => 'radio',
-					'label' => $this->l('Enable User-ID tracking'),
+					'label' => $this->l('Enable User ID tracking'),
 					'name' => 'GA_USERID_ENABLED',
 					'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
 					'values'    => array(
@@ -229,7 +229,7 @@ class Ganalytics extends Module
 			if (null !== $ga_userid_enabled)
 			{
 				Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
-				$output .= $this->displayConfirmation($this->l('Settings for User-ID updated successfully'));
+				$output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
 			}
 		}
 
