@@ -698,7 +698,7 @@ class Ganalytics extends Module
 
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
-		if (!empty($ga_account_id))
+		if (!empty($ga_account_id) && $this->active)
 		{
 			if (version_compare(_PS_VERSION_, '1.5', '>=') == true)
 				$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
