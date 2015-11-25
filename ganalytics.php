@@ -726,7 +726,7 @@ class Ganalytics extends Module
 							$transaction = $this->wrapOrder($row['id_order']);
 							if (!empty($transaction))
 							{
-								Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW() WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\' LIMIT 1');
+								Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW(), sent = 1 WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\' LIMIT 1');
 								$transaction = Tools::jsonEncode($transaction);
 								$ga_scripts .= 'MBG.addTransaction('.$transaction.');';
 							}
