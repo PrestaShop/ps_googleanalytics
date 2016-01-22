@@ -364,7 +364,7 @@ class Ganalytics extends Module
 
 		if ($controller_name == 'order' || $controller_name == 'orderopc')
 		{
-			$this->js_state = 0;
+			$this->js_state = 1;
 			$this->eligible = 1;
 			$step = Tools::getValue('step');
 			if (empty($step))
