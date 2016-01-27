@@ -527,10 +527,10 @@ class Ganalytics extends Module
 		{
 			$ga_product = array(
 				'id' => $product_id,
-				'name' => Tools::jsonEncode($product['name']),
-				'category' => Tools::jsonEncode($product['category']),
-				'brand' => isset($product['manufacturer_name']) ? Tools::jsonEncode($product['manufacturer_name']) : '',
-				'variant' => Tools::jsonEncode($variant),
+				'name' => Tools::str2url($product['name']),
+				'category' => Tools::str2url($product['category']),
+				'brand' => isset($product['manufacturer_name']) ? Tools::str2url($product['manufacturer_name']) : '',
+				'variant' => Tools::str2url($variant),
 				'type' => $product_type,
 				'position' => $index ? $index : '0',
 				'quantity' => $product_qty,
@@ -543,7 +543,7 @@ class Ganalytics extends Module
 		{
 			$ga_product = array(
 				'id' => $product_id,
-				'name' => Tools::jsonEncode($product['name'])
+				'name' => Tools::str2url($product['name'])
 			);
 		}
 		return $ga_product;
