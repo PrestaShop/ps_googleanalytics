@@ -27,7 +27,7 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class Ganalytics extends Module
+class Ps_Googleanalytics extends Module
 {
 	protected $js_state = 0;
 	protected $eligible = 0;
@@ -37,7 +37,7 @@ class Ganalytics extends Module
 
 	public function __construct()
 	{
-		$this->name = 'ganalytics';
+		$this->name = 'ps_googleanalytics';
 		$this->tab = 'analytics_stats';
 		$this->version = '2.3.4';
 		$this->author = 'PrestaShop';
