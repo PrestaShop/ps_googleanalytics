@@ -8,7 +8,7 @@ Gain clear insights into important metrics about your customers, using Google An
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 1.4, 1.5 and 1.6.
+Google Analytics is compatible with all versions of PrestaShop 1.7
 
 ### Requirements
 
