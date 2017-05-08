@@ -64,7 +64,7 @@ class Ps_Googleanalytics extends Module
 		if (!parent::install() || !$this->installTab() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
 			|| !$this->registerHook('footer') || !$this->registerHook('home')
 			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
-			|| !$this->registerHook('backOfficeHeader'))
+			|| !$this->registerHook('backOfficeHeader')) || !$this->registerHook('processCarrier'))
 			return false;
 
 		if (version_compare(_PS_VERSION_, '1.5', '>=')
@@ -261,10 +261,10 @@ class Ps_Googleanalytics extends Module
 				(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){
 				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-				})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');
+				})(window,document,\'script\',\'https://www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
 				ga(\'require\', \'ec\');'
-				.(($user_id && !$back_office) ? 'ga(\'set\', \'&uid\', \''.$user_id.'\');': '')
+				.(($user_id && !$back_office) ? 'ga(\'set\', \'userId\', \''.$user_id.'\');': '')
 				.($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
 			.'</script>';
 	}
@@ -316,6 +316,8 @@ class Ps_Googleanalytics extends Module
 					foreach ($cart->getProducts() as $order_product)
 						$order_products[] = $this->wrapProduct($order_product, array(), 0, true);
 
+					$ga_scripts = 'MBG.addCheckoutOption(3,\''.$order->payment.'\');';
+
 					$transaction = array(
 						'id' => $order->id,
 						'affiliation' => (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
@@ -324,7 +326,7 @@ class Ps_Googleanalytics extends Module
 						'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
 						'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true),
 						'customer' => $order->id_customer);
-					$ga_scripts = $this->addTransaction($order_products, $transaction);
+					$ga_scripts .= $this->addTransaction($order_products, $transaction);
 
 					$this->js_state = 1;
 					return $this->_runJs($ga_scripts);
@@ -537,7 +539,7 @@ class Ps_Googleanalytics extends Module
 				'quantity' => $product_qty,
 				'list' => Tools::getValue('controller'),
 				'url' => isset($product['link']) ? urlencode($product['link']) : '',
-				'price' => number_format($product['price'], '2')
+				'price' => number_format($product['price'], 2, '.', '')
 			);
 		}
 		else
@@ -840,6 +842,13 @@ class Ps_Googleanalytics extends Module
 
 			$gacart[$id_product] = $ga_products;
 			$this->context->cookie->ga_cart = serialize($gacart);
+		}
+	}
+
+	public function hookProcessCarrier($params){
+		if(isset($params['cart']->id_carrier)){
+			$carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int)$params['cart']->id_carrier);
+			$this->context->cookie->ga_cart .= 'MBG.addCheckoutOption(2,\''.$carrier_name.'\');';
 		}
 	}
 
