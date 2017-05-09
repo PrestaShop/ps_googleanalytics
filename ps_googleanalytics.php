@@ -224,7 +224,7 @@ class Ps_Googleanalytics extends Module
 		
 		$output .= $this->displayForm();
 
-		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
+		return $this->fetch('module:ps_googleanalytics/views/templates/admin/configuration.tpl').$output;
 	}
 
 	protected function _getGoogleAnalyticsTag($back_office = false)
