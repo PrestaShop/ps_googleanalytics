@@ -49,26 +49,19 @@ class Ps_Googleanalytics extends Module
 		$this->displayName = $this->l('Google Analytics');
 		$this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
-		/* Backward compatibility */
-		if (version_compare(_PS_VERSION_, '1.5', '<'))
-			require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
 
-		$this->checkForUpdates();
 	}
 
 	public function install()
 	{
-		if (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive())
-			Shop::setContext(Shop::CONTEXT_ALL);
+
+		Shop::setContext(Shop::CONTEXT_ALL);
 
 		if (!parent::install() || !$this->installTab() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
 			|| !$this->registerHook('footer') || !$this->registerHook('home')
 			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
+			|| !$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')
 			|| !$this->registerHook('backOfficeHeader')) || !$this->registerHook('processCarrier'))
-			return false;
-
-		if (version_compare(_PS_VERSION_, '1.5', '>=')
-			&& (!$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
@@ -100,8 +93,6 @@ class Ps_Googleanalytics extends Module
 
 	public function installTab()
 	{
-		if (version_compare(_PS_VERSION_, '1.5', '<'))
-			return true;
 
 		$tab = new Tab();
 		$tab->active = 0;
@@ -116,8 +107,6 @@ class Ps_Googleanalytics extends Module
 
 	public function uninstallTab()
 	{
-		if (version_compare(_PS_VERSION_, '1.5', '<'))
-			return true;
 
 		$id_tab = (int)Tab::getIdFromClassName('AdminGanalyticsAjax');
 		if ($id_tab)
@@ -232,16 +221,8 @@ class Ps_Googleanalytics extends Module
 				$output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
 			}
 		}
-
-		if (version_compare(_PS_VERSION_, '1.5', '>='))
-			$output .= $this->displayForm();
-		else
-		{
-			$this->context->smarty->assign(array(
-				'account_id' => Configuration::get('GA_ACCOUNT_ID'),
-			));
-			$output .= $this->display(__FILE__, 'views/templates/admin/form-ps14.tpl');
-		}
+		
+		$output .= $this->displayForm();
 
 		return $this->display(__FILE__, 'views/templates/admin/configuration.tpl').$output;
 	}
@@ -320,7 +301,7 @@ class Ps_Googleanalytics extends Module
 
 					$transaction = array(
 						'id' => $order->id,
-						'affiliation' => (version_compare(_PS_VERSION_, '1.5', '>=') && Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+						'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
 						'revenue' => $order->total_paid,
 						'shipping' => $order->total_shipping,
 						'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
@@ -375,17 +356,10 @@ class Ps_Googleanalytics extends Module
 			$ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
 		}
 
-		if (version_compare(_PS_VERSION_, '1.5', '<'))
-		{
-			if ($controller_name == 'orderconfirmation')
-				$this->eligible = 1;
-		}
-		else
-		{
-			$confirmation_hook_id = (int)Hook::getIdByName('orderConfirmation');
-			if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
-				$this->eligible = 1;
-		}
+
+		$confirmation_hook_id = (int)Hook::getIdByName('orderConfirmation');
+		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
+			$this->eligible = 1;
 
 		if (isset($products) && count($products) && $controller_name != 'index')
 		{
@@ -447,19 +421,8 @@ class Ps_Googleanalytics extends Module
 	 */
 	public function isModuleEnabled($name)
 	{
-		if (version_compare(_PS_VERSION_, '1.5', '>='))
-			if(Module::isEnabled($name))
-			{
-				$module = Module::getInstanceByName($name);
-				return $module->isRegisteredInHook('home');
-			}
-			else
-				return false;
-		else
-		{
-			$module = Module::getInstanceByName($name);
-			return ($module && $module->active === true);
-		}
+		$module = Module::getInstanceByName($name);
+		return $module->isRegisteredInHook('home');
 	}
 
 	/**
@@ -686,27 +649,14 @@ class Ps_Googleanalytics extends Module
 		$js = '';
 		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
 		{
-			if (version_compare(_PS_VERSION_, '1.5', '>') == true)
-			{
-				$this->context->controller->addCSS($this->_path.'views/css/ganalytics.css');
-				if (version_compare(_PS_VERSION_, '1.6', '<') == true)
-					$this->context->controller->addCSS($this->_path.'views/css/ganalytics-nobootstrap.css');
-			}
-			else
-			{
-				$js .= '<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics.css" type="text/css" />\
-						<link rel="stylesheet" href="'.$this->_path.'views/css/ganalytics-nobootstrap.css" type="text/css" />';
-			}
+			$this->context->controller->addCSS($this->_path.'views/css/ganalytics.css');
 		}
 
 		$ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
 		if (!empty($ga_account_id) && $this->active)
 		{
-			if (version_compare(_PS_VERSION_, '1.5', '>=') == true)
-				$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-			else
-				$js .= '<script type="text/javascript" src="'.$this->_path.'views/js/GoogleAnalyticActionLib.js"></script>';
+			$this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
 
 			$this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
@@ -850,21 +800,6 @@ class Ps_Googleanalytics extends Module
 			$carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int)$params['cart']->id_carrier);
 			$this->context->cookie->ga_cart .= 'MBG.addCheckoutOption(2,\''.$carrier_name.'\');';
 		}
-	}
-
-	protected function checkForUpdates()
-	{
-		// Used by PrestaShop 1.3 & 1.4
-		if (version_compare(_PS_VERSION_, '1.5', '<') && self::isInstalled($this->name))
-			foreach (array('2.0.0', '2.0.4', '2.0.5', '2.0.6', '2.1.0') as $version)
-			{
-				$file = dirname(__FILE__).'/upgrade/Upgrade-'.$version.'.php';
-				if (version_compare(Configuration::get('GANALYTICS'), $version, '<') && file_exists($file))
-				{
-					include_once($file);
-					call_user_func('upgrade_module_'.str_replace('.', '_', $version), $this);
-				}
-			}
 	}
 
 	protected function _debugLog($function, $log)
