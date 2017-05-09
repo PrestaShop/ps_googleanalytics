@@ -48,6 +48,7 @@ class Ps_Googleanalytics extends Module
 
 		$this->displayName = $this->l('Google Analytics');
 		$this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
+		$this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
 
 	}
@@ -57,11 +58,11 @@ class Ps_Googleanalytics extends Module
 
 		Shop::setContext(Shop::CONTEXT_ALL);
 
-		if (!parent::install() || !$this->installTab() || !$this->registerHook('header') || !$this->registerHook('adminOrder')
-			|| !$this->registerHook('footer') || !$this->registerHook('home')
-			|| !$this->registerHook('productfooter') || !$this->registerHook('orderConfirmation')
+		if (!parent::install() || !$this->installTab() || !$this->registerHook('displayHeader') || !$this->registerHook('displayAdminOrder')
+			|| !$this->registerHook('displayFooter') || !$this->registerHook('displayHome')
+			|| !$this->registerHook('displayFooterProduct') || !$this->registerHook('displayOrderConfirmation')
 			|| !$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')
-			|| !$this->registerHook('backOfficeHeader')) || !$this->registerHook('processCarrier'))
+			|| !$this->registerHook('displayBackOfficeHeader')) || !$this->registerHook('actionCarrierProcess'))
 			return false;
 
 		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
@@ -250,7 +251,7 @@ class Ps_Googleanalytics extends Module
 			.'</script>';
 	}
 
-	public function hookHeader()
+	public function hookdisplayHeader($params)
 	{
 		if (Configuration::get('GA_ACCOUNT_ID'))
 		{
@@ -281,7 +282,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * To track transactions
 	 */
-	public function hookOrderConfirmation($params)
+	public function hookdisplayOrderConfirmation($params)
 	{
 		$order = $params['objOrder'];
 		if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int)Configuration::get('PS_OS_ERROR'))
@@ -319,7 +320,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * hook footer to load JS script for standards actions such as product clicks
 	 */
-	public function hookFooter()
+	public function hookdisplayFooter()
 	{
 		$ga_scripts = '';
 		$this->js_state = 0;
@@ -357,7 +358,7 @@ class Ps_Googleanalytics extends Module
 		}
 
 
-		$confirmation_hook_id = (int)Hook::getIdByName('orderConfirmation');
+		$confirmation_hook_id = (int)Hook::getIdByName('displayOrderConfirmation');
 		if (isset(Hook::$executed_hooks[$confirmation_hook_id]))
 			$this->eligible = 1;
 
@@ -382,7 +383,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * hook home to display generate the product list associated to home featured, news products and best sellers Modules
 	 */
-	public function hookHome()
+	public function hookdisplayHome()
 	{
 		$ga_scripts = '';
 
@@ -587,7 +588,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * hook product page footer to load JS for product details view
 	 */
-	public function hookProductFooter($params)
+	public function hookdisplayFooterProduct($params)
 	{
 		$controller_name = Tools::getValue('controller');
 		if ($controller_name == 'product')
@@ -635,7 +636,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * Hook admin order to send transactions and refunds details
 	 */
-	public function hookAdminOrder()
+	public function hookdisplayAdminOrder()
 	{
 		echo $this->_runJs($this->context->cookie->ga_admin_refund, 1);
 		unset($this->context->cookie->ga_admin_refund);
@@ -644,7 +645,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 *  admin office header to add google analytics js
 	 */
-	public function hookBackOfficeHeader()
+	public function hookdisplayBackOfficeHeader()
 	{
 		$js = '';
 		if (strcmp(Tools::getValue('configure'), $this->name) === 0)
@@ -698,7 +699,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * Hook admin office header to add google analytics js
 	 */
-	public function hookActionProductCancel($params)
+	public function hookactionProductCancel($params)
 	{
 		$qty_refunded = Tools::getValue('cancelQuantity');
 		$ga_scripts = '';
@@ -718,7 +719,7 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * hook save cart event to implement addtocart and remove from cart functionality
 	 */
-	public function hookActionCartSave()
+	public function hookactionCartSave()
 	{
 		if (!isset($this->context->cart))
 			return;
@@ -795,7 +796,7 @@ class Ps_Googleanalytics extends Module
 		}
 	}
 
-	public function hookProcessCarrier($params){
+	public function hookactionCarrierProcess($params){
 		if(isset($params['cart']->id_carrier)){
 			$carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int)$params['cart']->id_carrier);
 			$this->context->cookie->ga_cart .= 'MBG.addCheckoutOption(2,\''.$carrier_name.'\');';
