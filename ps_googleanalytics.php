@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2015 PrestaShop
+ * 2007-2017 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -19,7 +19,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2015 PrestaShop SA
+ *  @copyright 2007-2017 PrestaShop SA
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
@@ -40,34 +40,57 @@ class Ps_Googleanalytics extends Module
 		$this->name = 'ps_googleanalytics';
 		$this->tab = 'analytics_stats';
 		$this->version = '3.0.0';
+		$this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
 		$this->author = 'PrestaShop';
 		$this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
 		$this->bootstrap = true;
 
 		parent::__construct();
 
-		$this->displayName = $this->l('Google Analytics');
-		$this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
-		$this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
-		$this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
+		$this->displayName = $this->trans('Google Analytics', array(), 'Modules.GAnalytics.Admin');
+		$this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
+		
+		$this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
 
 	}
-
 	public function install()
 	{
+  		if (Shop::isFeatureActive())
+			Shop::setContext(Shop::CONTEXT_ALL);
 
-		Shop::setContext(Shop::CONTEXT_ALL);
+		if (parent::install() &&
+			$this->registerHook('displayHeader') && 
+			$this->registerHook('displayAdminOrder') &&
+			$this->registerHook('displayFooter') &&
+			$this->registerHook('displayHome') &&
+			$this->registerHook('displayFooterProduct') &&
+			$this->registerHook('displayOrderConfirmation') &&
+			$this->registerHook('actionProductCancel') &&
+			$this->registerHook('actionCartSave') &&
+			$this->registerHook('displayBackOfficeHeader') &&
+			$this->registerHook('actionCarrierProcess')
+		) {
+			return $this->createTables();
+		}
 
-		if (!parent::install() || !$this->installTab() || !$this->registerHook('displayHeader') || !$this->registerHook('displayAdminOrder')
-			|| !$this->registerHook('displayFooter') || !$this->registerHook('displayHome')
-			|| !$this->registerHook('displayFooterProduct') || !$this->registerHook('displayOrderConfirmation')
-			|| !$this->registerHook('actionProductCancel') || !$this->registerHook('actionCartSave')
-			|| !$this->registerHook('displayBackOfficeHeader')) || !$this->registerHook('actionCarrierProcess'))
-			return false;
+		return false;
+	}
 
-		Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
+	public function uninstall()
+	{
+		if (parent::uninstall()) {
+			return $this->deleteTables();
+		}
 
-		if (!Db::getInstance()->Execute('
+		return false;		
+	}
+
+    /**
+     * Creates tables
+     */
+    protected function createTables()
+    {
+		return (bool)Db::getInstance()->execute('
 			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
 				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
 				`id_order` int(11) NOT NULL,
@@ -78,46 +101,19 @@ class Ps_Googleanalytics extends Module
 				PRIMARY KEY (`id_google_analytics`),
 				KEY `id_order` (`id_order`),
 				KEY `sent` (`sent`)
-			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1'))
-			return $this->uninstall();
-
-		return true;
+			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1
+		');
 	}
 
-	public function uninstall()
-	{
-		if (!$this->uninstallTab() || !parent::uninstall())
-			return false;
-
-		return Db::getInstance()->Execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`');
-	}
-
-	public function installTab()
-	{
-
-		$tab = new Tab();
-		$tab->active = 0;
-		$tab->class_name = 'AdminGanalyticsAjax';
-		$tab->name = array();
-		foreach (Language::getLanguages(true) as $lang)
-			$tab->name[$lang['id_lang']] = 'Google Analytics Ajax';
-		$tab->id_parent = -1; //(int)Tab::getIdFromClassName('AdminAdmin');
-		$tab->module = $this->name;
-		return $tab->add();
-	}
-
-	public function uninstallTab()
-	{
-
-		$id_tab = (int)Tab::getIdFromClassName('AdminGanalyticsAjax');
-		if ($id_tab)
-		{
-			$tab = new Tab($id_tab);
-			return $tab->delete();
-		}
-
-		return true;
-	}
+    /**
+     * deletes tables
+     */
+    protected function deleteTables()
+    {
+    	return (bool)Db::getInstance()->execute('
+    		DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`
+    	');
+    }
 
 	public function displayForm()
 	{
@@ -213,19 +209,19 @@ class Ps_Googleanalytics extends Module
 			{
 				Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
 				Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-				$output .= $this->displayConfirmation($this->l('Account ID updated successfully'));
+				$output .= $this->displayConfirmation($this->trans('Account ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
 			}
 			$ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
 			if (null !== $ga_userid_enabled)
 			{
 				Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
-				$output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
+				$output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
 			}
 		}
 		
 		$output .= $this->displayForm();
 
-		return $this->fetch('module:ps_googleanalytics/views/templates/admin/configuration.tpl').$output;
+		return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
 	}
 
 	protected function _getGoogleAnalyticsTag($back_office = false)
@@ -340,11 +336,12 @@ class Ps_Googleanalytics extends Module
 					$ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($gacart).');';
 				}
 			}
-			unset($this->context->cookie->ga_cart);
+			 unset($this->context->cookie->ga_cart);
 		}
 
 		$controller_name = Tools::getValue('controller');
-		$products = $this->wrapProducts($this->context->smarty->getTemplateVars('products'), array(), true);
+		$listing = $this->context->smarty->getTemplateVars('listing');
+		$products = $this->wrapProducts($listing['products'], array(), true);
 
 		if ($controller_name == 'order' || $controller_name == 'orderopc')
 		{
@@ -388,29 +385,12 @@ class Ps_Googleanalytics extends Module
 		$ga_scripts = '';
 
 		// Home featured products
-		if ($this->isModuleEnabled('homefeatured'))
+		if ($this->isModuleEnabled('ps_featuredproducts'))
 		{
 			$category = new Category($this->context->shop->getCategory(), $this->context->language->id);
 			$home_featured_products = $this->wrapProducts($category->getProducts((int)Context::getContext()->language->id, 1,
 			(Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8), 'position'), array(), true);
 			$ga_scripts .= $this->addProductImpression($home_featured_products).$this->addProductClick($home_featured_products);
-		}
-
-		// New products
-		if ($this->isModuleEnabled('blocknewproducts') && (Configuration::get('PS_NB_DAYS_NEW_PRODUCT')
-				|| Configuration::get('PS_BLOCK_NEWPRODUCTS_DISPLAY')))
-		{
-			$new_products = Product::getNewProducts((int)$this->context->language->id, 0, (int)Configuration::get('NEW_PRODUCTS_NBR'));
-			$new_products_list = $this->wrapProducts($new_products, array(), true);
-			$ga_scripts .= $this->addProductImpression($new_products_list).$this->addProductClick($new_products_list);
-		}
-
-		// Best Sellers
-		if ($this->isModuleEnabled('blockbestsellers') && (!Configuration::get('PS_CATALOG_MODE')
-				|| Configuration::get('PS_BLOCK_BESTSELLERS_DISPLAY')))
-		{
-			$ga_homebestsell_product_list = $this->wrapProducts(ProductSale::getBestSalesLight((int)$this->context->language->id, 0, 8), array(), true);
-			$ga_scripts .= $this->addProductImpression($ga_homebestsell_product_list).$this->addProductClick($ga_homebestsell_product_list);
 		}
 
 		$this->js_state = 1;
@@ -420,10 +400,15 @@ class Ps_Googleanalytics extends Module
 	/**
 	 * hook home to display generate the product list associated to home featured, news products and best sellers Modules
 	 */
-	public function isModuleEnabled($name)
+	public function isModuleEnabled($module_name)
 	{
-		$module = Module::getInstanceByName($name);
-		return $module->isRegisteredInHook('home');
+
+        if (($module = Module::getInstanceByName($module_name)) !== false &&
+            Module::isInstalled($module_name) &&
+            $module->active ) {
+            return $module->registerHook('displayHome');
+        }
+
 	}
 
 	/**
@@ -503,7 +488,7 @@ class Ps_Googleanalytics extends Module
 				'quantity' => $product_qty,
 				'list' => Tools::getValue('controller'),
 				'url' => isset($product['link']) ? urlencode($product['link']) : '',
-				'price' => number_format($product['price'], 2, '.', '')
+				'price' => $product['price']
 			);
 		}
 		else
@@ -591,8 +576,10 @@ class Ps_Googleanalytics extends Module
 	public function hookdisplayFooterProduct($params)
 	{
 		$controller_name = Tools::getValue('controller');
+
 		if ($controller_name == 'product')
 		{
+			
 			// Add product view
 			$ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
 			$js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
@@ -814,4 +801,5 @@ class Ps_Googleanalytics extends Module
 		fwrite($fh, print_r($log, true)."\n\n");
 		fclose($fh);
 	}
+
 }
