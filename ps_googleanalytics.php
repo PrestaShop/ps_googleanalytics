@@ -302,7 +302,7 @@ class Ps_Googleanalytics extends Module
 						'revenue' => $order->total_paid,
 						'shipping' => $order->total_shipping,
 						'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-						'url' => $this->context->link->getModuleLink('ganalytics', 'ajax', array(), true),
+						'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
 						'customer' => $order->id_customer);
 					$ga_scripts .= $this->addTransaction($order_products, $transaction);
 
@@ -603,7 +603,7 @@ class Ps_Googleanalytics extends Module
 			if (!empty($js_code))
 				$runjs_code .= '
 				<script type="text/javascript">
-					jQuery(document).ready(function(){
+					document.addEventListener(\'DOMContentLoaded\', function() {
 						var MBG = GoogleAnalyticEnhancedECommerce;
 						MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
 						'.$js_code.'

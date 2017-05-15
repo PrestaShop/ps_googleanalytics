@@ -1,5 +1,5 @@
 {*
- * 2007-2015 PrestaShop
+ * 2007-2017 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,8 +18,8 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  *  @author PrestaShop SA <contact@prestashop.com>
- *  @copyright  2007-2015 PrestaShop SA
- *  @version  Release: $Revision: 7040 $
+ *  @copyright  2007-2017 PrestaShop SA
+ *  @version  Release: $Revision:7040 $
  *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  *}
@@ -38,27 +38,27 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<p>
-					{l s='Your customers go everywhere; shouldn\'t your analytics.' mod='ganalytics'}
+					{l s='Your customers go everywhere; shouldn\'t your analytics.' d='Modules.GAnalytics.Admin'}
 				</p><p>
-					{l s='Google Analytics shows you the full customer picture across ads and videos, websites and social tools, tables and smartphones. That makes it easier to serve your current customers and win new ones.' mod='ganalytics'}
+					{l s='Google Analytics shows you the full customer picture across ads and videos, websites and social tools, tables and smartphones. That makes it easier to serve your current customers and win new ones.' d='Modules.GAnalytics.Admin'}
 				</p>
-				<p><b>{l s='With ecommerce functionality in Google Analytics you can gain clear insight into important metrics about shopper behavior and conversion, including:' mod='ganalytics'}</b></p>
+				<p><b>{l s='With ecommerce functionality in Google Analytics you can gain clear insight into important metrics about shopper behavior and conversion, including:' d='Modules.GAnalytics.Admin'}</b></p>
 				<div id="advantages_list">
-					<div class="col-xs-6"><img src="{$module_dir}views/img/product_detail_icon.png" alt="" />{l s='Product detail views' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir}views/img/merchandising_tools_icon.png" alt="" />{l s='Internal merchandising Success' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir}views/img/add_to_cart_icon.png" alt="" />{l s='"Add to cart" actions' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir}views/img/checkout_icon.png" alt="" />{l s='The checkout process' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir}views/img/campaign_clicks_icon.png" alt="" />{l s='Internal campaign clicks' mod='ganalytics'}</div>
-					<div class="col-xs-6"><img src="{$module_dir}views/img/purchase_icon.png" alt="" />{l s='And purchase' mod='ganalytics'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/product_detail_icon.png" alt="" />{l s='Product detail views' d='Modules.GAnalytics.Admin'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/merchandising_tools_icon.png" alt="" />{l s='Internal merchandising Success' d='Modules.GAnalytics.Admin'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/add_to_cart_icon.png" alt="" />{l s='"Add to cart" actions' d='Modules.GAnalytics.Admin'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/checkout_icon.png" alt="" />{l s='The checkout process' d='Modules.GAnalytics.Admin'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/campaign_clicks_icon.png" alt="" />{l s='Internal campaign clicks' d='Modules.GAnalytics.Admin'}</div>
+					<div class="col-xs-6"><img src="{$module_dir}views/img/purchase_icon.png" alt="" />{l s='And purchase' d='Modules.GAnalytics.Admin'}</div>
 				</div>
 			</div>
 			<div class="col-lg-6 text-center">
 				<p>
 					<img src="{$module_dir}views/img/stats.png" alt="" /><br />
-					<span class="small"><em>{l s='Merchants are able to understand how far along users get in the buying process and where they are dropping off.' mod='ganalytics'}</em></span>
+					<span class="small"><em>{l s='Merchants are able to understand how far along users get in the buying process and where they are dropping off.' d='Modules.GAnalytics.Admin'}</em></span>
 				</p>
 				<p class="text-right">
-					<b><a href="https://support.google.com/analytics/answer/1008015" rel="external">{l s='Create your account to get started.' mod='ganalytics'}</a></b>
+					<b><a href="https://support.google.com/analytics/answer/1008015" rel="external">{l s='Create your account to get started.' d='Modules.GAnalytics.Admin'}</a></b>
 				</p>
 			</div>
 		</div>
