@@ -383,9 +383,12 @@ class Ps_Googleanalytics extends Module
         if ($this->isModuleEnabled('ps_featuredproducts')) {
             $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
             $home_featured_products = $this->wrapProducts(
-                $category->getProducts((int)Context::getContext()->language->id,
-                1,
-                (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8), 'position'),
+                $category->getProducts(
+                    (int)Context::getContext()->language->id,
+                    1,
+                    (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8),
+                    'position'
+                ),
                 array(),
                 true
             );
@@ -588,9 +591,8 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooterProduct($params)
     {
         $controller_name = Tools::getValue('controller');
-        if ($controller_name == 'product')
+        if ($controller_name == 'product') 
         {
-            
             // Add product view
             $ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
             $js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
@@ -704,7 +706,8 @@ class Ps_Googleanalytics extends Module
                 array(
                     'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
                     'quantity' => $qty)
-                ).');';
+                )
+                .');';
         }
         $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
     }
