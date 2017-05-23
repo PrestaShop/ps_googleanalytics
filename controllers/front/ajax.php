@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class ps_googleanalyticsAjaxModuleFrontController extends ModuleFrontController
+class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
     /*
@@ -38,7 +38,9 @@ class ps_googleanalyticsAjaxModuleFrontController extends ModuleFrontController
         if (!Validate::isLoadedObject($order) || $order->id_customer != (int)Tools::getValue('customer')) {
             die;
         }
-        Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1');
+        Db::getInstance()->execute(
+            'UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1'
+        );
         die;
     }
 }

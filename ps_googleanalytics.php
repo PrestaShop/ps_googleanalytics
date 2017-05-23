@@ -382,8 +382,13 @@ class Ps_Googleanalytics extends Module
         // Home featured products
         if ($this->isModuleEnabled('ps_featuredproducts')) {
             $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
-            $home_featured_products = $this->wrapProducts($category->getProducts((int)Context::getContext()->language->id, 1,
-            (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8), 'position'), array(), true);
+            $home_featured_products = $this->wrapProducts(
+                $category->getProducts((int)Context::getContext()->language->id,
+                1,
+                (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8), 'position'),
+                array(),
+                true
+            );
             $ga_scripts .= $this->addProductImpression($home_featured_products).$this->addProductClick($home_featured_products);
         }
 
@@ -583,8 +588,8 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooterProduct($params)
     {
         $controller_name = Tools::getValue('controller');
-
-        if ($controller_name == 'product') {
+        if ($controller_name == 'product')
+        {
             
             // Add product view
             $ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
@@ -696,10 +701,10 @@ class Ps_Googleanalytics extends Module
             // Display GA refund product
             $order_detail = new OrderDetail($orderdetail_id);
             $ga_scripts .= 'MBG.add('.Tools::jsonEncode(
-                    array(
-                        'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
-                        'quantity' => $qty)
-                    ).');';
+                array(
+                    'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
+                    'quantity' => $qty)
+                ).');';
         }
         $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
     }
