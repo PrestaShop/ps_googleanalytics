@@ -320,13 +320,15 @@ class Ps_Googleanalytics extends Module
         if (isset($this->context->cookie->ga_cart)) {
             $this->filterable = 0;
 
-            $gacarts = Tools::jsonDecode($this->context->cookie->ga_cart);
-            foreach ($gacarts as $gacart) {
-                if ($gacart['quantity'] > 0) {
-                    $ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($gacart).');';
-                } elseif ($gacart['quantity'] < 0) {
-                    $gacart['quantity'] = abs($gacart['quantity']);
-                    $ga_scripts .= 'MBG.removeFromCart('.Tools::jsonEncode($gacart).');';
+            $gacarts = json_decode($this->context->cookie->ga_cart);
+            if (is_array($gacarts) {
+                foreach ($gacarts as $gacart) {
+                    if ($gacart['quantity'] > 0) {
+                        $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
+                    } elseif ($gacart['quantity'] < 0) {
+                        $gacart['quantity'] = abs($gacart['quantity']);
+                        $ga_scripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
+                    }
                 }
             }
             unset($this->context->cookie->ga_cart);
@@ -517,10 +519,10 @@ class Ps_Googleanalytics extends Module
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.Tools::jsonEncode($product).');';
+            $js .= 'MBG.add('.json_encode($product).');';
         }
 
-        return $js.'MBG.addTransaction('.Tools::jsonEncode($order).');';
+        return $js.'MBG.addTransaction('.json_encode($order).');';
     }
 
     /**
@@ -534,7 +536,7 @@ class Ps_Googleanalytics extends Module
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.Tools::jsonEncode($product).",'',true);";
+            $js .= 'MBG.add('.json_encode($product).",'',true);";
         }
 
         return $js;
@@ -548,7 +550,7 @@ class Ps_Googleanalytics extends Module
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.addProductClick('.Tools::jsonEncode($product).');';
+            $js .= 'MBG.addProductClick('.json_encode($product).');';
         }
 
         return $js;
@@ -562,7 +564,7 @@ class Ps_Googleanalytics extends Module
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.addProductClickByHttpReferal('.Tools::jsonEncode($product).');';
+            $js .= 'MBG.addProductClickByHttpReferal('.json_encode($product).');';
         }
 
         return $js;
@@ -579,7 +581,7 @@ class Ps_Googleanalytics extends Module
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.Tools::jsonEncode($product).');';
+            $js .= 'MBG.add('.json_encode($product).');';
         }
 
         return $js;
@@ -595,7 +597,7 @@ class Ps_Googleanalytics extends Module
         {
             // Add product view
             $ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
-            $js = 'MBG.addProductDetailView('.Tools::jsonEncode($ga_product).');';
+            $js = 'MBG.addProductDetailView('.json_encode($ga_product).');';
 
             if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
                 $js .= $this->addProductClickByHttpReferal(array($ga_product));
@@ -679,7 +681,7 @@ class Ps_Googleanalytics extends Module
                             $transaction = $this->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
                                 Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW(), sent = 1 WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\'');
-                                $transaction = Tools::jsonEncode($transaction);
+                                $transaction = json_encode($transaction);
                                 $ga_scripts .= 'MBG.addTransaction('.$transaction.');';
                             }
                         }
@@ -702,14 +704,14 @@ class Ps_Googleanalytics extends Module
         foreach ($qty_refunded as $orderdetail_id => $qty) {
             // Display GA refund product
             $order_detail = new OrderDetail($orderdetail_id);
-            $ga_scripts .= 'MBG.add('.Tools::jsonEncode(
+            $ga_scripts .= 'MBG.add('.json_encode(
                 array(
                     'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
                     'quantity' => $qty)
                 )
                 .');';
         }
-        $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.Tools::jsonEncode(array('id' => $params['order']->id)).');';
+        $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.json_encode(array('id' => $params['order']->id)).');';
     }
 
     /**
@@ -771,7 +773,7 @@ class Ps_Googleanalytics extends Module
             }
 
             if (isset($this->context->cookie->ga_cart)) {
-                $gacart = Tools::jsonDecode($this->context->cookie->ga_cart);
+                $gacart = json_decode($this->context->cookie->ga_cart);
             } else {
                 $gacart = array();
             }
@@ -791,7 +793,7 @@ class Ps_Googleanalytics extends Module
             }
 
             $gacart[$id_product] = $ga_products;
-            $this->context->cookie->ga_cart = Tools::jsonEncode($gacart);
+            $this->context->cookie->ga_cart = json_encode($gacart);
         }
     }
 
