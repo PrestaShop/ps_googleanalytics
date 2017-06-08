@@ -40,8 +40,8 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.0.0';
-        $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
+        $this->version = '3.0.1';
+        $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
         $this->bootstrap = true;
@@ -320,7 +320,7 @@ class Ps_Googleanalytics extends Module
         if (isset($this->context->cookie->ga_cart)) {
             $this->filterable = 0;
 
-            $gacarts = unserialize($this->context->cookie->ga_cart);
+            $gacarts = Tools::jsonDecode($this->context->cookie->ga_cart);
             foreach ($gacarts as $gacart) {
                 if ($gacart['quantity'] > 0) {
                     $ga_scripts .= 'MBG.addToCart('.Tools::jsonEncode($gacart).');';
@@ -771,7 +771,7 @@ class Ps_Googleanalytics extends Module
             }
 
             if (isset($this->context->cookie->ga_cart)) {
-                $gacart = unserialize($this->context->cookie->ga_cart);
+                $gacart = Tools::jsonDecode($this->context->cookie->ga_cart);
             } else {
                 $gacart = array();
             }
@@ -791,7 +791,7 @@ class Ps_Googleanalytics extends Module
             }
 
             $gacart[$id_product] = $ga_products;
-            $this->context->cookie->ga_cart = serialize($gacart);
+            $this->context->cookie->ga_cart = Tools::jsonEncode($gacart);
         }
     }
 
