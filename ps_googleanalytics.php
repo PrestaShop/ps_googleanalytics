@@ -321,7 +321,7 @@ class Ps_Googleanalytics extends Module
             $this->filterable = 0;
 
             $gacarts = json_decode($this->context->cookie->ga_cart);
-            if (is_array($gacarts) {
+            if (is_array($gacarts)) {
                 foreach ($gacarts as $gacart) {
                     if ($gacart['quantity'] > 0) {
                         $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
