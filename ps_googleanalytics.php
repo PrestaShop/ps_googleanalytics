@@ -320,7 +320,7 @@ class Ps_Googleanalytics extends Module
         if (isset($this->context->cookie->ga_cart)) {
             $this->filterable = 0;
 
-            $gacarts = json_decode($this->context->cookie->ga_cart);
+            $gacarts = json_decode($this->context->cookie->ga_cart, true);
             if (is_array($gacarts)) {
                 foreach ($gacarts as $gacart) {
                     if ($gacart['quantity'] > 0) {
@@ -773,7 +773,7 @@ class Ps_Googleanalytics extends Module
             }
 
             if (isset($this->context->cookie->ga_cart)) {
-                $gacart = json_decode($this->context->cookie->ga_cart);
+                $gacart = json_decode($this->context->cookie->ga_cart, true);
             } else {
                 $gacart = array();
             }
