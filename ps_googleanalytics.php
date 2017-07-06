@@ -40,7 +40,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.0.2';
+        $this->version = '3.0.3';
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -758,6 +758,8 @@ class Ps_Googleanalytics extends Module
                 $add_product['id_product'] = Tools::getValue('id_product');
                 $add_product['id_category_default'] = $add_product_object->id_category_default;
                 $add_product['out_of_stock'] = $add_product_object->out_of_stock;
+                $add_product['minimal_quantity'] = 1;
+                $add_product['unit_price_ratio'] = 0;		   
                 $add_product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $add_product);
             }
         }
