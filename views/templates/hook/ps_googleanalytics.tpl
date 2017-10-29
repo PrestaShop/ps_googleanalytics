@@ -33,20 +33,20 @@
 	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 {/literal}
     {if $gaCrossdomainEnabled}
-        ga('create', '{$gaAccountId}', 'auto', {literal}{'allowLinker': true}{/literal});
+        ga('create', '{$gaAccountId|escape:'htmlall':'UTF-8'}', 'auto', {literal}{'allowLinker': true}{/literal});
         ga('require', 'linker');
         ga('linker:autoLink', [
         {foreach from=$shops item=shop}
             {if $shop.id_shop != $currentShopId}
-            '{if $use_secure_more}{$shop.domain_ssl}{else}{$shop.domain}{/if}',
+            '{if $use_secure_more}{$shop.domain_ssl|escape:'htmlall':'UTF-8'}{else}{$shop.domain|escape:'htmlall':'UTF-8'}{/if}',
             {/if}
         {/foreach}
         ]);
     {else}
-        ga('create', '{$gaAccountId}', 'auto');
+        ga('create', '{$gaAccountId|escape:'htmlall':'UTF-8'}', 'auto');
     {/if}
     {if $userId && !$backOffice}
-        ga('set', 'userId', '{$userId}');
+        ga('set', 'userId', '{$userId|escape:'htmlall':'UTF-8'}');
     {/if}
     {if $backOffice}
         ga('set', 'nonInteraction', true);
