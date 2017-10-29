@@ -118,6 +118,9 @@ class Ps_Googleanalytics extends Module
 
     public function displayForm()
     {
+        // Check if multistore is active
+        $is_multistore_active = Shop::isFeatureActive();
+        
         // Get default language
         $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
 
@@ -182,27 +185,31 @@ class Ps_Googleanalytics extends Module
                             'label' => $this->l('Disabled')
                         ))
                 ),
-                array(
-                    'type' => 'switch',
-                    'label' => $this->l('Enable Cross-Domain tracking'),
-                    'name' => 'GA_CROSSDOMAIN_ENABLED',
-                    'values' => array(
-                        array(
-                            'id' => 'ga_crossdomain_enabled',
-                            'value' => 1,
-                            'label' => $this->l('Enabled')
-                        ),
-                        array(
-                            'id' => 'ga_crossdomain_disabled',
-                            'value' => 0,
-                            'label' => $this->l('Disabled')
-                        ))
-                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
             )
         );
+        
+        if ($is_multistore_active) {
+            $fields_form[0]['form']['input'][] = array(
+                'type' => 'switch',
+                'label' => $this->l('Enable Cross-Domain tracking'),
+                'name' => 'GA_CROSSDOMAIN_ENABLED',
+                'values' => array(
+                    array(
+                        'id' => 'ga_crossdomain_enabled',
+                        'value' => 1,
+                        'label' => $this->l('Enabled')
+                    ),
+                    array(
+                        'id' => 'ga_crossdomain_disabled',
+                        'value' => 0,
+                         'label' => $this->l('Disabled')
+                    )
+                )
+            );
+        }
 
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
