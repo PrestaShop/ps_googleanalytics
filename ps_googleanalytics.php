@@ -167,11 +167,10 @@ class Ps_Googleanalytics extends Module
                     'hint' => $this->l('This information is available in your Google Analytics account')
                 ),
                 array(
-                    'type' => 'radio',
+                    'type' => 'switch',
                     'label' => $this->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
-                    'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
-                    'values'    => array(
+                    'values' => array(
                         array(
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
@@ -181,8 +180,7 @@ class Ps_Googleanalytics extends Module
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
                             'label' => $this->l('Disabled')
-                        ),
-                    ),
+                        ))
                 ),
             ),
             'submit' => array(
@@ -222,35 +220,34 @@ class Ps_Googleanalytics extends Module
         return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
     }
 
-    protected function _getGoogleAnalyticsTag($back_office = false)
-    {
-        $user_id = null;
-        if (Configuration::get('GA_USERID_ENABLED') &&
-            $this->context->customer && $this->context->customer->isLogged()
-        ) {
-            $user_id = (int)$this->context->customer->id;
-        }
 
-        return '
-			<script type="text/javascript">
-				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
-				(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-				})(window,document,\'script\',\'https://www.google-analytics.com/analytics.js\',\'ga\');
-				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
-				ga(\'require\', \'ec\');'
-                .(($user_id && !$back_office) ? 'ga(\'set\', \'userId\', \''.$user_id.'\');': '')
-                .($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
-            .'</script>';
-    }
-
-    public function hookdisplayHeader($params)
+    public function hookdisplayHeader($params, $back_office = false)
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-
-            return $this->_getGoogleAnalyticsTag();
+            
+            $shops = Shop::getShops();
+            $is_multistore_active = Shop::isFeatureActive();
+            
+            $user_id = null;
+            
+            if (Configuration::get('GA_USERID_ENABLED') &&
+                $this->context->customer && $this->context->customer->isLogged()
+            ) {
+                $user_id = (int)$this->context->customer->id;
+            }
+            
+            
+            $this->smarty->assign(
+                array(
+                    'backOffice' => $back_office,
+                    'userId' => $user_id,
+                    'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
+                    'multiStoreActive' => $is_multistore_active,
+                    'shops' => $shops
+                )
+            );
+            return $this->display(__FILE__, 'ps_googleanalytics.tpl');
         }
     }
 
@@ -688,7 +685,7 @@ class Ps_Googleanalytics extends Module
                     }
                 }
             }
-            return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts, 1);
+            return $js.$this->hookdisplayHeader(null, true).$this->_runJs($ga_scripts, 1);
         } else {
             return $js;
         }
