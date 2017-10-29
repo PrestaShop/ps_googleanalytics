@@ -269,7 +269,7 @@ class Ps_Googleanalytics extends Module
                 $user_id = (int)$this->context->customer->id;
             }
             
-            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active) {
+            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
                 $ga_crossdomain_enabled = true;
             }
 
