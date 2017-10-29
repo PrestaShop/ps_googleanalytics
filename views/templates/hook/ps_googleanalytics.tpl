@@ -32,12 +32,14 @@
 	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 {/literal}
-    {if $multiStoreActive}
+    {if $gaCrossdomainEnabled}
         ga('create', '{$gaAccountId}', 'auto', {literal}{'allowLinker': true}{/literal});
         ga('require', 'linker');
         ga('linker:autoLink', [
         {foreach from=$shops item=shop}
+            {if $shop.id_shop != $currentShopId}
             '{if $use_secure_more}{$shop.domain_ssl}{else}{$shop.domain}{/if}',
+            {/if}
         {/foreach}
         ]);
     {else}

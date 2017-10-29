@@ -182,6 +182,22 @@ class Ps_Googleanalytics extends Module
                             'label' => $this->l('Disabled')
                         ))
                 ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Enable Cross-Domain tracking'),
+                    'name' => 'GA_CROSSDOMAIN_ENABLED',
+                    'values' => array(
+                        array(
+                            'id' => 'ga_crossdomain_enabled',
+                            'value' => 1,
+                            'label' => $this->l('Enabled')
+                        ),
+                        array(
+                            'id' => 'ga_crossdomain_disabled',
+                            'value' => 0,
+                            'label' => $this->l('Disabled')
+                        ))
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -191,6 +207,7 @@ class Ps_Googleanalytics extends Module
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -213,6 +230,11 @@ class Ps_Googleanalytics extends Module
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
+            $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
+            if (null !== $ga_crossdomain_enabled) {
+                Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
+                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+            }
         }
         
         $output .= $this->displayForm();
@@ -229,7 +251,10 @@ class Ps_Googleanalytics extends Module
             $shops = Shop::getShops();
             $is_multistore_active = Shop::isFeatureActive();
             
+            $current_shop_id = (int)Context::getContext()->shop->id;
+            
             $user_id = null;
+            $ga_crossdomain_enabled = false;
             
             if (Configuration::get('GA_USERID_ENABLED') &&
                 $this->context->customer && $this->context->customer->isLogged()
@@ -237,14 +262,18 @@ class Ps_Googleanalytics extends Module
                 $user_id = (int)$this->context->customer->id;
             }
             
-            
+            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active) {
+                $ga_crossdomain_enabled = true;
+            }
+
             $this->smarty->assign(
                 array(
                     'backOffice' => $back_office,
+                    'currentShopId' => $current_shop_id,
                     'userId' => $user_id,
                     'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                    'multiStoreActive' => $is_multistore_active,
-                    'shops' => $shops
+                    'shops' => $shops,
+                    'gaCrossdomainEnabled' => $ga_crossdomain_enabled
                 )
             );
             return $this->display(__FILE__, 'ps_googleanalytics.tpl');
