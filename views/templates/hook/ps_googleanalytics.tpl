@@ -38,7 +38,7 @@
         ga('linker:autoLink', [
         {foreach from=$shops item=shop}
             {if $shop.id_shop != $currentShopId}
-            '{if $use_secure_more}{$shop.domain_ssl|escape:'htmlall':'UTF-8'}{else}{$shop.domain|escape:'htmlall':'UTF-8'}{/if}',
+            {if $useSecureMode}'{$shop.domain_ssl|escape:'htmlall':'UTF-8'}'{else}'{$shop.domain|escape:'htmlall':'UTF-8'}'{/if},
             {/if}
         {/foreach}
         ]);

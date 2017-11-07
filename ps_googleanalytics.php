@@ -280,7 +280,8 @@ class Ps_Googleanalytics extends Module
                     'userId' => $user_id,
                     'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
                     'shops' => $shops,
-                    'gaCrossdomainEnabled' => $ga_crossdomain_enabled
+                    'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
+                    'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
                 )
             );
             return $this->display(__FILE__, 'ps_googleanalytics.tpl');
@@ -349,11 +350,11 @@ class Ps_Googleanalytics extends Module
     {
         $ga_scripts = '';
         $this->js_state = 0;
-
         if (isset($this->context->cookie->ga_cart)) {
             $this->filterable = 0;
-
+            
             $gacarts = json_decode($this->context->cookie->ga_cart, true);
+
             if (is_array($gacarts)) {
                 foreach ($gacarts as $gacart) {
                     if ($gacart['quantity'] > 0) {
