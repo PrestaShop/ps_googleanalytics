@@ -118,9 +118,6 @@ class Ps_Googleanalytics extends Module
 
     public function displayForm()
     {
-        // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();
-        
         // Get default language
         $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
 
@@ -170,10 +167,11 @@ class Ps_Googleanalytics extends Module
                     'hint' => $this->l('This information is available in your Google Analytics account')
                 ),
                 array(
-                    'type' => 'switch',
+                    'type' => 'radio',
                     'label' => $this->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
-                    'values' => array(
+                    'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
+                    'values'    => array(
                         array(
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
@@ -183,38 +181,18 @@ class Ps_Googleanalytics extends Module
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
                             'label' => $this->l('Disabled')
-                        ))
+                        ),
+                    ),
                 ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
             )
         );
-        
-        if ($is_multistore_active) {
-            $fields_form[0]['form']['input'][] = array(
-                'type' => 'switch',
-                'label' => $this->l('Enable Cross-Domain tracking'),
-                'name' => 'GA_CROSSDOMAIN_ENABLED',
-                'values' => array(
-                    array(
-                        'id' => 'ga_crossdomain_enabled',
-                        'value' => 1,
-                        'label' => $this->l('Enabled')
-                    ),
-                    array(
-                        'id' => 'ga_crossdomain_disabled',
-                        'value' => 0,
-                         'label' => $this->l('Disabled')
-                    )
-                )
-            );
-        }
 
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
-        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -237,11 +215,6 @@ class Ps_Googleanalytics extends Module
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
-            $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
-            if (null !== $ga_crossdomain_enabled) {
-                Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
-                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
-            }
         }
         
         $output .= $this->displayForm();
@@ -249,42 +222,35 @@ class Ps_Googleanalytics extends Module
         return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
     }
 
+    protected function _getGoogleAnalyticsTag($back_office = false)
+    {
+        $user_id = null;
+        if (Configuration::get('GA_USERID_ENABLED') &&
+            $this->context->customer && $this->context->customer->isLogged()
+        ) {
+            $user_id = (int)$this->context->customer->id;
+        }
 
-    public function hookdisplayHeader($params, $back_office = false)
+        return '
+			<script type="text/javascript">
+				(window.gaDevIds=window.gaDevIds||[]).push(\'d6YPbH\');
+				(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,\'script\',\'https://www.google-analytics.com/analytics.js\',\'ga\');
+				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
+				ga(\'require\', \'ec\');'
+                .(($user_id && !$back_office) ? 'ga(\'set\', \'userId\', \''.$user_id.'\');': '')
+                .($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
+            .'</script>';
+    }
+
+    public function hookdisplayHeader($params)
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-            
-            $shops = Shop::getShops();
-            $is_multistore_active = Shop::isFeatureActive();
-            
-            $current_shop_id = (int)Context::getContext()->shop->id;
-            
-            $user_id = null;
-            $ga_crossdomain_enabled = false;
-            
-            if (Configuration::get('GA_USERID_ENABLED') &&
-                $this->context->customer && $this->context->customer->isLogged()
-            ) {
-                $user_id = (int)$this->context->customer->id;
-            }
-            
-            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
-                $ga_crossdomain_enabled = true;
-            }
 
-            $this->smarty->assign(
-                array(
-                    'backOffice' => $back_office,
-                    'currentShopId' => $current_shop_id,
-                    'userId' => $user_id,
-                    'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                    'shops' => $shops,
-                    'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
-                    'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
-                )
-            );
-            return $this->display(__FILE__, 'ps_googleanalytics.tpl');
+            return $this->_getGoogleAnalyticsTag();
         }
     }
 
@@ -350,11 +316,11 @@ class Ps_Googleanalytics extends Module
     {
         $ga_scripts = '';
         $this->js_state = 0;
+
         if (isset($this->context->cookie->ga_cart)) {
             $this->filterable = 0;
-            
-            $gacarts = json_decode($this->context->cookie->ga_cart, true);
 
+            $gacarts = json_decode($this->context->cookie->ga_cart, true);
             if (is_array($gacarts)) {
                 foreach ($gacarts as $gacart) {
                     if ($gacart['quantity'] > 0) {
@@ -722,7 +688,7 @@ class Ps_Googleanalytics extends Module
                     }
                 }
             }
-            return $js.$this->hookdisplayHeader(null, true).$this->_runJs($ga_scripts, 1);
+            return $js.$this->_getGoogleAnalyticsTag(true).$this->_runJs($ga_scripts, 1);
         } else {
             return $js;
         }
