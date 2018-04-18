@@ -776,6 +776,9 @@ class Ps_Googleanalytics extends Module
 
             if (isset($this->context->cookie->ga_cart)) {
                 $gacart = json_decode($this->context->cookie->ga_cart, true);
+		if (json_last_error()) {
+                    $gacart = array();
+                }    
             } else {
                 $gacart = array();
             }
