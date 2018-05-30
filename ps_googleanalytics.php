@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -19,7 +19,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2017 PrestaShop SA
+ *  @copyright 2007-2018 PrestaShop SA
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
@@ -40,7 +40,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.0.3';
+        $this->version = '3.1.0';
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -167,7 +167,7 @@ class Ps_Googleanalytics extends Module
                     'hint' => $this->l('This information is available in your Google Analytics account')
                 ),
                 array(
-                    'type' => 'radio',
+                    'type' => 'switch',
                     'label' => $this->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
                     'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
@@ -184,6 +184,24 @@ class Ps_Googleanalytics extends Module
                         ),
                     ),
                 ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Anonymize IP'),
+                    'name' => 'GA_ANONYMIZE_ENABLED',
+                    'hint' => $this->l('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
+                    'values'    => array(
+                        array(
+                            'id' => 'ga_anonymize_enabled',
+                            'value' => 1,
+                            'label' => $this->l('Enabled')
+                        ),
+                        array(
+                            'id' => 'ga_anonymize_disabled',
+                            'value' => 0,
+                            'label' => $this->l('Disabled')
+                        ),
+                    ),
+                ),                
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -193,6 +211,7 @@ class Ps_Googleanalytics extends Module
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -214,6 +233,11 @@ class Ps_Googleanalytics extends Module
             if (null !== $ga_userid_enabled) {
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+            }
+            $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
+            if (null !== $ga_anonymize_enabled) {
+                Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
+                $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
         }
         
@@ -242,6 +266,7 @@ class Ps_Googleanalytics extends Module
 				ga(\'require\', \'ec\');'
                 .(($user_id && !$back_office) ? 'ga(\'set\', \'userId\', \''.$user_id.'\');': '')
                 .($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
+                .(Configuration::get('GA_ANONYMIZE_ENABLED') ? 'ga(\'set\', \'anonymizeIp\', true);' : '')
             .'</script>';
     }
 
@@ -317,21 +342,19 @@ class Ps_Googleanalytics extends Module
         $ga_scripts = '';
         $this->js_state = 0;
 
-        if (isset($this->context->cookie->ga_cart)) {
+        $gacarts = $this->_manageData("", "R");
+        if (count($gacarts)>0) {
             $this->filterable = 0;
 
-            $gacarts = json_decode($this->context->cookie->ga_cart, true);
-            if (is_array($gacarts)) {
-                foreach ($gacarts as $gacart) {
-                    if ($gacart['quantity'] > 0) {
-                        $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
-                    } elseif ($gacart['quantity'] < 0) {
-                        $gacart['quantity'] = abs($gacart['quantity']);
-                        $ga_scripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
-                    }
+            foreach ($gacarts as $gacart) {
+                if ($gacart['quantity'] > 0) {
+                    $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
+                } elseif ($gacart['quantity'] < 0) {
+                    $gacart['quantity'] = abs($gacart['quantity']);
+                    $ga_scripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
                 }
             }
-            unset($this->context->cookie->ga_cart);
+            $gacarts = $this->_manageData("", "D");
         }
 
         $controller_name = Tools::getValue('controller');
@@ -638,6 +661,38 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
+     * Manage data
+     * @param string $action "R" read data from DB, "W" write data, "A" append data, D" delete data
+     * @return array dans le cas du R, sinon true
+     */
+    protected function _manageData($data, $action)
+    {
+        if ($action == 'R') {
+            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+            if ($dataretour === false)
+                return array();
+            else
+                return json_decode($dataretour,true);
+        }
+        if ($action == 'W') {
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
+        }
+        if ($action == 'A') {
+            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+            if ($dataretour === false)
+                $datanew = array($data);
+            else {
+                $datanew = json_decode($dataretour,true);
+                $datanew[] = $data;
+            }
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($datanew).'\') ON DUPLICATE KEY UPDATE data =\''.serialize($datanew).'\' ;');
+        }
+        if ($action == 'D') {
+            Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+        }
+    }
+
+    /**
      * Hook admin order to send transactions and refunds details
      */
     public function hookdisplayAdminOrder()
@@ -774,11 +829,7 @@ class Ps_Googleanalytics extends Module
                 $id_product = Tools::getValue('id_product');
             }
 
-            if (isset($this->context->cookie->ga_cart)) {
-                $gacart = json_decode($this->context->cookie->ga_cart, true);
-            } else {
-                $gacart = array();
-            }
+            $gacart = $this->_manageData("", "R");
 
             if ($cart['removeAction'] == 'delete') {
                 $ga_products['quantity'] = -1;
@@ -795,7 +846,7 @@ class Ps_Googleanalytics extends Module
             }
 
             $gacart[$id_product] = $ga_products;
-            $this->context->cookie->ga_cart = json_encode($gacart);
+            $this->_manageData($gacart, 'W');
         }
     }
 
@@ -803,7 +854,7 @@ class Ps_Googleanalytics extends Module
     {
         if (isset($params['cart']->id_carrier)) {
             $carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int)$params['cart']->id_carrier);
-            $this->context->cookie->ga_cart .= 'MBG.addCheckoutOption(2,\''.$carrier_name.'\');';
+            $this->_manageData('MBG.addCheckoutOption(2,\''.$carrier_name.'\');', 'A');
         }
     }
 
