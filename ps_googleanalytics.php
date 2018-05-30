@@ -50,7 +50,7 @@ class Ps_Googleanalytics extends Module
 
         $this->displayName = $this->trans('Google Analytics', array(), 'Modules.GAnalytics.Admin');
         $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
-        
+
         $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
     }
     public function install()
@@ -167,7 +167,7 @@ class Ps_Googleanalytics extends Module
                     'hint' => $this->l('This information is available in your Google Analytics account')
                 ),
                 array(
-                    'type' => 'radio',
+                    'type' => 'switch',
                     'label' => $this->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
                     'hint' => $this->l('The User ID is set at the property level. To find a property, click Admin, then select an account and a property. From the Property column, click Tracking Info then User ID'),
@@ -184,6 +184,24 @@ class Ps_Googleanalytics extends Module
                         ),
                     ),
                 ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Anonymize IP'),
+                    'name' => 'GA_ANONYMIZE_ENABLED',
+                    'hint' => $this->l('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
+                    'values'    => array(
+                        array(
+                            'id' => 'ga_anonymize_enabled',
+                            'value' => 1,
+                            'label' => $this->l('Enabled')
+                        ),
+                        array(
+                            'id' => 'ga_anonymize_disabled',
+                            'value' => 0,
+                            'label' => $this->l('Disabled')
+                        ),
+                    ),
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -193,6 +211,7 @@ class Ps_Googleanalytics extends Module
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -215,8 +234,14 @@ class Ps_Googleanalytics extends Module
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
+            $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
+            if (null !== $ga_anonymize_enabled) {
+                Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
+                $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
+            }
+
         }
-        
+
         $output .= $this->displayForm();
 
         return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
@@ -240,9 +265,10 @@ class Ps_Googleanalytics extends Module
 				})(window,document,\'script\',\'https://www.google-analytics.com/analytics.js\',\'ga\');
 				ga(\'create\', \''.Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')).'\', \'auto\');
 				ga(\'require\', \'ec\');'
-                .(($user_id && !$back_office) ? 'ga(\'set\', \'userId\', \''.$user_id.'\');': '')
-                .($back_office ? 'ga(\'set\', \'nonInteraction\', true);' : '')
-            .'</script>';
+                .(($user_id && !$back_office) ? "\n				ga('set', 'userId', '".$user_id."');" : "")
+                .($back_office ? "\n				ga('set', 'nonInteraction', true);" : "")
+                .(Configuration::get('GA_ANONYMIZE_ENABLED') ? "\n				ga('set', 'anonymizeIp', true);" : "")
+            ."\n			</script>";
     }
 
     public function hookdisplayHeader($params)
