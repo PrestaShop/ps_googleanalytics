@@ -91,7 +91,7 @@ class Ps_Googleanalytics extends Module
      */
     protected function createTables()
     {
-        return (bool)Db::getInstance()->execute('
+        if ((bool)Db::getInstance()->execute('
 			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
 				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
 				`id_order` int(11) NOT NULL,
@@ -103,7 +103,19 @@ class Ps_Googleanalytics extends Module
 				KEY `id_order` (`id_order`),
 				KEY `sent` (`sent`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1
-		');
+		') && (bool)Db::getInstance()->execute('
+			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
+				`id_cart` int(11) NOT NULL,
+				`id_shop` int(11) NOT NULL,
+				`data` TEXT DEFAULT NULL,
+				PRIMARY KEY (`id_cart`)
+			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8
+		'))
+		{
+			return true;
+		}
+	    
+	    	return false;
     }
 
     /**
@@ -111,9 +123,15 @@ class Ps_Googleanalytics extends Module
      */
     protected function deleteTables()
     {
-        return (bool)Db::getInstance()->execute('
+        if ((bool)Db::getInstance()->execute('
     		DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`
-    	');
+    	') && (bool)Db::getInstance()->execute('
+            DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics_data`
+        ')) {
+            return true;
+        }
+
+        return false;
     }
 
     public function displayForm()
