@@ -40,7 +40,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.1.0';
+        $this->version = '3.1.1';
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -398,11 +398,16 @@ class Ps_Googleanalytics extends Module
             $this->filterable = 0;
 
             foreach ($gacarts as $gacart) {
-                if ($gacart['quantity'] > 0) {
-                    $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
-                } elseif ($gacart['quantity'] < 0) {
-                    $gacart['quantity'] = abs($gacart['quantity']);
-                    $ga_scripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
+                if (isset($gacart['quantity']))
+                {
+                    if ($gacart['quantity'] > 0) {
+                        $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
+                    } elseif ($gacart['quantity'] < 0) {
+                        $gacart['quantity'] = abs($gacart['quantity']);
+                        $ga_scripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
+                    }
+                } else {
+                    $ga_scripts .= $gacart;
                 }
             }
             $gacarts = $this->_manageData("", "D");
@@ -735,7 +740,7 @@ class Ps_Googleanalytics extends Module
                 $datanew = json_decode($dataretour,true);
                 $datanew[] = $data;
             }
-            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($datanew).'\') ON DUPLICATE KEY UPDATE data =\''.serialize($datanew).'\' ;');
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.pSQL(json_encode($datanew)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($datanew)).'\' ;');
         }
         if ($action == 'D') {
             Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
