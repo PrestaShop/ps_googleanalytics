@@ -397,7 +397,8 @@ class Ps_Googleanalytics extends Module
         $ga_scripts = '';
         $this->js_state = 0;
         $gacarts = $this->_manageData("", "R");
-        if (count($gacarts)>0) {
+        $controller_name = Tools::getValue('controller');
+        if (count($gacarts)>0 && $controller_name!='product') {
             $this->filterable = 0;
 
             foreach ($gacarts as $gacart) {
@@ -416,7 +417,6 @@ class Ps_Googleanalytics extends Module
             $gacarts = $this->_manageData("", "D");
         }
 
-        $controller_name = Tools::getValue('controller');
         $listing = $this->context->smarty->getTemplateVars('listing');
         $products = $this->wrapProducts($listing['products'], array(), true);
 
