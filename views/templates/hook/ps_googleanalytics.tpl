@@ -48,6 +48,9 @@
     {if $userId && !$backOffice}
         ga('set', 'userId', '{$userId|escape:'htmlall':'UTF-8'}');
     {/if}
+    {if $gaAnonymizeEnabled}
+        ga('set', 'anonymizeIp', true);
+    {/if}
     {if $backOffice}
         ga('set', 'nonInteraction', true);
     {/if}

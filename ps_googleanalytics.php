@@ -312,6 +312,8 @@ class Ps_Googleanalytics extends Module
                 $user_id = (int)$this->context->customer->id;
             }
             
+            $ga_anonymize_enabled = Configuration::get('GA_ANONYMIZE_ENABLED');
+
             if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
                 $ga_crossdomain_enabled = true;
             }
@@ -324,6 +326,7 @@ class Ps_Googleanalytics extends Module
                     'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
                     'shops' => $shops,
                     'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
+                    'gaAnonymizeEnabled' => $ga_anonymize_enabled,
                     'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
                 )
             );
