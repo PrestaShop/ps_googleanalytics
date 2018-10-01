@@ -40,7 +40,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.1.1';
+        $this->version = '3.1.2';
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -50,7 +50,7 @@ class Ps_Googleanalytics extends Module
 
         $this->displayName = $this->trans('Google Analytics', array(), 'Modules.GAnalytics.Admin');
         $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
-        
+
         $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
     }
     public function install()
@@ -114,7 +114,7 @@ class Ps_Googleanalytics extends Module
 		{
 			return true;
 		}
-	    
+
 	    	return false;
     }
 
@@ -138,7 +138,7 @@ class Ps_Googleanalytics extends Module
     {
         // Check if multistore is active
         $is_multistore_active = Shop::isFeatureActive();
-        
+
         // Get default language
         $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
 
@@ -220,13 +220,13 @@ class Ps_Googleanalytics extends Module
                             'label' => $this->l('Disabled')
                         ),
                     ),
-                ),                
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
             )
         );
-        
+
         if ($is_multistore_active) {
             $fields_form[0]['form']['input'][] = array(
                 'type' => 'switch',
@@ -287,7 +287,7 @@ class Ps_Googleanalytics extends Module
                 $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
         }
-        
+
         $output .= $this->displayForm();
 
         return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
@@ -297,21 +297,21 @@ class Ps_Googleanalytics extends Module
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-            
+
             $shops = Shop::getShops();
             $is_multistore_active = Shop::isFeatureActive();
-            
+
             $current_shop_id = (int)Context::getContext()->shop->id;
-            
+
             $user_id = null;
             $ga_crossdomain_enabled = false;
-            
+
             if (Configuration::get('GA_USERID_ENABLED') &&
                 $this->context->customer && $this->context->customer->isLogged()
             ) {
                 $user_id = (int)$this->context->customer->id;
             }
-            
+
             $ga_anonymize_enabled = Configuration::get('GA_ANONYMIZE_ENABLED');
 
             if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
@@ -674,7 +674,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooterProduct($params)
     {
         $controller_name = Tools::getValue('controller');
-        if ($controller_name == 'product') 
+        if ($controller_name == 'product')
         {
             if ($params['product'] instanceof Product) {
                 $params['product'] = (array) $params['product'];
@@ -875,7 +875,7 @@ class Ps_Googleanalytics extends Module
                 $add_product['id_category_default'] = $add_product_object->id_category_default;
                 $add_product['out_of_stock'] = $add_product_object->out_of_stock;
                 $add_product['minimal_quantity'] = 1;
-                $add_product['unit_price_ratio'] = 0;		   
+                $add_product['unit_price_ratio'] = 0;
                 $add_product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $add_product);
             }
         }
