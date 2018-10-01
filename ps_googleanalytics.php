@@ -676,8 +676,11 @@ class Ps_Googleanalytics extends Module
         $controller_name = Tools::getValue('controller');
         if ($controller_name == 'product') 
         {
+            if ($params['product'] instanceof Product) {
+                $params['product'] = (array) $params['product'];
+            }
             // Add product view
-            $ga_product = $this->wrapProduct((array)$params['product'], null, 0, true);
+            $ga_product = $this->wrapProduct($params['product'], null, 0, true);
             $js = 'MBG.addProductDetailView('.json_encode($ga_product).');';
 
             if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
