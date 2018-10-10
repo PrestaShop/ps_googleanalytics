@@ -162,13 +162,13 @@ class Ps_Googleanalytics extends Module
         $helper->toolbar_btn = array(
             'save' =>
             array(
-                'desc' => $this->l('Save'),
+                'desc' => $this->trans('Save', array(), 'Admin.Actions'),
                 'href' => AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
                 '&token='.Tools::getAdminTokenLite('AdminModules'),
             ),
             'back' => array(
                 'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->l('Back to list')
+                'desc' => $this->trans('Back to list', array(), 'Admin.Actions')
             )
         );
 
@@ -176,72 +176,72 @@ class Ps_Googleanalytics extends Module
         // Init Fields form array
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Settings'),
+                'title' => $this->trans('Settings', array(),'Admin.Global'),
             ),
             'input' => array(
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Google Analytics Tracking ID'),
+                    'label' => $this->trans('Google Analytics Tracking ID', array(), 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'hint' => $this->l('This information is available in your Google Analytics account')
+                    'hint' => $this->trans('This information is available in your Google Analytics account', array(), 'Modules.GAnalytics.Admin')
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Enable User ID tracking'),
+                    'label' => $this->trans('Enable User ID tracking', array(), 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
                     'values' => array(
                         array(
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
                         ),
                         array(
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
+                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
                         ))
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Anonymize IP'),
+                    'label' => $this->trans('Anonymize IP', array(), 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
-                    'hint' => $this->l('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
+                    'hint' => $this->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
                     'values'    => array(
                         array(
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->l('Enabled')
+                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
                         ),
                         array(
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->l('Disabled')
+                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
                         ),
                     ),
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', array(), 'Admin.Actions'),
             )
         );
 
         if ($is_multistore_active) {
             $fields_form[0]['form']['input'][] = array(
                 'type' => 'switch',
-                'label' => $this->l('Enable Cross-Domain tracking'),
+                'label' => $this->trans('Enable Cross-Domain tracking', array(), 'Modules.GAnalytics.Admin'),
                 'name' => 'GA_CROSSDOMAIN_ENABLED',
                 'values' => array(
                     array(
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->l('Enabled')
+                        'label' => $this->trans('Enabled', array(), 'Admin.Global')
                     ),
                     array(
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->l('Disabled')
+                         'label' => $this->trans('Disabled', array(), 'Admin.Global')
                     )
                 )
             );
