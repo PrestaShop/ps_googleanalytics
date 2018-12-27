@@ -111,11 +111,11 @@ class Ps_Googleanalytics extends Module
 				PRIMARY KEY (`id_cart`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8
 		'))
-		{
-			return true;
-		}
+        {
+            return true;
+        }
 
-	    	return false;
+            return false;
     }
 
     /**

@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 if (!defined('_PS_VERSION_'))
-	exit;
+    exit;
 function upgrade_module_3_1_0($object)
 {
     Configuration::updateValue('GANALYTICS', '3.1.0');
