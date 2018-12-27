@@ -110,12 +110,11 @@ class Ps_Googleanalytics extends Module
     			`data` TEXT DEFAULT NULL,
     			PRIMARY KEY (`id_cart`)
     		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8
-    	'))
-        {
+    	')) {
             return true;
         }
 
-            return false;
+        return false;
     }
 
     /**
@@ -401,8 +400,7 @@ class Ps_Googleanalytics extends Module
             $this->filterable = 0;
 
             foreach ($gacarts as $gacart) {
-                if (isset($gacart['quantity']))
-                {
+                if (isset($gacart['quantity'])) {
                     if ($gacart['quantity'] > 0) {
                         $ga_scripts .= 'MBG.addToCart('.json_encode($gacart).');';
                     } elseif ($gacart['quantity'] < 0) {
@@ -673,8 +671,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooterProduct($params)
     {
         $controller_name = Tools::getValue('controller');
-        if ($controller_name == 'product')
-        {
+        if ($controller_name == 'product') {
             if ($params['product'] instanceof Product) {
                 $params['product'] = (array) $params['product'];
             }
@@ -729,19 +726,20 @@ class Ps_Googleanalytics extends Module
     {
         if ($action == 'R') {
             $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
-            if ($dataretour === false)
+            if ($dataretour === false) {
                 return array();
-            else
+            } else {
                 return json_decode($dataretour,true);
+            }
         }
         if ($action == 'W') {
             return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
         }
         if ($action == 'A') {
             $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
-            if ($dataretour === false)
+            if ($dataretour === false) {
                 $datanew = array($data);
-            else {
+            } else {
                 $datanew = json_decode($dataretour,true);
                 $datanew[] = $data;
             }

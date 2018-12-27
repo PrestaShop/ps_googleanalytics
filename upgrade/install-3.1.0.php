@@ -23,8 +23,9 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-if (!defined('_PS_VERSION_'))
+if (!defined('_PS_VERSION_')) {
     exit;
+}
 function upgrade_module_3_1_0($object)
 {
     Configuration::updateValue('GANALYTICS', '3.1.0');
