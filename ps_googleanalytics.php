@@ -91,7 +91,7 @@ class Ps_Googleanalytics extends Module
      */
     protected function createTables()
     {
-        if ((bool)Db::getInstance()->execute('
+        if ((bool) Db::getInstance()->execute('
 			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
 				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
 				`id_order` int(11) NOT NULL,
@@ -103,7 +103,7 @@ class Ps_Googleanalytics extends Module
 				KEY `id_order` (`id_order`),
 				KEY `sent` (`sent`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1
-		') && (bool)Db::getInstance()->execute('
+		') && (bool) Db::getInstance()->execute('
 			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
 				`id_cart` int(11) NOT NULL,
 				`id_shop` int(11) NOT NULL,
@@ -123,9 +123,9 @@ class Ps_Googleanalytics extends Module
      */
     protected function deleteTables()
     {
-        if ((bool)Db::getInstance()->execute('
+        if ((bool) Db::getInstance()->execute('
     		DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`
-    	') && (bool)Db::getInstance()->execute('
+    	') && (bool) Db::getInstance()->execute('
             DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics_data`
         ')) {
             return true;
@@ -140,7 +140,7 @@ class Ps_Googleanalytics extends Module
         $is_multistore_active = Shop::isFeatureActive();
 
         // Get default language
-        $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
+        $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
         $helper = new HelperForm();
 
@@ -271,19 +271,19 @@ class Ps_Googleanalytics extends Module
             }
             $ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
             if (null !== $ga_userid_enabled) {
-                Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
+                Configuration::updateValue('GA_USERID_ENABLED', (bool) $ga_userid_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
 
             $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
             if (null !== $ga_crossdomain_enabled) {
-                Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
+                Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $ga_crossdomain_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
 
             $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
             if (null !== $ga_anonymize_enabled) {
-                Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
+                Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $ga_anonymize_enabled);
                 $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
             }
         }
@@ -301,7 +301,7 @@ class Ps_Googleanalytics extends Module
             $shops = Shop::getShops();
             $is_multistore_active = Shop::isFeatureActive();
 
-            $current_shop_id = (int)Context::getContext()->shop->id;
+            $current_shop_id = (int) Context::getContext()->shop->id;
 
             $user_id = null;
             $ga_crossdomain_enabled = false;
@@ -309,12 +309,12 @@ class Ps_Googleanalytics extends Module
             if (Configuration::get('GA_USERID_ENABLED') &&
                 $this->context->customer && $this->context->customer->isLogged()
             ) {
-                $user_id = (int)$this->context->customer->id;
+                $user_id = (int) $this->context->customer->id;
             }
 
             $ga_anonymize_enabled = Configuration::get('GA_ANONYMIZE_ENABLED');
 
-            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
+            if ((int) Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
                 $ga_crossdomain_enabled = true;
             }
 
@@ -339,7 +339,7 @@ class Ps_Googleanalytics extends Module
      */
     public function wrapOrder($id_order)
     {
-        $order = new Order((int)$id_order);
+        $order = new Order((int) $id_order);
 
         if (Validate::isLoadedObject($order)) {
             return array(
@@ -359,10 +359,10 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayOrderConfirmation($params)
     {
         $order = $params['order'];
-        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int)Configuration::get('PS_OS_ERROR')) {
-            $ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
+        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int) Configuration::get('PS_OS_ERROR')) {
+            $ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int) $order->id);
             if ($ga_order_sent === false) {
-                Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)$order->id.', '.(int)$this->context->shop->id.', 0, NOW())');
+                Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int) $order->id.', '.(int) $this->context->shop->id.', 0, NOW())');
                 if ($order->id_customer == $this->context->cookie->id_customer) {
                     $order_products = array();
                     $cart = new Cart($order->id_cart);
@@ -428,10 +428,10 @@ class Ps_Googleanalytics extends Module
                 $step = 0;
             }
             $ga_scripts .= $this->addProductFromCheckout($products, $step);
-            $ga_scripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
+            $ga_scripts .= 'MBG.addCheckout(\''.(int) $step.'\');';
         }
 
-        $confirmation_hook_id = (int)Hook::getIdByName('displayOrderConfirmation');
+        $confirmation_hook_id = (int) Hook::getIdByName('displayOrderConfirmation');
         if (isset(Hook::$executed_hooks[$confirmation_hook_id])) {
             $this->eligible = 1;
         }
@@ -467,9 +467,9 @@ class Ps_Googleanalytics extends Module
             $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
             $home_featured_products = $this->wrapProducts(
                 $category->getProducts(
-                    (int)Context::getContext()->language->id,
+                    (int) Context::getContext()->language->id,
                     1,
-                    (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8),
+                    (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
                     'position'
                 ),
                 array(),
@@ -505,7 +505,7 @@ class Ps_Googleanalytics extends Module
         }
 
         $currency = new Currency($this->context->currency->id);
-        $usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
+        $usetax = (Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
 
         if (count($products) > 20) {
             $full = false;
@@ -515,11 +515,11 @@ class Ps_Googleanalytics extends Module
 
         foreach ($products as $index => $product) {
             if ($product instanceof Product) {
-                $product = (array)$product;
+                $product = (array) $product;
             }
 
             if (!isset($product['price'])) {
-                $product['price'] = (float)Tools::displayPrice(Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
+                $product['price'] = (float) Tools::displayPrice(Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
             }
             $result_products[] = $this->wrapProduct($product, $extras, $index, $full);
         }
@@ -729,27 +729,27 @@ class Ps_Googleanalytics extends Module
     protected function _manageData($data, $action)
     {
         if ($action == 'R') {
-            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int) $this->context->cart->id.'\' AND id_shop = \''.(int) $this->context->shop->id.'\'');
             if ($dataretour === false)
                 return array();
             else
                 return json_decode($dataretour,true);
         }
         if ($action == 'W') {
-            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int) $this->context->cart->id.'\',\''.(int) $this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
         }
         if ($action == 'A') {
-            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+            $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int) $this->context->cart->id.'\' AND id_shop = \''.(int) $this->context->shop->id.'\'');
             if ($dataretour === false)
                 $datanew = array($data);
             else {
                 $datanew = json_decode($dataretour,true);
                 $datanew[] = $data;
             }
-            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.pSQL(json_encode($datanew)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($datanew)).'\' ;');
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int) $this->context->cart->id.'\',\''.(int) $this->context->shop->id.'\',\''.pSQL(json_encode($datanew)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($datanew)).'\' ;');
         }
         if ($action == 'D') {
-            Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+            Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int) $this->context->cart->id.'\' AND id_shop = \''.(int) $this->context->shop->id.'\'');
         }
     }
 
@@ -782,21 +782,21 @@ class Ps_Googleanalytics extends Module
             $ga_scripts = '';
             if ($this->context->controller->controller_name == 'AdminOrders') {
                 if (Tools::getValue('id_order')) {
-                    $order = new Order((int)Tools::getValue('id_order'));
+                    $order = new Order((int) Tools::getValue('id_order'));
                     if (Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
-                        $ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)Tools::getValue('id_order'));
+                        $ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int) Tools::getValue('id_order'));
                         if ($ga_order_sent === false) {
-                            Db::getInstance()->Execute('INSERT IGNORE INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)Tools::getValue('id_order').', '.(int)$this->context->shop->id.', 0, NOW())');
+                            Db::getInstance()->Execute('INSERT IGNORE INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int) Tools::getValue('id_order').', '.(int) $this->context->shop->id.', 0, NOW())');
                         }
                     }
                 } else {
-                    $ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int)$this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
+                    $ga_order_records = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'ganalytics` WHERE sent = 0 AND id_shop = \''.(int) $this->context->shop->id.'\' AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()');
 
                     if ($ga_order_records) {
                         foreach ($ga_order_records as $row) {
                             $transaction = $this->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
-                                Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW(), sent = 1 WHERE id_order = '.(int)$row['id_order'].' AND id_shop = \''.(int)$this->context->shop->id.'\'');
+                                Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET date_add = NOW(), sent = 1 WHERE id_order = '.(int) $row['id_order'].' AND id_shop = \''.(int) $this->context->shop->id.'\'');
                                 $transaction = json_encode($transaction);
                                 $ga_scripts .= 'MBG.addTransaction('.$transaction.');';
                             }
@@ -848,7 +848,7 @@ class Ps_Googleanalytics extends Module
             'addAction' => Tools::getValue('add') ? 'add' : '',
             'removeAction' => Tools::getValue('delete') ? 'delete' : '',
             'extraAction' => Tools::getValue('op'),
-            'qty' => (int)Tools::getValue('qty', 1)
+            'qty' => (int) Tools::getValue('qty', 1)
         );
 
         $cart_products = $this->context->cart->getProducts();
@@ -861,7 +861,7 @@ class Ps_Googleanalytics extends Module
         }
 
         if ($cart['removeAction'] == 'delete') {
-            $add_product_object = new Product((int)Tools::getValue('id_product'), true, (int)Configuration::get('PS_LANG_DEFAULT'));
+            $add_product_object = new Product((int) Tools::getValue('id_product'), true, (int) Configuration::get('PS_LANG_DEFAULT'));
             if (Validate::isLoadedObject($add_product_object)) {
                 $add_product['name'] = $add_product_object->name;
                 $add_product['manufacturer_name'] = $add_product_object->manufacturer_name;
@@ -876,12 +876,12 @@ class Ps_Googleanalytics extends Module
                 $add_product['out_of_stock'] = $add_product_object->out_of_stock;
                 $add_product['minimal_quantity'] = 1;
                 $add_product['unit_price_ratio'] = 0;
-                $add_product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $add_product);
+                $add_product = Product::getProductProperties((int) Configuration::get('PS_LANG_DEFAULT'), $add_product);
             }
         }
 
-        if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), self::$products)) {
-            self::$products[] = (int)Tools::getValue('id_product');
+        if (isset($add_product) && !in_array((int) Tools::getValue('id_product'), self::$products)) {
+            self::$products[] = (int) Tools::getValue('id_product');
             $ga_products = $this->wrapProduct($add_product, $cart, 0, true);
 
             if (array_key_exists('id_product_attribute', $ga_products) && $ga_products['id_product_attribute'] != '' && $ga_products['id_product_attribute'] != 0) {
@@ -914,7 +914,7 @@ class Ps_Googleanalytics extends Module
     public function hookactionCarrierProcess($params)
     {
         if (isset($params['cart']->id_carrier)) {
-            $carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int)$params['cart']->id_carrier);
+            $carrier_name = Db::getInstance()->getValue('SELECT name FROM `'._DB_PREFIX_.'carrier` WHERE id_carrier = '.(int) $params['cart']->id_carrier);
             $this->_manageData('MBG.addCheckoutOption(2,\''.$carrier_name.'\');', 'A');
         }
     }
