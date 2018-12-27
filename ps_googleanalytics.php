@@ -92,25 +92,25 @@ class Ps_Googleanalytics extends Module
     protected function createTables()
     {
         if ((bool)Db::getInstance()->execute('
-			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
-				`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
-				`id_order` int(11) NOT NULL,
-				`id_customer` int(10) NOT NULL,
-				`id_shop` int(11) NOT NULL,
-				`sent` tinyint(1) DEFAULT NULL,
-				`date_add` datetime DEFAULT NULL,
-				PRIMARY KEY (`id_google_analytics`),
-				KEY `id_order` (`id_order`),
-				KEY `sent` (`sent`)
-			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1
-		') && (bool)Db::getInstance()->execute('
-			CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
-				`id_cart` int(11) NOT NULL,
-				`id_shop` int(11) NOT NULL,
-				`data` TEXT DEFAULT NULL,
-				PRIMARY KEY (`id_cart`)
-			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8
-		'))
+    		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
+    			`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
+    			`id_order` int(11) NOT NULL,
+    			`id_customer` int(10) NOT NULL,
+    			`id_shop` int(11) NOT NULL,
+    			`sent` tinyint(1) DEFAULT NULL,
+    			`date_add` datetime DEFAULT NULL,
+    			PRIMARY KEY (`id_google_analytics`),
+    			KEY `id_order` (`id_order`),
+    			KEY `sent` (`sent`)
+    		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1
+    	') && (bool)Db::getInstance()->execute('
+    		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
+    			`id_cart` int(11) NOT NULL,
+    			`id_shop` int(11) NOT NULL,
+    			`data` TEXT DEFAULT NULL,
+    			PRIMARY KEY (`id_cart`)
+    		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8
+    	'))
         {
             return true;
         }
@@ -124,8 +124,8 @@ class Ps_Googleanalytics extends Module
     protected function deleteTables()
     {
         if ((bool)Db::getInstance()->execute('
-    		DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`
-    	') && (bool)Db::getInstance()->execute('
+        	DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`
+        ') && (bool)Db::getInstance()->execute('
             DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics_data`
         ')) {
             return true;
@@ -701,20 +701,20 @@ class Ps_Googleanalytics extends Module
             $runjs_code = '';
             if (!empty($js_code)) {
                 $runjs_code .= '
-				<script type="text/javascript">
-					document.addEventListener(\'DOMContentLoaded\', function() {
-						var MBG = GoogleAnalyticEnhancedECommerce;
-						MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
-						'.$js_code.'
-					});
-				</script>';
+    			<script type="text/javascript">
+    				document.addEventListener(\'DOMContentLoaded\', function() {
+    					var MBG = GoogleAnalyticEnhancedECommerce;
+    					MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
+    					'.$js_code.'
+    				});
+    			</script>';
             }
 
             if (($this->js_state) != 1 && ($backoffice == 0)) {
                 $runjs_code .= '
-				<script type="text/javascript">
-					ga(\'send\', \'pageview\');
-				</script>';
+    			<script type="text/javascript">
+    				ga(\'send\', \'pageview\');
+    			</script>';
             }
 
             return $runjs_code;
