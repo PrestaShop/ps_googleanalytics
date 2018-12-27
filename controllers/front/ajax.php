@@ -27,7 +27,7 @@
 class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
-    /*
+    /**
      * @see FrontController::initContent()
      */
     public function initContent()
