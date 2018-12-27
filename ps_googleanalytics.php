@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2018 PrestaShop
+ * 2007-2018 PrestaShop.
  *
  * NOTICE OF LICENSE
  *
@@ -87,7 +87,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Creates tables
+     * Creates tables.
      */
     protected function createTables()
     {
@@ -119,7 +119,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * deletes tables
+     * deletes tables.
      */
     protected function deleteTables()
     {
@@ -257,7 +257,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * back office module configuration page content
+     * back office module configuration page content.
      */
     public function getContent()
     {
@@ -335,7 +335,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Return a detailed transaction for Google Analytics
+     * Return a detailed transaction for Google Analytics.
      */
     public function wrapOrder($id_order)
     {
@@ -354,7 +354,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * To track transactions
+     * To track transactions.
      */
     public function hookdisplayOrderConfirmation($params)
     {
@@ -390,7 +390,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook footer to load JS script for standards actions such as product clicks
+     * hook footer to load JS script for standards actions such as product clicks.
      */
     public function hookdisplayFooter()
     {
@@ -456,7 +456,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
+     * hook home to display generate the product list associated to home featured, news products and best sellers Modules.
      */
     public function hookdisplayHome()
     {
@@ -483,7 +483,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
+     * hook home to display generate the product list associated to home featured, news products and best sellers Modules.
      */
     public function isModuleEnabled($module_name)
     {
@@ -495,7 +495,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * wrap products to provide a standard products information for google analytics script
+     * wrap products to provide a standard products information for google analytics script.
      */
     public function wrapProducts($products, $extras = array(), $full = false)
     {
@@ -528,7 +528,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * wrap product to provide a standard product information for google analytics script
+     * wrap product to provide a standard product information for google analytics script.
      */
     public function wrapProduct($product, $extras, $index = 0, $full = false)
     {
@@ -590,7 +590,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * add order transaction
+     * add order transaction.
      */
     public function addTransaction($products, $order)
     {
@@ -607,7 +607,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * add product impression js and product click js
+     * add product impression js and product click js.
      */
     public function addProductImpression($products)
     {
@@ -652,7 +652,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Add product checkout info
+     * Add product checkout info.
      */
     public function addProductFromCheckout($products)
     {
@@ -669,7 +669,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook product page footer to load JS for product details view
+     * hook product page footer to load JS for product details view.
      */
     public function hookdisplayFooterProduct($params)
     {
@@ -693,7 +693,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Generate Google Analytics js
+     * Generate Google Analytics js.
      */
     protected function _runJs($js_code, $backoffice = 0)
     {
@@ -722,7 +722,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Manage data
+     * Manage data.
      * @param string $action "R" read data from DB, "W" write data, "A" append data, D" delete data
      * @return array dans le cas du R, sinon true
      */
@@ -754,7 +754,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Hook admin order to send transactions and refunds details
+     * Hook admin order to send transactions and refunds details.
      */
     public function hookdisplayAdminOrder()
     {
@@ -763,7 +763,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     *  admin office header to add google analytics js
+     *  admin office header to add google analytics js.
      */
     public function hookdisplayBackOfficeHeader()
     {
@@ -811,7 +811,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Hook admin office header to add google analytics js
+     * Hook admin office header to add google analytics js.
      */
     public function hookactionProductCancel($params)
     {
@@ -831,7 +831,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook save cart event to implement addtocart and remove from cart functionality
+     * hook save cart event to implement addtocart and remove from cart functionality.
      */
     public function hookactionCartSave()
     {
