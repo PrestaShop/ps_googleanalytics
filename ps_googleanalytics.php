@@ -926,7 +926,7 @@ class Ps_Googleanalytics extends Module
         }
 
         $myFile = _PS_MODULE_DIR_.$this->name.'/logs/analytics.log';
-        $fh = fopen($myFile, 'a');
+        $fh = fopen($myFile, 'ab');
         fwrite($fh, date('F j, Y, g:i a').' '.$function."\n");
         fwrite($fh, print_r($log, true)."\n\n");
         fclose($fh);
