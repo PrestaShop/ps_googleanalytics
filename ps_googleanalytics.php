@@ -33,7 +33,7 @@ class Ps_Googleanalytics extends Module
     protected $js_state = 0;
     protected $eligible = 0;
     protected $filterable = 1;
-    protected static $products = array();
+    protected static $products = [];
     protected $_debug = 0;
 
     public function __construct()
@@ -41,17 +41,17 @@ class Ps_Googleanalytics extends Module
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
         $this->version = '3.1.3';
-        $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = ['min' => '1.7.0.0', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
         $this->bootstrap = true;
 
         parent::__construct();
 
-        $this->displayName = $this->trans('Google Analytics', array(), 'Modules.GAnalytics.Admin');
-        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
+        $this->displayName = $this->trans('Google Analytics', [], 'Modules.GAnalytics.Admin');
+        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.GAnalytics.Admin');
 
-        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
+        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.GAnalytics.Admin');
     }
     public function install()
     {
@@ -159,92 +159,92 @@ class Ps_Googleanalytics extends Module
         $helper->show_toolbar = true;        // false -> remove toolbar
         $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
         $helper->submit_action = 'submit'.$this->name;
-        $helper->toolbar_btn = array(
+        $helper->toolbar_btn = [
             'save' =>
-            array(
-                'desc' => $this->trans('Save', array(), 'Admin.Actions'),
+            [
+                'desc' => $this->trans('Save', [], 'Admin.Actions'),
                 'href' => AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
                 '&token='.Tools::getAdminTokenLite('AdminModules'),
-            ),
-            'back' => array(
+            ],
+            'back' => [
                 'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->trans('Back to list', array(), 'Admin.Actions')
-            )
-        );
+                'desc' => $this->trans('Back to list', [], 'Admin.Actions')
+            ]
+        ];
 
-        $fields_form = array();
+        $fields_form = [];
         // Init Fields form array
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->trans('Settings', array(),'Admin.Global'),
-            ),
-            'input' => array(
-                array(
+        $fields_form[0]['form'] = [
+            'legend' => [
+                'title' => $this->trans('Settings', [],'Admin.Global'),
+            ],
+            'input' => [
+                [
                     'type' => 'text',
-                    'label' => $this->trans('Google Analytics Tracking ID', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->trans('Google Analytics Tracking ID', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'hint' => $this->trans('This information is available in your Google Analytics account', array(), 'Modules.GAnalytics.Admin')
-                ),
-                array(
+                    'hint' => $this->trans('This information is available in your Google Analytics account', [], 'Modules.GAnalytics.Admin')
+                ],
+                [
                     'type' => 'switch',
-                    'label' => $this->trans('Enable User ID tracking', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->trans('Enable User ID tracking', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
-                    'values' => array(
-                        array(
+                    'values' => [
+                        [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
-                        ),
-                        array(
+                            'label' => $this->trans('Enabled', [], 'Admin.Global')
+                        ],
+                        [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
-                        ))
-                ),
-                array(
+                            'label' => $this->trans('Disabled', [], 'Admin.Global')
+                        ]]
+                ],
+                [
                     'type' => 'switch',
-                    'label' => $this->trans('Anonymize IP', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->trans('Anonymize IP', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
                     'hint' => $this->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
-                    'values'    => array(
-                        array(
+                    'values'    => [
+                        [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
-                        ),
-                        array(
+                            'label' => $this->trans('Enabled', [], 'Admin.Global')
+                        ],
+                        [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
-                        ),
-                    ),
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->trans('Save', array(), 'Admin.Actions'),
-            )
-        );
+                            'label' => $this->trans('Disabled', [], 'Admin.Global')
+                        ],
+                    ],
+                ],
+            ],
+            'submit' => [
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
+            ]
+        ];
 
         if ($is_multistore_active) {
-            $fields_form[0]['form']['input'][] = array(
+            $fields_form[0]['form']['input'][] = [
                 'type' => 'switch',
-                'label' => $this->trans('Enable Cross-Domain tracking', array(), 'Modules.GAnalytics.Admin'),
+                'label' => $this->trans('Enable Cross-Domain tracking', [], 'Modules.GAnalytics.Admin'),
                 'name' => 'GA_CROSSDOMAIN_ENABLED',
-                'values' => array(
-                    array(
+                'values' => [
+                    [
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->trans('Enabled', array(), 'Admin.Global')
-                    ),
-                    array(
+                        'label' => $this->trans('Enabled', [], 'Admin.Global')
+                    ],
+                    [
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->trans('Disabled', array(), 'Admin.Global')
-                    )
-                )
-            );
+                         'label' => $this->trans('Disabled', [], 'Admin.Global')
+                    ]
+                ]
+            ];
         }
 
         // Load current value
@@ -267,24 +267,24 @@ class Ps_Googleanalytics extends Module
             if (!empty($ga_account_id)) {
                 Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
                 Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-                $output .= $this->displayConfirmation($this->trans('Account ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->trans('Account ID updated successfully', [], 'Modules.GAnalytics.Admin'));
             }
             $ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
             if (null !== $ga_userid_enabled) {
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
-                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
             }
 
             $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
             if (null !== $ga_crossdomain_enabled) {
                 Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
-                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
             }
 
             $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
             if (null !== $ga_anonymize_enabled) {
                 Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
-                $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->trans('Settings for Anonymize IP updated successfully', [], 'Modules.GAnalytics.Admin'));
             }
         }
 
@@ -319,7 +319,7 @@ class Ps_Googleanalytics extends Module
             }
 
             $this->smarty->assign(
-                array(
+                [
                     'backOffice' => $back_office,
                     'currentShopId' => $current_shop_id,
                     'userId' => $user_id,
@@ -328,7 +328,7 @@ class Ps_Googleanalytics extends Module
                     'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
                     'gaAnonymizeEnabled' => $ga_anonymize_enabled,
                     'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
-                )
+                ]
             );
             return $this->display(__FILE__, 'ps_googleanalytics.tpl');
         }
@@ -342,14 +342,14 @@ class Ps_Googleanalytics extends Module
         $order = new Order((int)$id_order);
 
         if (Validate::isLoadedObject($order)) {
-            return array(
+            return [
                 'id' => $id_order,
                 'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
                 'revenue' => $order->total_paid,
                 'shipping' => $order->total_shipping,
                 'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                 'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer);
+                'customer' => $order->id_customer];
         }
     }
 
@@ -364,22 +364,22 @@ class Ps_Googleanalytics extends Module
             if ($ga_order_sent === false) {
                 Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics` (id_order, id_shop, sent, date_add) VALUES ('.(int)$order->id.', '.(int)$this->context->shop->id.', 0, NOW())');
                 if ($order->id_customer == $this->context->cookie->id_customer) {
-                    $order_products = array();
+                    $order_products = [];
                     $cart = new Cart($order->id_cart);
                     foreach ($cart->getProducts() as $order_product) {
-                        $order_products[] = $this->wrapProduct($order_product, array(), 0, true);
+                        $order_products[] = $this->wrapProduct($order_product, [], 0, true);
                     }
 
                     $ga_scripts = 'MBG.addCheckoutOption(3,\''.$order->payment.'\');';
 
-                    $transaction = array(
+                    $transaction = [
                         'id' => $order->id,
                         'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
                         'revenue' => $order->total_paid,
                         'shipping' => $order->total_shipping,
                         'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
-                        'customer' => $order->id_customer);
+                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
+                        'customer' => $order->id_customer];
                     $ga_scripts .= $this->addTransaction($order_products, $transaction);
 
                     $this->js_state = 1;
@@ -418,7 +418,7 @@ class Ps_Googleanalytics extends Module
         }
 
         $listing = $this->context->smarty->getTemplateVars('listing');
-        $products = $this->wrapProducts($listing['products'], array(), true);
+        $products = $this->wrapProducts($listing['products'], [], true);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
             $this->js_state = 1;
@@ -472,7 +472,7 @@ class Ps_Googleanalytics extends Module
                     (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8),
                     'position'
                 ),
-                array(),
+                [],
                 true
             );
             $ga_scripts .= $this->addProductImpression($home_featured_products).$this->addProductClick($home_featured_products);
@@ -497,9 +497,9 @@ class Ps_Googleanalytics extends Module
     /**
      * wrap products to provide a standard products information for google analytics script
      */
-    public function wrapProducts($products, $extras = array(), $full = false)
+    public function wrapProducts($products, $extras = [], $full = false)
     {
-        $result_products = array();
+        $result_products = [];
         if (!is_array($products)) {
             return;
         }
@@ -567,7 +567,7 @@ class Ps_Googleanalytics extends Module
         }
 
         if ($full) {
-            $ga_product = array(
+            $ga_product = [
                 'id' => $product_id,
                 'name' => Tools::str2url($product['name']),
                 'category' => Tools::str2url($product['category']),
@@ -579,12 +579,12 @@ class Ps_Googleanalytics extends Module
                 'list' => Tools::getValue('controller'),
                 'url' => isset($product['link']) ? urlencode($product['link']) : '',
                 'price' => $product['price']
-            );
+            ];
         } else {
-            $ga_product = array(
+            $ga_product = [
                 'id' => $product_id,
                 'name' => Tools::str2url($product['name'])
-            );
+            ];
         }
         return $ga_product;
     }
@@ -684,7 +684,7 @@ class Ps_Googleanalytics extends Module
             $js = 'MBG.addProductDetailView('.json_encode($ga_product).');';
 
             if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-                $js .= $this->addProductClickByHttpReferal(array($ga_product));
+                $js .= $this->addProductClickByHttpReferal([$ga_product]);
             }
 
             $this->js_state = 1;
@@ -731,7 +731,7 @@ class Ps_Googleanalytics extends Module
         if ($action == 'R') {
             $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
             if ($dataretour === false)
-                return array();
+                return [];
             else
                 return json_decode($dataretour,true);
         }
@@ -741,7 +741,7 @@ class Ps_Googleanalytics extends Module
         if ($action == 'A') {
             $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
             if ($dataretour === false)
-                $datanew = array($data);
+                $datanew = [$data];
             else {
                 $datanew = json_decode($dataretour,true);
                 $datanew[] = $data;
@@ -821,13 +821,13 @@ class Ps_Googleanalytics extends Module
             // Display GA refund product
             $order_detail = new OrderDetail($orderdetail_id);
             $ga_scripts .= 'MBG.add('.json_encode(
-                array(
+                [
                     'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
-                    'quantity' => $qty)
+                    'quantity' => $qty]
                 )
                 .');';
         }
-        $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.json_encode(array('id' => $params['order']->id)).');';
+        $this->context->cookie->ga_admin_refund = $ga_scripts.'MBG.refundByProduct('.json_encode(['id' => $params['order']->id]).');';
     }
 
     /**
@@ -843,13 +843,13 @@ class Ps_Googleanalytics extends Module
             return;
         }
 
-        $cart = array(
+        $cart = [
             'controller' => Tools::getValue('controller'),
             'addAction' => Tools::getValue('add') ? 'add' : '',
             'removeAction' => Tools::getValue('delete') ? 'delete' : '',
             'extraAction' => Tools::getValue('op'),
             'qty' => (int)Tools::getValue('qty', 1)
-        );
+        ];
 
         $cart_products = $this->context->cart->getProducts();
         if (isset($cart_products) && count($cart_products)) {

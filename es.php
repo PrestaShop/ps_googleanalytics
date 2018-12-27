@@ -1,7 +1,7 @@
 <?php
 
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_7510f8b22dd3e10476096425f78d4239'] = 'Aún no ha configurado su ID de Google Analytics';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_aba1a7971f85c725ba4aed21343eeb4b'] = 'Integrar el script de Google Analytics en su tienda';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_fa214007826415a21a8456e3e09f999d'] = '¿Está seguro de querer eliminar todos sus datos?';
