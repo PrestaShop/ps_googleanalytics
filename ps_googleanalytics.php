@@ -334,6 +334,7 @@ class Ps_Googleanalytics extends Module
                     'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
                 )
             );
+
             return $this->display(__FILE__, 'ps_googleanalytics.tpl');
         }
     }
@@ -387,6 +388,7 @@ class Ps_Googleanalytics extends Module
                     $ga_scripts .= $this->addTransaction($order_products, $transaction);
 
                     $this->js_state = 1;
+
                     return $this->_runJs($ga_scripts);
                 }
             }
@@ -483,6 +485,7 @@ class Ps_Googleanalytics extends Module
         }
 
         $this->js_state = 1;
+
         return $this->_runJs($this->filter($ga_scripts));
     }
 
@@ -590,6 +593,7 @@ class Ps_Googleanalytics extends Module
                 'name' => Tools::str2url($product['name'])
             );
         }
+
         return $ga_product;
     }
 
@@ -692,6 +696,7 @@ class Ps_Googleanalytics extends Module
             }
 
             $this->js_state = 1;
+
             return $this->_runJs($js);
         }
     }
@@ -750,6 +755,7 @@ class Ps_Googleanalytics extends Module
                 $datanew = json_decode($dataretour,true);
                 $datanew[] = $data;
             }
+
             return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.pSQL(json_encode($datanew)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($datanew)).'\' ;');
         }
         if ($action == 'D') {
@@ -808,6 +814,7 @@ class Ps_Googleanalytics extends Module
                     }
                 }
             }
+
             return $js.$this->hookdisplayHeader(null, true).$this->_runJs($ga_scripts, 1);
         } else {
             return $js;

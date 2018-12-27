@@ -28,6 +28,7 @@ if (!defined('_PS_VERSION_'))
 function upgrade_module_3_1_0($object)
 {
     Configuration::updateValue('GANALYTICS', '3.1.0');
+
     return Db::getInstance()->execute('
       CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
             `id_cart` int(11) NOT NULL,
