@@ -50,5 +50,4 @@ $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_9bfb6e6af6e6793bfa9
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_6a47891ae07f45802bc948d2618e36f5'] = 'Check the \'Case sensitive\' option';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_d2d0c38d112e1d775057388122ae7545'] = 'Save this new goal';
 
-
 return $_MODULE;
