@@ -167,8 +167,8 @@ class Ps_Googleanalytics extends Module
             ),
             'back' => array(
                 'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->trans('Back to list', array(), 'Admin.Actions')
-            )
+                'desc' => $this->trans('Back to list', array(), 'Admin.Actions'),
+            ),
         );
 
         $fields_form = array();
@@ -184,7 +184,7 @@ class Ps_Googleanalytics extends Module
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'hint' => $this->trans('This information is available in your Google Analytics account', array(), 'Modules.GAnalytics.Admin')
+                    'hint' => $this->trans('This information is available in your Google Analytics account', array(), 'Modules.GAnalytics.Admin'),
                 ),
                 array(
                     'type' => 'switch',
@@ -194,13 +194,13 @@ class Ps_Googleanalytics extends Module
                         array(
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
+                            'label' => $this->trans('Enabled', array(), 'Admin.Global'),
                         ),
                         array(
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
-                        ))
+                            'label' => $this->trans('Disabled', array(), 'Admin.Global'),
+                        ), ),
                 ),
                 array(
                     'type' => 'switch',
@@ -211,19 +211,19 @@ class Ps_Googleanalytics extends Module
                         array(
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->trans('Enabled', array(), 'Admin.Global')
+                            'label' => $this->trans('Enabled', array(), 'Admin.Global'),
                         ),
                         array(
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->trans('Disabled', array(), 'Admin.Global')
+                            'label' => $this->trans('Disabled', array(), 'Admin.Global'),
                         ),
                     ),
                 ),
             ),
             'submit' => array(
                 'title' => $this->trans('Save', array(), 'Admin.Actions'),
-            )
+            ),
         );
 
         if ($is_multistore_active) {
@@ -235,14 +235,14 @@ class Ps_Googleanalytics extends Module
                     array(
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->trans('Enabled', array(), 'Admin.Global')
+                        'label' => $this->trans('Enabled', array(), 'Admin.Global'),
                     ),
                     array(
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                        'label' => $this->trans('Disabled', array(), 'Admin.Global')
-                    )
-                )
+                        'label' => $this->trans('Disabled', array(), 'Admin.Global'),
+                    ),
+                ),
             );
         }
 
@@ -326,7 +326,7 @@ class Ps_Googleanalytics extends Module
                     'shops' => $shops,
                     'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
                     'gaAnonymizeEnabled' => $ga_anonymize_enabled,
-                    'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
+                    'useSecureMode' => Configuration::get('PS_SSL_ENABLED'),
                 )
             );
             return $this->display(__FILE__, 'ps_googleanalytics.tpl');
@@ -348,7 +348,7 @@ class Ps_Googleanalytics extends Module
                 'shipping' => $order->total_shipping,
                 'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                 'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer);
+                'customer' => $order->id_customer, );
         }
     }
 
@@ -378,7 +378,7 @@ class Ps_Googleanalytics extends Module
                         'shipping' => $order->total_shipping,
                         'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                         'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
-                        'customer' => $order->id_customer);
+                        'customer' => $order->id_customer, );
                     $ga_scripts .= $this->addTransaction($order_products, $transaction);
 
                     $this->js_state = 1;
@@ -577,12 +577,12 @@ class Ps_Googleanalytics extends Module
                 'quantity' => $product_qty,
                 'list' => Tools::getValue('controller'),
                 'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price']
+                'price' => $product['price'],
             );
         } else {
             $ga_product = array(
                 'id' => $product_id,
-                'name' => Tools::str2url($product['name'])
+                'name' => Tools::str2url($product['name']),
             );
         }
         return $ga_product;
@@ -822,7 +822,7 @@ class Ps_Googleanalytics extends Module
             $ga_scripts .= 'MBG.add('.json_encode(
                 array(
                     'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
-                    'quantity' => $qty)
+                    'quantity' => $qty, )
                 )
                 .');';
         }
@@ -847,7 +847,7 @@ class Ps_Googleanalytics extends Module
             'addAction' => Tools::getValue('add') ? 'add' : '',
             'removeAction' => Tools::getValue('delete') ? 'delete' : '',
             'extraAction' => Tools::getValue('op'),
-            'qty' => (int)Tools::getValue('qty', 1)
+            'qty' => (int)Tools::getValue('qty', 1),
         );
 
         $cart_products = $this->context->cart->getProducts();
