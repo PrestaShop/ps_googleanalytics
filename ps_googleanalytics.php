@@ -31,9 +31,13 @@ if (!defined('_PS_VERSION_')) {
 class Ps_Googleanalytics extends Module
 {
     protected $js_state = 0;
+
     protected $eligible = 0;
+
     protected $filterable = 1;
+
     protected static $products = array();
+
     protected $_debug = 0;
 
     public function __construct()
@@ -53,6 +57,7 @@ class Ps_Googleanalytics extends Module
 
         $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
     }
+
     public function install()
     {
         if (Shop::isFeatureActive()) {
