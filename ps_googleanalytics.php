@@ -241,7 +241,7 @@ class Ps_Googleanalytics extends Module
                     array(
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->trans('Disabled', array(), 'Admin.Global')
+                        'label' => $this->trans('Disabled', array(), 'Admin.Global')
                     )
                 )
             );
