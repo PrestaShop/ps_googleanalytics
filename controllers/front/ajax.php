@@ -39,7 +39,7 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
             die;
         }
         Db::getInstance()->execute(
-            'UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1'
+            'UPDATE `' . _DB_PREFIX_ . 'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = ' . (int)Tools::getValue('orderid') . ' LIMIT 1'
         );
         die;
     }

@@ -35,7 +35,7 @@ class AdminGanalyticsAjaxController extends ModuleAdminController
         if (Validate::isLoadedObject($order) && (isset($context->employee->id) && $context->employee->id))
         {
             Db::getInstance()->execute('
-                UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid')
+                UPDATE `' . _DB_PREFIX_ . 'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = ' . (int)Tools::getValue('orderid')
             );
             die('OK');
         }
