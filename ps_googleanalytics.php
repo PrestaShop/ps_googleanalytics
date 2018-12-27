@@ -208,7 +208,7 @@ class Ps_Googleanalytics extends Module
                     'label' => $this->trans('Anonymize IP', array(), 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
                     'hint' => $this->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
-                    'values'    => array(
+                    'values' => array(
                         array(
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
@@ -398,7 +398,7 @@ class Ps_Googleanalytics extends Module
         $this->js_state = 0;
         $gacarts = $this->_manageData("", "R");
         $controller_name = Tools::getValue('controller');
-        if (count($gacarts)>0 && $controller_name!='product') {
+        if (count($gacarts) > 0 && $controller_name != 'product') {
             $this->filterable = 0;
 
             foreach ($gacarts as $gacart) {
