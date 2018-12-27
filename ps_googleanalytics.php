@@ -396,7 +396,7 @@ class Ps_Googleanalytics extends Module
     {
         $ga_scripts = '';
         $this->js_state = 0;
-        $gacarts = $this->_manageData("", "R");
+        $gacarts = $this->_manageData('', 'R');
         $controller_name = Tools::getValue('controller');
         if (count($gacarts)>0 && $controller_name!='product') {
             $this->filterable = 0;
@@ -414,7 +414,7 @@ class Ps_Googleanalytics extends Module
                     $ga_scripts .= $gacart;
                 }
             }
-            $gacarts = $this->_manageData("", "D");
+            $gacarts = $this->_manageData('', 'D');
         }
 
         $listing = $this->context->smarty->getTemplateVars('listing');
@@ -890,7 +890,7 @@ class Ps_Googleanalytics extends Module
                 $id_product = Tools::getValue('id_product');
             }
 
-            $gacart = $this->_manageData("", "R");
+            $gacart = $this->_manageData('', 'R');
 
             if ($cart['removeAction'] == 'delete') {
                 $ga_products['quantity'] = -1;
