@@ -160,8 +160,7 @@ class Ps_Googleanalytics extends Module
         $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
         $helper->submit_action = 'submit'.$this->name;
         $helper->toolbar_btn = array(
-            'save' =>
-            array(
+            'save' => array(
                 'desc' => $this->trans('Save', array(), 'Admin.Actions'),
                 'href' => AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
                 '&token='.Tools::getAdminTokenLite('AdminModules'),
