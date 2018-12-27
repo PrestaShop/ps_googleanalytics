@@ -176,7 +176,7 @@ class Ps_Googleanalytics extends Module
         // Init Fields form array
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->trans('Settings', array(),'Admin.Global'),
+                'title' => $this->trans('Settings', array(), 'Admin.Global'),
             ),
             'input' => array(
                 array(
@@ -733,7 +733,7 @@ class Ps_Googleanalytics extends Module
             if ($dataretour === false)
                 return array();
             else
-                return json_decode($dataretour,true);
+                return json_decode($dataretour, true);
         }
         if ($action == 'W') {
             return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
@@ -743,7 +743,7 @@ class Ps_Googleanalytics extends Module
             if ($dataretour === false)
                 $datanew = array($data);
             else {
-                $datanew = json_decode($dataretour,true);
+                $datanew = json_decode($dataretour, true);
                 $datanew[] = $data;
             }
             return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.pSQL(json_encode($datanew)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($datanew)).'\' ;');
