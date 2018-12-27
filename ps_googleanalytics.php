@@ -723,7 +723,9 @@ class Ps_Googleanalytics extends Module
 
     /**
      * Manage data.
+     *
      * @param string $action "R" read data from DB, "W" write data, "A" append data, D" delete data
+     *
      * @return array dans le cas du R, sinon true
      */
     protected function _manageData($data, $action)
