@@ -853,7 +853,7 @@ class Ps_Googleanalytics extends Module
             $order_detail = new OrderDetail($orderdetail_id);
             $ga_scripts .= 'MBG.add('.json_encode(
                 array(
-                    'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
+                    'id' => empty($order_detail->product_attribute_id) ? $order_detail->product_id : $order_detail->product_id.'-'.$order_detail->product_attribute_id,
                     'quantity' => $qty)
                 )
                 .');';
