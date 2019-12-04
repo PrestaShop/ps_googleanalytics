@@ -30,6 +30,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Ps_Googleanalytics extends Module
 {
+    /**
+     * @var string Name of the module running on PS 1.6.x. Used for data migration.
+     */
+    const PS_16_EQUIVALENT_MODULE = 'ganalytics';
+
     protected $js_state = 0;
     protected $eligible = 0;
     protected $filterable = 1;
@@ -40,7 +45,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.1.3';
+        $this->version = '3.2.0';
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -58,6 +63,8 @@ class Ps_Googleanalytics extends Module
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
+
+        $this->uninstallPrestaShop16Module();
 
         if (parent::install() &&
             $this->registerHook('displayHeader') &&
@@ -84,6 +91,30 @@ class Ps_Googleanalytics extends Module
         }
 
         return false;
+    }
+
+    /**
+     * Migrate data from 1.6 equivalent module (if applicable), then uninstall
+     */
+    public function uninstallPrestaShop16Module()
+    {
+        if (!Module::isInstalled(self::PS_16_EQUIVALENT_MODULE)) {
+            return false;
+        }
+        $oldModule = Module::getInstanceByName(self::PS_16_EQUIVALENT_MODULE);
+        if ($oldModule) {
+            if (method_exists($oldModule, 'uninstallTab')) {
+                $oldModule->uninstallTab();
+            }
+            // This closure calls the parent class to prevent data to be erased
+            // It allows the new module to be configured without migration
+            $parentUninstallClosure = function() {
+                return parent::uninstall();
+            };
+            $parentUninstallClosure = $parentUninstallClosure->bindTo($oldModule, get_class($oldModule));
+            $parentUninstallClosure();
+        }
+        return true;
     }
 
     /**
