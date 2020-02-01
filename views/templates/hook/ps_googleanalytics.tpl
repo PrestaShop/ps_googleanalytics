@@ -53,8 +53,6 @@
     {/if}
     {if $backOffice}
         ga('set', 'nonInteraction', true);
-    {else}
-        ga('send', 'pageview');
     {/if}
 {literal}
     ga('require', 'ec');
