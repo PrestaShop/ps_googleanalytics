@@ -77,6 +77,7 @@ class Ps_Googleanalytics extends Module
             $this->registerHook('actionProductCancel') &&
             $this->registerHook('actionCartSave') &&
             $this->registerHook('displayBackOfficeHeader') &&
+	    $this->registerHook('hookactionOrderStatusPostUpdate') &&
             $this->registerHook('actionCarrierProcess')
         ) {
             return $this->createTables();
@@ -844,6 +845,20 @@ class Ps_Googleanalytics extends Module
             return $js.$this->hookdisplayHeader(null, true).$this->_runJs($ga_scripts, 1);
         } else {
             return $js;
+        }
+    }
+
+    /**
+     * Hook called after order status change
+     * Used to cancel order after cancelling it
+     */
+    public function hookactionOrderStatusPostUpdate($params)
+    {
+        $order_status = $params['newOrderStatus']->id;
+
+        // If we have the order and new order status in CANCELED
+        if (!empty($params['id_order']) && !empty($order_status) && $order_status == (int) Configuration::get('PS_OS_CANCELED')) {
+            $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
         }
     }
 
