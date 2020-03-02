@@ -345,7 +345,7 @@ class Ps_Googleanalytics extends Module
 
             $ga_anonymize_enabled = Configuration::get('GA_ANONYMIZE_ENABLED');
 
-            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && sizeof($shops) > 1) {
+            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && count($shops) > 1) {
                 $ga_crossdomain_enabled = true;
             }
 
