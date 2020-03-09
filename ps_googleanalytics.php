@@ -767,7 +767,7 @@ class Ps_Googleanalytics extends Module
                 return json_decode($dataretour,true);
         }
         if ($action == 'W') {
-            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.json_encode($data).'\') ON DUPLICATE KEY UPDATE data =\''.json_encode($data).'\' ;');
+            return Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'ganalytics_data` (id_cart, id_shop, data) VALUES(\''.(int)$this->context->cart->id.'\',\''.(int)$this->context->shop->id.'\',\''.pSQL(json_encode($data)).'\') ON DUPLICATE KEY UPDATE data =\''.pSQL(json_encode($data)).'\' ;');
         }
         if ($action == 'A') {
             $dataretour = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'ganalytics_data` WHERE id_cart = \''.(int)$this->context->cart->id.'\' AND id_shop = \''.(int)$this->context->shop->id.'\'');
