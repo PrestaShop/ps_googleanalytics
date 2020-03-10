@@ -4,6 +4,10 @@
 
 Gain clear insights into important metrics about your customers, using Google Analytics.
 
+## Notes
+
+Google Tag Assistant will report "No HTTP Response detected" error in Prestashop back-office. **This is not a bug.** This happens, because the module does not send page views in BO, not to influence statistics. Only events, like refunds, are sent from BO.
+
 ## Contributing
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
