@@ -6,6 +6,8 @@ Gain clear insights into important metrics about your customers, using Google An
 
 ## Notes
 
+Enhanced Ecommerce must be enabled in Google Analytics settings for full functionality. Otherwise, some data (refunds etc.) will not be visible. Follow [instructions][4].
+
 Google Tag Assistant will report "No HTTP Response detected" error in Prestashop back-office. **This is not a bug.** This happens, because the module does not send page views in BO, not to influence statistics. Only events, like refunds, are sent from BO.
 
 ## Contributing
@@ -40,5 +42,5 @@ That's it: you have contributed to this open-source project! Congratulations!
 [1]: http://doc.prestashop.com/display/PS16/Coding+Standards
 [2]: http://doc.prestashop.com/display/PS16/How+to+write+a+commit+message
 [3]: https://help.github.com/articles/using-pull-requests
-
+[4]: https://support.google.com/analytics/answer/6032539
 
