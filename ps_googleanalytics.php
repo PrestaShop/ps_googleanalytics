@@ -46,7 +46,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '3.2.0';
+        $this->version = '3.3.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -856,7 +856,16 @@ class Ps_Googleanalytics extends Module
     {
         // If we have the order AND the new order status being set AND the order status is changing to CANCELLED
         if (!empty($params['id_order']) && !empty($params['newOrderStatus']->id) && $params['newOrderStatus']->id == (int) Configuration::get('PS_OS_CANCELED')) {
-            $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
+        
+            // We check if the refund was already sent to Google Analytics
+            $ga_refund_sent = Db::getInstance()->getValue('SELECT id_order FROM `' . _DB_PREFIX_ . 'ganalytics` WHERE id_order = ' . (int) $params['id_order'] . ' && refund_sent = 1');
+            
+            if ($ga_refund_sent === false) {
+                // We refund it and set the "sent" flag to true
+                $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
+                Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET refund_sent = 1 WHERE id_order = '. $params['id_order']);
+            }
+		
         }
     }
 
