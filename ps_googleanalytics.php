@@ -131,6 +131,7 @@ class Ps_Googleanalytics extends Module
 				`id_customer` int(10) NOT NULL,
 				`id_shop` int(11) NOT NULL,
 				`sent` tinyint(1) DEFAULT NULL,
+				`refund_sent` tinyint(1) DEFAULT NULL,
 				`date_add` datetime DEFAULT NULL,
 				PRIMARY KEY (`id_google_analytics`),
 				KEY `id_order` (`id_order`),
