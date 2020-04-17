@@ -77,7 +77,7 @@ class Ps_Googleanalytics extends Module
             $this->registerHook('actionProductCancel') &&
             $this->registerHook('actionCartSave') &&
             $this->registerHook('displayBackOfficeHeader') &&
-            $this->registerHook('hookactionOrderStatusPostUpdate') &&
+            $this->registerHook('actionOrderStatusPostUpdate') &&
             $this->registerHook('actionCarrierProcess')
         ) {
             return $this->createTables();
@@ -853,21 +853,29 @@ class Ps_Googleanalytics extends Module
      * Hook called after order status change
      * Used to cancel order after cancelling it
      */
-    public function hookactionOrderStatusPostUpdate(array $params)
+    public function hookActionOrderStatusPostUpdate(array $params)
     {
         // If we have the order AND the new order status being set AND the order status is changing to CANCELLED
-        if (!empty($params['id_order']) && !empty($params['newOrderStatus']->id) && $params['newOrderStatus']->id == (int) Configuration::get('PS_OS_CANCELED')) {
-        
-            // We check if the refund was already sent to Google Analytics
-            $ga_refund_sent = Db::getInstance()->getValue('SELECT id_order FROM `' . _DB_PREFIX_ . 'ganalytics` WHERE id_order = ' . (int) $params['id_order'] . ' && refund_sent = 1');
-            
-            if ($ga_refund_sent === false) {
-                // We refund it and set the "sent" flag to true
-                $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
-                Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET refund_sent = 1 WHERE id_order = '. $params['id_order']);
-            }
-		
+        if (empty($params['id_order'])
+            || empty($params['newOrderStatus']->id)
+            || (int) $params['newOrderStatus']->id !== (int) Configuration::get('PS_OS_CANCELED')
+        ) {
+            return;
         }
+	            
+        // We check if the refund was already sent to Google Analytics
+        $gaRefundSent = Db::getInstance()->getValue(
+            'SELECT id_order FROM `' . _DB_PREFIX_ . 'ganalytics` WHERE id_order = ' . (int) $params['id_order'] . ' AND refund_sent = 1'
+        );
+            
+        if ($gaRefundSent === false) {
+            // We refund it and set the "sent" flag to true
+            $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
+            Db::getInstance()->execute(
+                'UPDATE `'._DB_PREFIX_.'ganalytics` SET refund_sent = 1 WHERE id_order = '. (int) $params['id_order']
+	    );
+        }
+
     }
 
     /**
