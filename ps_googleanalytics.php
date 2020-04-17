@@ -873,7 +873,7 @@ class Ps_Googleanalytics extends Module
             $this->context->cookie->ga_admin_refund = $ga_scripts . 'MBG.refundByOrderId(' . json_encode(['id' => $params['id_order']]) . ');';
             Db::getInstance()->execute(
                 'UPDATE `'._DB_PREFIX_.'ganalytics` SET refund_sent = 1 WHERE id_order = '. (int) $params['id_order']
-	    );
+            );
         }
 
     }
