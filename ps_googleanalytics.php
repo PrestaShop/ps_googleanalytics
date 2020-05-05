@@ -54,9 +54,9 @@ class Ps_Googleanalytics extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Google Analytics', array(), 'Modules.GAnalytics.Admin');
-        $this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
+        $this->displayName = $this->l('Google Analytics');
+        $this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
+        $this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
         $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
     }
     public function install()
@@ -194,13 +194,13 @@ class Ps_Googleanalytics extends Module
         $helper->toolbar_btn = array(
             'save' =>
             array(
-                'desc' => $this->l('Save', array(), 'Admin.Actions'),
+                'desc' => $this->l('Save'),
                 'href' => AdminController::$currentIndex.'&configure='.$this->name.'&save'.$this->name.
                 '&token='.Tools::getAdminTokenLite('AdminModules'),
             ),
             'back' => array(
                 'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->l('Back to list', array(), 'Admin.Actions')
+                'desc' => $this->l('Back to list')
             )
         );
 
@@ -208,72 +208,72 @@ class Ps_Googleanalytics extends Module
         // Init Fields form array
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Settings', array(),'Admin.Global'),
+                'title' => $this->l('Settings'),
             ),
             'input' => array(
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Google Analytics Tracking ID', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->l('Google Analytics Tracking ID'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'hint' => $this->l('This information is available in your Google Analytics account', array(), 'Modules.GAnalytics.Admin')
+                    'hint' => $this->l('This information is available in your Google Analytics account')
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Enable User ID tracking', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
                     'values' => array(
                         array(
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->l('Enabled', array(), 'Admin.Global')
+                            'label' => $this->l('Enabled')
                         ),
                         array(
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->l('Disabled', array(), 'Admin.Global')
+                            'label' => $this->l('Disabled')
                         ))
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Anonymize IP', array(), 'Modules.GAnalytics.Admin'),
+                    'label' => $this->l('Anonymize IP'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
                     'hint' => $this->l('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
                     'values'    => array(
                         array(
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->l('Enabled', array(), 'Admin.Global')
+                            'label' => $this->l('Enabled')
                         ),
                         array(
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->l('Disabled', array(), 'Admin.Global')
+                            'label' => $this->l('Disabled')
                         ),
                     ),
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save', array(), 'Admin.Actions'),
+                'title' => $this->l('Save'),
             )
         );
 
         if ($is_multistore_active) {
             $fields_form[0]['form']['input'][] = array(
                 'type' => 'switch',
-                'label' => $this->l('Enable Cross-Domain tracking', array(), 'Modules.GAnalytics.Admin'),
+                'label' => $this->l('Enable Cross-Domain tracking'),
                 'name' => 'GA_CROSSDOMAIN_ENABLED',
                 'values' => array(
                     array(
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->l('Enabled', array(), 'Admin.Global')
+                        'label' => $this->l('Enabled')
                     ),
                     array(
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->l('Disabled', array(), 'Admin.Global')
+                         'label' => $this->l('Disabled')
                     )
                 )
             );
@@ -299,24 +299,24 @@ class Ps_Googleanalytics extends Module
             if (!empty($ga_account_id)) {
                 Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
                 Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-                $output .= $this->displayConfirmation($this->l('Account ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->l('Account ID updated successfully'));
             }
             $ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
             if (null !== $ga_userid_enabled) {
                 Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
             }
 
             $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
             if (null !== $ga_crossdomain_enabled) {
                 Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
             }
 
             $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
             if (null !== $ga_anonymize_enabled) {
                 Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for Anonymize IP updated successfully', array(), 'Modules.GAnalytics.Admin'));
+                $output .= $this->displayConfirmation($this->l('Settings for Anonymize IP updated successfully'));
             }
         }
 
