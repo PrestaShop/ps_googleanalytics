@@ -40,6 +40,7 @@ class Ps_Googleanalytics extends Module
     protected $filterable = 1;
     protected static $products = array();
     protected $_debug = 0;
+    protected $psVersionIs17;
 
     public function __construct()
     {
@@ -55,8 +56,8 @@ class Ps_Googleanalytics extends Module
 
         $this->displayName = $this->l('Google Analytics', array(), 'Modules.GAnalytics.Admin');
         $this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics', array(), 'Modules.GAnalytics.Admin');
-
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', array(), 'Modules.GAnalytics.Admin');
+        $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
     }
     public function install()
     {
@@ -389,7 +390,12 @@ class Ps_Googleanalytics extends Module
      */
     public function hookdisplayOrderConfirmation($params)
     {
-        $order = $params['order'];
+        if (true === $this->psVersionIs17) {
+            $order = $params['order'];
+        } else {
+            $order = $params['objOrder'];
+        }
+
         if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int)Configuration::get('PS_OS_ERROR')) {
             $ga_order_sent = Db::getInstance()->getValue('SELECT id_order FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.(int)$order->id);
             if ($ga_order_sent === false) {
