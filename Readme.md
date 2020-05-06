@@ -14,7 +14,7 @@ Google Tag Assistant will report "No HTTP Response detected" error in Prestashop
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 1.7
+Google Analytics is compatible with all versions of PrestaShop 1.7 and 1.6
 
 ### Requirements
 
