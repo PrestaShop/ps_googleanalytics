@@ -197,7 +197,6 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
         $hook->setParams($params);
-
         return $hook->run();
     }
 
