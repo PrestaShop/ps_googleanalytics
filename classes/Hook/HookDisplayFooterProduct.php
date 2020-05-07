@@ -20,10 +20,9 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookDisplayFooterProduct implements HookInterface
 {
@@ -31,7 +30,8 @@ class HookDisplayFooterProduct implements HookInterface
     private $context;
     private $params;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -57,10 +57,10 @@ class HookDisplayFooterProduct implements HookInterface
         // Add product view
         $productWrapper = new ProductWrapper($this->context);
         $gaProduct = $productWrapper->wrapProduct($this->params['product'], null, 0, true);
-        $js = 'MBG.addProductDetailView('.json_encode($gaProduct).');';
+        $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal(array($gaProduct));
+            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct]);
         }
 
         $this->module->js_state = 1;
@@ -73,7 +73,8 @@ class HookDisplayFooterProduct implements HookInterface
      *
      * @param array $params
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
     }
 }

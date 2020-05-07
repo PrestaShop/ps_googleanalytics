@@ -34,15 +34,15 @@ class ProductWrapper implements WrapperInterface
     /**
      * wrap products to provide a standard products information for google analytics script
      */
-    public function wrapProductList($products, $extras = array(), $full = false)
+    public function wrapProductList($products, $extras = [], $full = false)
     {
-        $result_products = array();
+        $result_products = [];
         if (!is_array($products)) {
             return;
         }
 
         $currency = new \Currency($this->context->currency->id);
-        $usetax = (\Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
+        $usetax = (\Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
 
         if (count($products) > 20) {
             $full = false;
@@ -52,11 +52,11 @@ class ProductWrapper implements WrapperInterface
 
         foreach ($products as $index => $product) {
             if ($product instanceof Product) {
-                $product = (array)$product;
+                $product = (array) $product;
             }
 
             if (!isset($product['price'])) {
-                $product['price'] = (float)\Tools::displayPrice(\Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
+                $product['price'] = (float) \Tools::displayPrice(\Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
             }
             $result_products[] = $this->wrapProduct($product, $extras, $index, $full);
         }
@@ -93,7 +93,7 @@ class ProductWrapper implements WrapperInterface
         }
 
         if (!empty($product['id_product_attribute'])) {
-            $product_id .= '-'. $product['id_product_attribute'];
+            $product_id .= '-' . $product['id_product_attribute'];
         }
 
         $product_type = 'typical';
@@ -104,7 +104,7 @@ class ProductWrapper implements WrapperInterface
         }
 
         if ($full) {
-            $ga_product = array(
+            $ga_product = [
                 'id' => $product_id,
                 'name' => \Tools::str2url($product['name']),
                 'category' => \Tools::str2url($product['category']),
@@ -115,14 +115,15 @@ class ProductWrapper implements WrapperInterface
                 'quantity' => $product_qty,
                 'list' => \Tools::getValue('controller'),
                 'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price']
-            );
+                'price' => $product['price'],
+            ];
         } else {
-            $ga_product = array(
+            $ga_product = [
                 'id' => $product_id,
-                'name' => \Tools::str2url($product['name'])
-            );
+                'name' => \Tools::str2url($product['name']),
+            ];
         }
+
         return $ga_product;
     }
 }

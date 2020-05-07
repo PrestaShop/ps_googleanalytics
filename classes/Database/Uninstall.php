@@ -29,8 +29,8 @@ class Uninstall
      */
     public function uninstallTables()
     {
-        $sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics`';
-        $sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'ganalytics_data`';
+        $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'ganalytics`';
+        $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'ganalytics_data`';
 
         foreach ($sql as $query) {
             if (!\Db::getInstance()->execute($query)) {

@@ -17,16 +17,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 function upgrade_module_3_1_0($object)
 {
     Configuration::updateValue('GANALYTICS', '3.1.0');
+
     return Db::getInstance()->execute('
-      CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
+      CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'ganalytics_data` (
             `id_cart` int(11) NOT NULL,
             `id_shop` int(11) NOT NULL,
             `data` TEXT DEFAULT NULL,
             PRIMARY KEY (`id_cart`)
-    ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8');
+    ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8');
 }

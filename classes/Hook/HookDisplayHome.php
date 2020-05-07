@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
@@ -31,7 +30,8 @@ class HookDisplayHome implements HookInterface
     private $module;
     private $context;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -56,10 +56,10 @@ class HookDisplayHome implements HookInterface
                 $category->getProducts(
                     (int) $this->context->language->id,
                     1,
-                    (\Configuration::get('HOME_FEATURED_NBR') ? (int)\Configuration::get('HOME_FEATURED_NBR') : 8),
+                    (\Configuration::get('HOME_FEATURED_NBR') ? (int) \Configuration::get('HOME_FEATURED_NBR') : 8),
                     'position'
                 ),
-                array(),
+                [],
                 true
             );
             $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts) . $gaTools->addProductClick($homeFeaturedProducts);

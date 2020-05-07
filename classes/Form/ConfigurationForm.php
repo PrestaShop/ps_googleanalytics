@@ -24,7 +24,8 @@ class ConfigurationForm
 {
     private $module;
 
-    public function __construct(\Ps_Googleanalytics $module) {
+    public function __construct(\Ps_Googleanalytics $module)
+    {
         $this->module = $module;
     }
 
@@ -39,7 +40,7 @@ class ConfigurationForm
         $is_multistore_active = \Shop::isFeatureActive();
 
         // Get default language
-        $default_lang = (int)\Configuration::get('PS_LANG_DEFAULT');
+        $default_lang = (int) \Configuration::get('PS_LANG_DEFAULT');
 
         $helper = new \HelperForm();
 
@@ -47,7 +48,7 @@ class ConfigurationForm
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
         $helper->token = \Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = \AdminController::$currentIndex.'&configure=' . $this->module->name;
+        $helper->currentIndex = \AdminController::$currentIndex . '&configure=' . $this->module->name;
 
         // Language
         $helper->default_form_language = $default_lang;
@@ -58,92 +59,91 @@ class ConfigurationForm
         $helper->show_toolbar = true;        // false -> remove toolbar
         $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
         $helper->submit_action = 'submit' . $this->module->name;
-        $helper->toolbar_btn = array(
-            'save' =>
-            array(
+        $helper->toolbar_btn = [
+            'save' => [
                 'desc' => $this->module->l('Save'),
-                'href' => \AdminController::$currentIndex.'&configure=' . $this->module->name.'&save' . $this->module->name.
-                '&token='.\Tools::getAdminTokenLite('AdminModules'),
-            ),
-            'back' => array(
-                'href' => \AdminController::$currentIndex.'&token='.\Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->module->l('Back to list')
-            )
-        );
+                'href' => \AdminController::$currentIndex . '&configure=' . $this->module->name . '&save' . $this->module->name .
+                '&token=' . \Tools::getAdminTokenLite('AdminModules'),
+            ],
+            'back' => [
+                'href' => \AdminController::$currentIndex . '&token=' . \Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $this->module->l('Back to list'),
+            ],
+        ];
 
-        $fields_form = array();
+        $fields_form = [];
         // Init Fields form array
-        $fields_form[0]['form'] = array(
-            'legend' => array(
+        $fields_form[0]['form'] = [
+            'legend' => [
                 'title' => $this->module->l('Settings'),
-            ),
-            'input' => array(
-                array(
+            ],
+            'input' => [
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Google Analytics Tracking ID'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'hint' => $this->module->l('This information is available in your Google Analytics account')
-                ),
-                array(
+                    'hint' => $this->module->l('This information is available in your Google Analytics account'),
+                ],
+                [
                     'type' => 'switch',
                     'label' => $this->module->l('Enable User ID tracking'),
                     'name' => 'GA_USERID_ENABLED',
-                    'values' => array(
-                        array(
+                    'values' => [
+                        [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled')
-                        ),
-                        array(
+                            'label' => $this->module->l('Enabled'),
+                        ],
+                        [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled')
-                        ))
-                ),
-                array(
+                            'label' => $this->module->l('Disabled'),
+                        ], ],
+                ],
+                [
                     'type' => 'switch',
                     'label' => $this->module->l('Anonymize IP'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
                     'hint' => $this->module->l('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries'),
-                    'values'    => array(
-                        array(
+                    'values' => [
+                        [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled')
-                        ),
-                        array(
+                            'label' => $this->module->l('Enabled'),
+                        ],
+                        [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled')
-                        ),
-                    ),
-                ),
-            ),
-            'submit' => array(
+                            'label' => $this->module->l('Disabled'),
+                        ],
+                    ],
+                ],
+            ],
+            'submit' => [
                 'title' => $this->module->l('Save'),
-            )
-        );
+            ],
+        ];
 
         if ($is_multistore_active) {
-            $fields_form[0]['form']['input'][] = array(
+            $fields_form[0]['form']['input'][] = [
                 'type' => 'switch',
                 'label' => $this->module->l('Enable Cross-Domain tracking'),
                 'name' => 'GA_CROSSDOMAIN_ENABLED',
-                'values' => array(
-                    array(
+                'values' => [
+                    [
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->module->l('Enabled')
-                    ),
-                    array(
+                        'label' => $this->module->l('Enabled'),
+                    ],
+                    [
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->module->l('Disabled')
-                    )
-                )
-            );
+                         'label' => $this->module->l('Disabled'),
+                    ],
+                ],
+            ];
         }
 
         // Load current value

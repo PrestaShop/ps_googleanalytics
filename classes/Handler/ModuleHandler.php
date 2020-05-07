@@ -72,7 +72,7 @@ class ModuleHandler
         }
 
         // This closure calls the parent class to prevent data to be erased
-        $parentUninstallClosure = function() {
+        $parentUninstallClosure = function () {
             return parent::uninstall();
         };
 

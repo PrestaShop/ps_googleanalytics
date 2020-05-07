@@ -20,11 +20,10 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookDisplayOrderConfirmation implements HookInterface
 {
@@ -32,7 +31,8 @@ class HookDisplayOrderConfirmation implements HookInterface
     private $context;
     private $params;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -50,40 +50,40 @@ class HookDisplayOrderConfirmation implements HookInterface
             $order = $this->params['objOrder'];
         }
 
-        if (\Validate::isLoadedObject($order) && $order->getCurrentState() != (int)\Configuration::get('PS_OS_ERROR')) {
+        if (\Validate::isLoadedObject($order) && $order->getCurrentState() != (int) \Configuration::get('PS_OS_ERROR')) {
             $ganalyticsRepository = new GanalyticsRepository();
             $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
 
             if (false === $gaOrderSent) {
                 $ganalyticsRepository->addNewRow(
-                    array(
+                    [
                         'id_order' => (int) $order->id,
                         'id_shop' => (int) $this->context->shop->id,
                         'sent' => 0,
                         'date_add' => 'NOW()',
-                    )
+                    ]
                 );
 
                 if ($order->id_customer == $this->context->cookie->id_customer) {
-                    $orderProducts = array();
+                    $orderProducts = [];
                     $cart = new \Cart($order->id_cart);
                     $gaTools = new GoogleAnalyticsTools();
                     $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                     $productWrapper = new ProductWrapper($this->context);
 
                     foreach ($cart->getProducts() as $order_product) {
-                        $orderProducts[] = $productWrapper->wrapProduct($order_product, array(), 0, true);
+                        $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
                     }
 
-                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment.'\');';
-                    $transaction = array(
+                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
+                    $transaction = [
                         'id' => $order->id,
                         'affiliation' => (\Shop::isFeatureActive()) ? $this->context->shop->name : \Configuration::get('PS_SHOP_NAME'),
                         'revenue' => $order->total_paid,
                         'shipping' => $order->total_shipping,
                         'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
-                        'customer' => $order->id_customer);
+                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
+                        'customer' => $order->id_customer, ];
                     $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
                     $this->module->js_state = 1;
@@ -99,7 +99,8 @@ class HookDisplayOrderConfirmation implements HookInterface
      *
      * @param array $params
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
     }
 }

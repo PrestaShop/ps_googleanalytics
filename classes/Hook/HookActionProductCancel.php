@@ -20,15 +20,14 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-
 class HookActionProductCancel implements HookInterface
 {
     private $module;
     private $context;
     private $params;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -46,15 +45,15 @@ class HookActionProductCancel implements HookInterface
         foreach ($quantityRefunded as $orderDetailId => $quantity) {
             // Display GA refund product
             $orderDetail = new \OrderDetail($orderDetailId);
-            $gaScripts .= 'MBG.add('.json_encode(
-                array(
-                    'id' => empty($orderDetail->product_attribute_id)?$orderDetail->product_id:$orderDetail->product_id.'-' . $orderDetail->product_attribute_id,
-                    'quantity' => $quantity)
+            $gaScripts .= 'MBG.add(' . json_encode(
+                [
+                    'id' => empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id,
+                    'quantity' => $quantity, ]
                 )
-                .');';
+                . ');';
         }
 
-        $this->context->cookie->ga_admin_refund = $gaScripts.'MBG.refundByProduct('.json_encode(array('id' => $this->params['order']->id)).');';
+        $this->context->cookie->ga_admin_refund = $gaScripts . 'MBG.refundByProduct(' . json_encode(['id' => $this->params['order']->id]) . ');';
     }
 
     /**
@@ -62,7 +61,8 @@ class HookActionProductCancel implements HookInterface
      *
      * @param array $params
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
     }
 }

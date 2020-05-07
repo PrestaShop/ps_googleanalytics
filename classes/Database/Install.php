@@ -43,9 +43,9 @@ class Install
      */
     public function installTables()
     {
-        $sql = array();
+        $sql = [];
 
-        $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'ganalytics` (
             `id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
             `id_order` int(11) NOT NULL,
             `id_customer` int(10) NOT NULL,
@@ -55,14 +55,14 @@ class Install
             PRIMARY KEY (`id_google_analytics`),
             KEY `id_order` (`id_order`),
             KEY `sent` (`sent`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1';
 
-        $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics_data` (
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'ganalytics_data` (
             `id_cart` int(11) NOT NULL,
             `id_shop` int(11) NOT NULL,
             `data` TEXT DEFAULT NULL,
             PRIMARY KEY (`id_cart`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
 
         foreach ($sql as $query) {
             if (!\Db::getInstance()->execute($query)) {

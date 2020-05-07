@@ -20,18 +20,18 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookDisplayFooter implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -55,17 +55,16 @@ class HookDisplayFooter implements HookInterface
         $gacarts = $ganalyticsDataHandler->manageData('', 'R');
         $controller_name = \Tools::getValue('controller');
 
-        if (count($gacarts)>0 && $controller_name!='product') {
+        if (count($gacarts) > 0 && $controller_name != 'product') {
             $this->module->filterable = 0;
 
             foreach ($gacarts as $gacart) {
-                if (isset($gacart['quantity']))
-                {
+                if (isset($gacart['quantity'])) {
                     if ($gacart['quantity'] > 0) {
-                        $gaScripts .= 'MBG.addToCart('.json_encode($gacart).');';
+                        $gaScripts .= 'MBG.addToCart(' . json_encode($gacart) . ');';
                     } elseif ($gacart['quantity'] < 0) {
                         $gacart['quantity'] = abs($gacart['quantity']);
-                        $gaScripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
+                        $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
                     }
                 } else {
                     $gaScripts .= $gacart;
@@ -77,7 +76,7 @@ class HookDisplayFooter implements HookInterface
 
         $listing = $this->context->smarty->getTemplateVars('listing');
         $productWrapper = new ProductWrapper($this->context);
-        $products = $productWrapper->wrapProductList($listing['products'], array(), true);
+        $products = $productWrapper->wrapProductList($listing['products'], [], true);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
             $this->module->js_state = 1;
@@ -87,10 +86,10 @@ class HookDisplayFooter implements HookInterface
                 $step = 0;
             }
             $gaScripts .= $gaTools->addProductFromCheckout($products, $step);
-            $gaScripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
+            $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
         }
 
-        $confirmation_hook_id = (int)\Hook::getIdByName('displayOrderConfirmation');
+        $confirmation_hook_id = (int) \Hook::getIdByName('displayOrderConfirmation');
         if (isset(\Hook::$executed_hooks[$confirmation_hook_id])) {
             $this->module->eligible = 1;
         }

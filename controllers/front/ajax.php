@@ -17,10 +17,10 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
 class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
+
     /*
      * @see FrontController::initContent()
      */
@@ -28,12 +28,12 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
     {
         parent::initContent();
 
-        $order = new Order((int)Tools::getValue('orderid'));
-        if (!Validate::isLoadedObject($order) || $order->id_customer != (int)Tools::getValue('customer')) {
+        $order = new Order((int) Tools::getValue('orderid'));
+        if (!Validate::isLoadedObject($order) || $order->id_customer != (int) Tools::getValue('customer')) {
             die;
         }
         Db::getInstance()->execute(
-            'UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1'
+            'UPDATE `' . _DB_PREFIX_ . 'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = ' . (int) Tools::getValue('orderid') . ' LIMIT 1'
         );
         die;
     }

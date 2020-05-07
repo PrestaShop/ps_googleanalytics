@@ -17,10 +17,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
-
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_7510f8b22dd3e10476096425f78d4239'] = 'Non hai ancora impostato l\'ID di Google Analytics';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_aba1a7971f85c725ba4aed21343eeb4b'] = 'Integra lo script di Google Analytics nel tuo negozio';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_fa214007826415a21a8456e3e09f999d'] = 'Sei sicuro di voler cancellare i tuoi dati?';

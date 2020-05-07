@@ -17,10 +17,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
-
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_7510f8b22dd3e10476096425f78d4239'] = 'You have not yet set your Google Analytics ID';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_aba1a7971f85c725ba4aed21343eeb4b'] = 'Integrate Google Analytics script into your shop';
@@ -68,6 +66,5 @@ $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_3bab28a0105361c49ca
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_9bfb6e6af6e6793bfa9387e728187c87'] = '(required)';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_6a47891ae07f45802bc948d2618e36f5'] = 'Check the \'Case sensitive\' option';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_d2d0c38d112e1d775057388122ae7545'] = 'Save this new goal';
-
 
 return $_MODULE;

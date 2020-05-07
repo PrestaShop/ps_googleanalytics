@@ -55,7 +55,7 @@ class GanalyticsDataRepository
     {
         return \Db::getInstance()->Execute(
             'INSERT INTO `' . _DB_PREFIX_ . self::TABLE_NAME . '` (id_cart, id_shop, data)
-            VALUES(\'' . (int) $cartId . '\',\'' . (int) $shopId . '\',\'' . pSQL($data).'\')
+            VALUES(\'' . (int) $cartId . '\',\'' . (int) $shopId . '\',\'' . pSQL($data) . '\')
             ON DUPLICATE KEY UPDATE data = \'' . pSQL($data) . '\';'
         );
     }

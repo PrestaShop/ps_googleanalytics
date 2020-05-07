@@ -17,7 +17,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -34,7 +33,7 @@ class Ps_Googleanalytics extends Module
     public $js_state = 0;
     public $eligible = 0;
     public $filterable = 1;
-    public $products = array();
+    public $products = [];
     public $_debug = 0;
     public $psVersionIs17;
 
@@ -43,7 +42,7 @@ class Ps_Googleanalytics extends Module
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
         $this->version = '3.2.0';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
         $this->bootstrap = true;
@@ -77,6 +76,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
         $hook->setBackOffice($back_office);
+
         return $hook->run();
     }
 
@@ -87,6 +87,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
         $hook->setParams($params);
+
         return $hook->run();
     }
 
@@ -96,6 +97,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooter()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+
         return $hook->run();
     }
 
@@ -105,6 +107,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayHome()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHome($this, $this->context);
+
         return $hook->run();
     }
 
@@ -115,6 +118,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
         $hook->setParams($params);
+
         return $hook->run();
     }
 
@@ -138,6 +142,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayBackOfficeHeader()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
+
         return $hook->run();
     }
 
@@ -148,6 +153,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
         $hook->setParams($params);
+
         return $hook->run();
     }
 
@@ -157,6 +163,7 @@ class Ps_Googleanalytics extends Module
     public function hookactionCartSave()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
+
         return $hook->run();
     }
 
@@ -164,6 +171,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
         $hook->setParams($params);
+
         return $hook->run();
     }
 
@@ -173,10 +181,10 @@ class Ps_Googleanalytics extends Module
             return true;
         }
 
-        $myFile = _PS_MODULE_DIR_ . $this->name.'/logs/analytics.log';
+        $myFile = _PS_MODULE_DIR_ . $this->name . '/logs/analytics.log';
         $fh = fopen($myFile, 'a');
-        fwrite($fh, date('F j, Y, g:i a').' ' . $function."\n");
-        fwrite($fh, print_r($log, true)."\n\n");
+        fwrite($fh, date('F j, Y, g:i a') . ' ' . $function . "\n");
+        fwrite($fh, print_r($log, true) . "\n\n");
         fclose($fh);
     }
 

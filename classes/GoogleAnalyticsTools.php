@@ -55,10 +55,10 @@ class GoogleAnalyticsTools
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).');';
+            $js .= 'MBG.add(' . json_encode($product) . ');';
         }
 
-        return $js.'MBG.addTransaction('.json_encode($order).');';
+        return $js . 'MBG.addTransaction(' . json_encode($order) . ');';
     }
 
     /**
@@ -76,7 +76,7 @@ class GoogleAnalyticsTools
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).",'',true);";
+            $js .= 'MBG.add(' . json_encode($product) . ",'',true);";
         }
 
         return $js;
@@ -97,7 +97,7 @@ class GoogleAnalyticsTools
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.addProductClick('.json_encode($product).');';
+            $js .= 'MBG.addProductClick(' . json_encode($product) . ');';
         }
 
         return $js;
@@ -118,7 +118,7 @@ class GoogleAnalyticsTools
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.addProductClickByHttpReferal('.json_encode($product).');';
+            $js .= 'MBG.addProductClickByHttpReferal(' . json_encode($product) . ');';
         }
 
         return $js;
@@ -139,7 +139,7 @@ class GoogleAnalyticsTools
 
         $js = '';
         foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).');';
+            $js .= 'MBG.add(' . json_encode($product) . ');';
         }
 
         return $js;

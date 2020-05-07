@@ -36,17 +36,17 @@ class OrderWrapper implements WrapperInterface
      */
     public function wrapOrder($id_order)
     {
-        $order = new \Order((int)$id_order);
+        $order = new \Order((int) $id_order);
 
         if (\Validate::isLoadedObject($order)) {
-            return array(
+            return [
                 'id' => $id_order,
                 'affiliation' => \Shop::isFeatureActive() ? $this->context->shop->name : \Configuration::get('PS_SHOP_NAME'),
                 'revenue' => $order->total_paid,
                 'shipping' => $order->total_shipping,
                 'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                 'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer);
+                'customer' => $order->id_customer, ];
         }
     }
 }

@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-
 class HookDisplayHeader implements HookInterface
 {
     private $module;
@@ -29,7 +27,8 @@ class HookDisplayHeader implements HookInterface
     private $params;
     private $backOffice;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -42,28 +41,28 @@ class HookDisplayHeader implements HookInterface
     public function run()
     {
         if (\Configuration::get('GA_ACCOUNT_ID')) {
-            $this->context->controller->addJs($this->module->getPathUri().'views/js/GoogleAnalyticActionLib.js');
+            $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
             $shops = \Shop::getShops();
             $isMultistoreActive = \Shop::isFeatureActive();
-            $currentShopId = (int)\Context::getContext()->shop->id;
+            $currentShopId = (int) \Context::getContext()->shop->id;
             $userId = null;
             $gaCrossdomainEnabled = false;
 
             if (\Configuration::get('GA_USERID_ENABLED') &&
                 $this->context->customer && $this->context->customer->isLogged()
             ) {
-                $userId = (int)$this->context->customer->id;
+                $userId = (int) $this->context->customer->id;
             }
 
             $gaAnonymizeEnabled = \Configuration::get('GA_ANONYMIZE_ENABLED');
 
-            if ((int)\Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
+            if ((int) \Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
                 $gaCrossdomainEnabled = true;
             }
 
             $this->context->smarty->assign(
-                array(
+                [
                     'backOffice' => $this->backOffice,
                     'currentShopId' => $currentShopId,
                     'userId' => $userId,
@@ -71,8 +70,8 @@ class HookDisplayHeader implements HookInterface
                     'shops' => $shops,
                     'gaCrossdomainEnabled' => $gaCrossdomainEnabled,
                     'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
-                    'useSecureMode' => \Configuration::get('PS_SSL_ENABLED')
-                )
+                    'useSecureMode' => \Configuration::get('PS_SSL_ENABLED'),
+                ]
             );
 
             return $this->module->display(
@@ -87,7 +86,8 @@ class HookDisplayHeader implements HookInterface
      *
      * @param array $params
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->module->params = $params;
     }
 
@@ -96,7 +96,8 @@ class HookDisplayHeader implements HookInterface
      *
      * @param array $backOffice
      */
-    public function setBackOffice($backOffice) {
+    public function setBackOffice($backOffice)
+    {
         $this->module->backOffice = $backOffice;
     }
 }

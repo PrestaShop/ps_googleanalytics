@@ -25,7 +25,8 @@ class GanalyticsJsHandler
     private $module;
     private $context;
 
-    public function __construct(\Ps_googleanalytics $module, \Context $context) {
+    public function __construct(\Ps_googleanalytics $module, \Context $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -42,12 +43,12 @@ class GanalyticsJsHandler
     {
         if (\Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->smarty->assign(
-                array(
+                [
                     'jsCode' => $jsCode,
                     'isoCode' => \Tools::safeOutput($this->context->currency->iso_code),
                     'jsState' => $this->module->js_state,
                     'isBackoffice' => $isBackoffice,
-                )
+                ]
             );
 
             return $this->module->display(

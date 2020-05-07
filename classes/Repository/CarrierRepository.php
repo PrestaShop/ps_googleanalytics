@@ -33,7 +33,7 @@ class CarrierRepository
     {
         return \Db::getInstance()->getValue(
             'SELECT name
-            FROM `'._DB_PREFIX_.'carrier`
+            FROM `' . _DB_PREFIX_ . 'carrier`
             WHERE id_carrier = ' . (int) $carrierId
         );
     }

@@ -20,9 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
 
 class HookActionCarrierProcess implements HookInterface
 {
@@ -30,7 +29,8 @@ class HookActionCarrierProcess implements HookInterface
     private $context;
     private $params;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -50,7 +50,7 @@ class HookActionCarrierProcess implements HookInterface
             );
 
             $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-            $ganalyticsDataHandler->manageData('MBG.addCheckoutOption(2,\'' . $carrierName.'\');', 'A');
+            $ganalyticsDataHandler->manageData('MBG.addCheckoutOption(2,\'' . $carrierName . '\');', 'A');
         }
     }
 
@@ -59,7 +59,8 @@ class HookActionCarrierProcess implements HookInterface
      *
      * @param array $params
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
     }
 }

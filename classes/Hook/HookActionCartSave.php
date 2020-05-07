@@ -20,16 +20,16 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookActionCartSave implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -49,13 +49,13 @@ class HookActionCartSave implements HookInterface
             return;
         }
 
-        $cart = array(
+        $cart = [
             'controller' => \Tools::getValue('controller'),
             'addAction' => \Tools::getValue('add') ? 'add' : '',
             'removeAction' => \Tools::getValue('delete') ? 'delete' : '',
             'extraAction' => \Tools::getValue('op'),
-            'qty' => (int)\Tools::getValue('qty', 1)
-        );
+            'qty' => (int) \Tools::getValue('qty', 1),
+        ];
 
         $cartProducts = $this->context->cart->getProducts();
         if (isset($cartProducts) && count($cartProducts)) {
@@ -67,7 +67,7 @@ class HookActionCartSave implements HookInterface
         }
 
         if ($cart['removeAction'] == 'delete') {
-            $addProductObject = new \Product((int)\Tools::getValue('id_product'), true, (int)\Configuration::get('PS_LANG_DEFAULT'));
+            $addProductObject = new \Product((int) \Tools::getValue('id_product'), true, (int) \Configuration::get('PS_LANG_DEFAULT'));
             if (\Validate::isLoadedObject($addProductObject)) {
                 $addProduct['name'] = $addProductObject->name;
                 $addProduct['manufacturer_name'] = $addProductObject->manufacturer_name;
@@ -82,17 +82,17 @@ class HookActionCartSave implements HookInterface
                 $addProduct['out_of_stock'] = $addProductObject->out_of_stock;
                 $addProduct['minimal_quantity'] = 1;
                 $addProduct['unit_price_ratio'] = 0;
-                $addProduct = \Product::getProductProperties((int)\Configuration::get('PS_LANG_DEFAULT'), $addProduct);
+                $addProduct = \Product::getProductProperties((int) \Configuration::get('PS_LANG_DEFAULT'), $addProduct);
             }
         }
 
-        if (isset($addProduct) && !in_array((int)\Tools::getValue('id_product'), $this->module->products)) {
+        if (isset($addProduct) && !in_array((int) \Tools::getValue('id_product'), $this->module->products)) {
             $ganalyticsDataHandler = new GanalyticsDataHandler(
                 $this->context->cart->id,
                 $this->context->shop->id
             );
 
-            $this->module->products[] = (int)\Tools::getValue('id_product');
+            $this->module->products[] = (int) \Tools::getValue('id_product');
             $productWrapper = new ProductWrapper($this->context);
             $gaProducts = $productWrapper->wrapProduct($addProduct, $cart, 0, true);
 

@@ -20,17 +20,17 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 
 class HookDisplayBackOfficeHeader implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct($module, $context) {
+    public function __construct($module, $context)
+    {
         $this->module = $module;
         $this->context = $context;
     }
@@ -44,14 +44,14 @@ class HookDisplayBackOfficeHeader implements HookInterface
     {
         $js = '';
         if (strcmp(\Tools::getValue('configure'), $this->module->name) === 0) {
-            $this->context->controller->addCSS($this->module->getPathUri().'views/css/ganalytics.css');
+            $this->context->controller->addCSS($this->module->getPathUri() . 'views/css/ganalytics.css');
         }
 
         $ga_account_id = \Configuration::get('GA_ACCOUNT_ID');
 
         if (!empty($ga_account_id) && $this->module->active) {
             $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-            $this->context->controller->addJs($this->module->getPathUri().'views/js/GoogleAnalyticActionLib.js');
+            $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
             $this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
@@ -60,17 +60,17 @@ class HookDisplayBackOfficeHeader implements HookInterface
                 $ganalyticsRepository = new GanalyticsRepository();
 
                 if (\Tools::getValue('id_order')) {
-                    $order = new \Order((int)\Tools::getValue('id_order'));
+                    $order = new \Order((int) \Tools::getValue('id_order'));
                     if (\Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
                         $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) \Tools::getValue('id_order'));
                         if ($gaOrderSent === false) {
                             $ganalyticsRepository->addNewRow(
-                                array(
+                                [
                                     'id_order' => (int) \Tools::getValue('id_order'),
                                     'id_shop' => (int) $this->context->shop->id,
                                     'sent' => 0,
                                     'date_add' => 'NOW()',
-                                )
+                                ]
                             );
                         }
                     }
@@ -83,14 +83,14 @@ class HookDisplayBackOfficeHeader implements HookInterface
                             $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
                                 $ganalyticsRepository->updateData(
-                                    array(
+                                    [
                                         'date_add' => 'NOW()',
-                                        'sent' => 1
-                                    ),
+                                        'sent' => 1,
+                                    ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
                                 );
                                 $transaction = json_encode($transaction);
-                                $gaScripts .= 'MBG.addTransaction(' . $transaction.');';
+                                $gaScripts .= 'MBG.addTransaction(' . $transaction . ');';
                             }
                         }
                     }

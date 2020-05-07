@@ -36,9 +36,9 @@ class GanalyticsDataHandler
      */
     public function __construct($cartId, $shopId)
     {
-       $this->ganalyticsDataRepository = new GanalyticsDataRepository;
-       $this->cartId = (int) $cartId;
-       $this->shopId = (int) $shopId;
+        $this->ganalyticsDataRepository = new GanalyticsDataRepository();
+        $this->cartId = (int) $cartId;
+        $this->shopId = (int) $shopId;
     }
 
     /**
@@ -90,7 +90,7 @@ class GanalyticsDataHandler
         );
 
         if (false === $dataRetuned) {
-            return array();
+            return [];
         }
 
         return json_decode($dataRetuned, true);
@@ -111,7 +111,7 @@ class GanalyticsDataHandler
         );
 
         if (false === $dataRetuned) {
-            $newData = array($data);
+            $newData = [$data];
         } else {
             $newData = json_decode($dataRetuned, true);
             $newData[] = $data;

@@ -20,7 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-interface HookInterface {
+interface HookInterface
+{
     /**
      * @param \Ps_Googleanalytics $module
      * @param \Context $context
