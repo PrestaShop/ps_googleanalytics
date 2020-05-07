@@ -42,11 +42,11 @@ class HookDisplayBackOfficeHeader implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         $js = '';
         if (strcmp(\Tools::getValue('configure'), $this->module->name) === 0) {

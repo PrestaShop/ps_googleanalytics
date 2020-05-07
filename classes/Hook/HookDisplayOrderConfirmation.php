@@ -43,11 +43,11 @@ class HookDisplayOrderConfirmation implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         if (true === $this->module->psVersionIs17) {
             $order = $this->params['order'];

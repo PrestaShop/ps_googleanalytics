@@ -41,11 +41,11 @@ class HookActionCartSave implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return void
      */
-    public function manageHook()
+    public function run()
     {
         if (!isset($this->context->cart)) {
             return;

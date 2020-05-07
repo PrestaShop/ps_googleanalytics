@@ -42,11 +42,11 @@ class HookDisplayFooterProduct implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         $gaTools = new GoogleAnalyticsTools();
         $controllerName = \Tools::getValue('controller');

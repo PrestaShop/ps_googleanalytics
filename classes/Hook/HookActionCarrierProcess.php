@@ -42,11 +42,11 @@ class HookActionCarrierProcess implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return void
      */
-    public function manageHook()
+    public function run()
     {
         if (isset($this->params['cart']->id_carrier)) {
             $carrierRepository = new CarrierRepository();

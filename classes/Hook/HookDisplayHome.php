@@ -42,11 +42,11 @@ class HookDisplayHome implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         $moduleHandler = new ModuleHandler();
         $gaTools = new GoogleAnalyticsTools();

@@ -33,5 +33,5 @@ interface HookInterface {
      */
     public function __construct(\Ps_Googleanalytics $module, \Context $context);
 
-    public function manageHook();
+    public function run();
 }

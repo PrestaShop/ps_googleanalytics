@@ -41,11 +41,11 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         if (\Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->controller->addJs($this->module->getPathUri().'views/js/GoogleAnalyticActionLib.js');

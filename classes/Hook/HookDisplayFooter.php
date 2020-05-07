@@ -42,11 +42,11 @@ class HookDisplayFooter implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         $gaTools = new GoogleAnalyticsTools();
         $ganalyticsDataHandler = new GanalyticsDataHandler(

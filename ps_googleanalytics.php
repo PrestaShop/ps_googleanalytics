@@ -109,7 +109,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
         $hook->setBackOffice($back_office);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -119,7 +119,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
         $hook->setParams($params);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -128,7 +128,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayFooter()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -137,7 +137,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayHome()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHome($this, $this->context);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -147,8 +147,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
         $hook->setParams($params);
-
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -172,7 +171,7 @@ class Ps_Googleanalytics extends Module
     public function hookdisplayBackOfficeHeader()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -182,7 +181,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
         $hook->setParams($params);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     /**
@@ -191,7 +190,7 @@ class Ps_Googleanalytics extends Module
     public function hookactionCartSave()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     public function hookactionCarrierProcess($params)
@@ -199,7 +198,7 @@ class Ps_Googleanalytics extends Module
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
         $hook->setParams($params);
 
-        return $hook->manageHook();
+        return $hook->run();
     }
 
     protected function _debugLog($function, $log)

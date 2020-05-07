@@ -40,11 +40,11 @@ class HookActionProductCancel implements HookInterface
     }
 
     /**
-     * manageHook
+     * run
      *
      * @return string
      */
-    public function manageHook()
+    public function run()
     {
         $quantityRefunded = \Tools::getValue('cancelQuantity');
         $gaScripts = '';
