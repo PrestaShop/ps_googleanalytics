@@ -157,7 +157,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookdisplayAdminOrder()
     {
-        echo $this->_runJs($this->context->cookie->ga_admin_refund, 1);
+        $gaTools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools();
+        echo $gaTools->generateJs(
+            $this->js_state,
+            $this->context->currency->iso_code,
+            $this->context->cookie->ga_admin_refund,
+            1
+        );
         unset($this->context->cookie->ga_admin_refund);
     }
 
@@ -177,7 +183,6 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
         $hook->setParams($params);
-
         return $hook->manageHook();
     }
 
@@ -215,15 +220,6 @@ class Ps_Googleanalytics extends Module
                 'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
                 'customer' => $order->id_customer);
         }
-    }
-
-    protected function filter($gaScripts)
-    {
-        if ($this->filterable = 1) {
-            return implode(';', array_unique(explode(';', $gaScripts)));
-        }
-
-        return $gaScripts;
     }
 
     /**
@@ -319,114 +315,6 @@ class Ps_Googleanalytics extends Module
             );
         }
         return $ga_product;
-    }
-
-    /**
-     * add order transaction
-     */
-    public function addTransaction($products, $order)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).');';
-        }
-
-        return $js.'MBG.addTransaction('.json_encode($order).');';
-    }
-
-    /**
-     * add product impression js and product click js
-     */
-    public function addProductImpression($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).",'',true);";
-        }
-
-        return $js;
-    }
-
-    public function addProductClick($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.addProductClick('.json_encode($product).');';
-        }
-
-        return $js;
-    }
-
-    public function addProductClickByHttpReferal($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.addProductClickByHttpReferal('.json_encode($product).');';
-        }
-
-        return $js;
-    }
-
-    /**
-     * Add product checkout info
-     */
-    public function addProductFromCheckout($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add('.json_encode($product).');';
-        }
-
-        return $js;
-    }
-
-    /**
-     * Generate Google Analytics js
-     */
-    public function _runJs($js_code, $backoffice = 0)
-    {
-        if (Configuration::get('GA_ACCOUNT_ID')) {
-            $runjs_code = '';
-            if (!empty($js_code)) {
-                $runjs_code .= '
-				<script type="text/javascript">
-					document.addEventListener(\'DOMContentLoaded\', function() {
-						var MBG = GoogleAnalyticEnhancedECommerce;
-						MBG.setCurrency(\''.Tools::safeOutput($this->context->currency->iso_code).'\');
-						'.$js_code.'
-					});
-				</script>';
-            }
-
-            if (($this->js_state) != 1 && ($backoffice == 0)) {
-                $runjs_code .= '
-				<script type="text/javascript">
-					ga(\'send\', \'pageview\');
-				</script>';
-            }
-
-            return $runjs_code;
-        }
     }
 
     protected function _debugLog($function, $log)

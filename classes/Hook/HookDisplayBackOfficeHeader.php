@@ -27,6 +27,7 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 
 class HookDisplayBackOfficeHeader implements HookInterface
@@ -54,6 +55,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
         $ga_account_id = \Configuration::get('GA_ACCOUNT_ID');
 
         if (!empty($ga_account_id) && $this->module->active) {
+            $gaTools = new GoogleAnalyticsTools();
             $this->context->controller->addJs($this->module->getPathUri().'views/js/GoogleAnalyticActionLib.js');
 
             $this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
@@ -99,7 +101,14 @@ class HookDisplayBackOfficeHeader implements HookInterface
                 }
             }
 
-            return $js.$this->module->hookdisplayHeader(null, true).$this->module->_runJs($gaScripts, 1);
+            $generatedJs = $gaTools->generateJs(
+                $this->module->js_state,
+                $this->context->currency->iso_code,
+                $gaScripts,
+                1
+            );
+
+            return $js.$this->module->hookdisplayHeader(null, true).$generatedJs;
         }
 
         return $js;

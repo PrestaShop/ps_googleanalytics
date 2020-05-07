@@ -26,7 +26,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
-
 class ConfigurationForm
 {
     private $module;

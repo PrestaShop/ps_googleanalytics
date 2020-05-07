@@ -27,6 +27,7 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 
 class HookDisplayFooter implements HookInterface
@@ -46,6 +47,7 @@ class HookDisplayFooter implements HookInterface
      */
     public function manageHook()
     {
+        $gaTools = new GoogleAnalyticsTools();
         $ganalyticsDataHandler = new GanalyticsDataHandler(
             $this->context->cart->id,
             $this->context->shop->id
@@ -86,7 +88,7 @@ class HookDisplayFooter implements HookInterface
             if (empty($step)) {
                 $step = 0;
             }
-            $gaScripts .= $this->module->addProductFromCheckout($products, $step);
+            $gaScripts .= $gaTools->addProductFromCheckout($products, $step);
             $gaScripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
         }
 
@@ -97,11 +99,15 @@ class HookDisplayFooter implements HookInterface
 
         if (isset($products) && count($products) && $controller_name != 'index') {
             if ($this->module->eligible == 0) {
-                $gaScripts .= $this->module->addProductImpression($products);
+                $gaScripts .= $gaTools->addProductImpression($products);
             }
-            $gaScripts .= $this->module->addProductClick($products);
+            $gaScripts .= $gaTools->addProductClick($products);
         }
 
-        return $this->module->_runJs($gaScripts);
+        return $gaTools->generateJs(
+            $this->module->js_state,
+            $this->context->currency->iso_code,
+            $gaScripts
+        );
     }
 }

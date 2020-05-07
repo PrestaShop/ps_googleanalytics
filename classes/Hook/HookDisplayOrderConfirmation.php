@@ -27,6 +27,7 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 
 class HookDisplayOrderConfirmation implements HookInterface
@@ -70,6 +71,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                 if ($order->id_customer == $this->context->cookie->id_customer) {
                     $orderProducts = array();
                     $cart = new Cart($order->id_cart);
+                    $gaTools = new GoogleAnalyticsTools();
 
                     foreach ($cart->getProducts() as $order_product) {
                         $orderProducts[] = $this->module->wrapProduct($order_product, array(), 0, true);
@@ -84,10 +86,14 @@ class HookDisplayOrderConfirmation implements HookInterface
                         'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                         'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
                         'customer' => $order->id_customer);
-                    $gaScripts .= $this->module->addTransaction($orderProducts, $transaction);
+                    $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
                     $this->module->js_state = 1;
-                    return $this->module->_runJs($gaScripts);
+                    return $gaTools->generateJs(
+                        $this->module->js_state,
+                        $this->context->currency->iso_code,
+                        $gaScripts
+                    );
                 }
             }
         }

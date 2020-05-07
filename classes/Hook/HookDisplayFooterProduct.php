@@ -27,6 +27,7 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 
 class HookDisplayFooterProduct implements HookInterface
 {
@@ -46,6 +47,7 @@ class HookDisplayFooterProduct implements HookInterface
      */
     public function manageHook()
     {
+        $gaTools = new GoogleAnalyticsTools();
         $controllerName = \Tools::getValue('controller');
 
         if ('product' !== $controllerName) {
@@ -60,12 +62,16 @@ class HookDisplayFooterProduct implements HookInterface
         $js = 'MBG.addProductDetailView('.json_encode($gaProduct).');';
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $this->module->addProductClickByHttpReferal(array($gaProduct));
+            $js .= $gaTools->addProductClickByHttpReferal(array($gaProduct));
         }
 
         $this->module->js_state = 1;
 
-        return $this->module->_runJs($js);
+        return $gaTools->generateJs(
+            $this->module->js_state,
+            $this->context->currency->iso_code,
+            $js
+        );
     }
 
     /**
