@@ -70,7 +70,7 @@ class Ps_Googleanalytics extends Module
         $configurationForm = new PrestaShop\Module\Ps_Googleanalytics\Form\ConfigurationForm($this);
         $formOutput = '';
 
-        if (Tools::isSubmit('submit'.$this->name)) {
+        if (Tools::isSubmit('submit' . $this->name)) {
             $formOutput = $configurationForm->treat();
         }
 
@@ -129,10 +129,9 @@ class Ps_Googleanalytics extends Module
      */
     public function hookdisplayAdminOrder()
     {
-        $gaTools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools();
-        echo $gaTools->generateJs(
-            $this->js_state,
-            $this->context->currency->iso_code,
+        $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
+
+        echo $gaTagHandler->generate(
             $this->context->cookie->ga_admin_refund,
             1
         );
@@ -180,9 +179,9 @@ class Ps_Googleanalytics extends Module
             return true;
         }
 
-        $myFile = _PS_MODULE_DIR_.$this->name.'/logs/analytics.log';
+        $myFile = _PS_MODULE_DIR_ . $this->name.'/logs/analytics.log';
         $fh = fopen($myFile, 'a');
-        fwrite($fh, date('F j, Y, g:i a').' '.$function."\n");
+        fwrite($fh, date('F j, Y, g:i a').' ' . $function."\n");
         fwrite($fh, print_r($log, true)."\n\n");
         fclose($fh);
     }

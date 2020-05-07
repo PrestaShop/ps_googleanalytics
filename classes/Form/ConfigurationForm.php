@@ -53,7 +53,7 @@ class ConfigurationForm
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
         $helper->token = \Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = \AdminController::$currentIndex.'&configure='.$this->module->name;
+        $helper->currentIndex = \AdminController::$currentIndex.'&configure=' . $this->module->name;
 
         // Language
         $helper->default_form_language = $default_lang;
@@ -63,12 +63,12 @@ class ConfigurationForm
         $helper->title = $this->module->displayName;
         $helper->show_toolbar = true;        // false -> remove toolbar
         $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
-        $helper->submit_action = 'submit'.$this->module->name;
+        $helper->submit_action = 'submit' . $this->module->name;
         $helper->toolbar_btn = array(
             'save' =>
             array(
                 'desc' => $this->module->l('Save'),
-                'href' => \AdminController::$currentIndex.'&configure='.$this->module->name.'&save'.$this->module->name.
+                'href' => \AdminController::$currentIndex.'&configure=' . $this->module->name.'&save' . $this->module->name.
                 '&token='.\Tools::getAdminTokenLite('AdminModules'),
             ),
             'back' => array(

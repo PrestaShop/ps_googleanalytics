@@ -150,38 +150,4 @@ class GoogleAnalyticsTools
 
         return $js;
     }
-
-    /**
-     * Generate Google Analytics js
-     *
-     * @param string $jsCode
-     * @param int $backoffice
-     *
-     * @return string
-     */
-    public function generateJs($jsState, $isoCode, $jsCode, $backoffice = 0)
-    {
-        if (\Configuration::get('GA_ACCOUNT_ID')) {
-            $generateJsCode = '';
-            if (!empty($jsCode)) {
-                $generateJsCode .= '
-				<script type="text/javascript">
-					document.addEventListener(\'DOMContentLoaded\', function() {
-						var MBG = GoogleAnalyticEnhancedECommerce;
-						MBG.setCurrency(\''.\Tools::safeOutput($isoCode).'\');
-						'.$jsCode.'
-					});
-				</script>';
-            }
-
-            if (($jsState) != 1 && ($backoffice == 0)) {
-                $generateJsCode .= '
-				<script type="text/javascript">
-					ga(\'send\', \'pageview\');
-				</script>';
-            }
-
-            return $generateJsCode;
-        }
-    }
 }

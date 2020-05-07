@@ -56,7 +56,7 @@ class HookActionCarrierProcess implements HookInterface
             );
 
             $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-            $ganalyticsDataHandler->manageData('MBG.addCheckoutOption(2,\''.$carrierName.'\');', 'A');
+            $ganalyticsDataHandler->manageData('MBG.addCheckoutOption(2,\'' . $carrierName.'\');', 'A');
         }
     }
 

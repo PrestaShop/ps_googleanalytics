@@ -29,6 +29,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 
 class HookDisplayOrderConfirmation implements HookInterface
@@ -73,13 +74,14 @@ class HookDisplayOrderConfirmation implements HookInterface
                     $orderProducts = array();
                     $cart = new \Cart($order->id_cart);
                     $gaTools = new GoogleAnalyticsTools();
+                    $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                     $productWrapper = new ProductWrapper($this->context);
 
                     foreach ($cart->getProducts() as $order_product) {
                         $orderProducts[] = $productWrapper->wrapProduct($order_product, array(), 0, true);
                     }
 
-                    $gaScripts = 'MBG.addCheckoutOption(3,\''.$order->payment.'\');';
+                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment.'\');';
                     $transaction = array(
                         'id' => $order->id,
                         'affiliation' => (\Shop::isFeatureActive()) ? $this->context->shop->name : \Configuration::get('PS_SHOP_NAME'),
@@ -91,11 +93,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                     $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
                     $this->module->js_state = 1;
-                    return $gaTools->generateJs(
-                        $this->module->js_state,
-                        $this->context->currency->iso_code,
-                        $gaScripts
-                    );
+
+                    return $gaTagHandler->generate($gaScripts);
                 }
             }
         }

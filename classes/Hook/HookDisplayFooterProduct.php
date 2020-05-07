@@ -29,6 +29,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 
 class HookDisplayFooterProduct implements HookInterface
 {
@@ -49,6 +50,7 @@ class HookDisplayFooterProduct implements HookInterface
     public function run()
     {
         $gaTools = new GoogleAnalyticsTools();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $controllerName = \Tools::getValue('controller');
 
         if ('product' !== $controllerName) {
@@ -69,11 +71,7 @@ class HookDisplayFooterProduct implements HookInterface
 
         $this->module->js_state = 1;
 
-        return $gaTools->generateJs(
-            $this->module->js_state,
-            $this->context->currency->iso_code,
-            $js
-        );
+        return $gaTagHandler->generate($js);
     }
 
     /**

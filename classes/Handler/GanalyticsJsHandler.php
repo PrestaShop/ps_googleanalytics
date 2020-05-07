@@ -24,51 +24,43 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
+namespace PrestaShop\Module\Ps_Googleanalytics\Handler;
 
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
-
-class HookActionProductCancel implements HookInterface
+class GanalyticsJsHandler
 {
     private $module;
     private $context;
-    private $params;
 
-    public function __construct($module, $context) {
+    public function __construct(\Ps_googleanalytics $module, \Context $context) {
         $this->module = $module;
         $this->context = $context;
     }
 
     /**
-     * run
+     * Generate Google Analytics js
+     *
+     * @param string $jsCode
+     * @param int $isBackoffice
      *
      * @return string
      */
-    public function run()
+    public function generate($jsCode, $isBackoffice = 0)
     {
-        $quantityRefunded = \Tools::getValue('cancelQuantity');
-        $gaScripts = '';
-
-        foreach ($quantityRefunded as $orderDetailId => $quantity) {
-            // Display GA refund product
-            $orderDetail = new \OrderDetail($orderDetailId);
-            $gaScripts .= 'MBG.add('.json_encode(
+        if (\Configuration::get('GA_ACCOUNT_ID')) {
+            $this->context->smarty->assign(
                 array(
-                    'id' => empty($orderDetail->product_attribute_id)?$orderDetail->product_id:$orderDetail->product_id.'-' . $orderDetail->product_attribute_id,
-                    'quantity' => $quantity)
+                    'jsCode' => $jsCode,
+                    'isoCode' => \Tools::safeOutput($this->context->currency->iso_code),
+                    'jsState' => $this->module->js_state,
+                    'isBackoffice' => $isBackoffice,
                 )
-                .');';
+            );
+
+            return $this->module->display(
+                $this->module->getLocalPath() . $this->module->name,
+                'ga_tag.tpl'
+            );
         }
-
-        $this->context->cookie->ga_admin_refund = $gaScripts.'MBG.refundByProduct('.json_encode(array('id' => $this->params['order']->id)).');';
     }
 
-    /**
-     * setParams
-     *
-     * @param array $params
-     */
-    public function setParams($params) {
-        $this->params = $params;
-    }
 }

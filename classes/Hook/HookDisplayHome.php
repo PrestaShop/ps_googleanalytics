@@ -28,6 +28,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
@@ -50,6 +51,7 @@ class HookDisplayHome implements HookInterface
     {
         $moduleHandler = new ModuleHandler();
         $gaTools = new GoogleAnalyticsTools();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $gaScripts = '';
 
         // Home featured products
@@ -66,14 +68,12 @@ class HookDisplayHome implements HookInterface
                 array(),
                 true
             );
-            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts).$gaTools->addProductClick($homeFeaturedProducts);
+            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts) . $gaTools->addProductClick($homeFeaturedProducts);
         }
 
         $this->js_state = 1;
 
-        return $gaTools->generateJs(
-            $this->module->js_state,
-            $this->context->currency->iso_code,
+        return $gaTagHandler->generate(
             $gaTools->filter($gaScripts, $this->module->filterable)
         );
     }
