@@ -35,11 +35,11 @@ class ConfigurationForm
     }
 
     /**
-     * generateForm
+     * generate
      *
      * @return string
      */
-    public function generateForm()
+    public function generate()
     {
         // Check if multistore is active
         $is_multistore_active = \Shop::isFeatureActive();
@@ -158,6 +158,43 @@ class ConfigurationForm
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = \Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = \Configuration::get('GA_ANONYMIZE_ENABLED');
 
-        return $helper->generateForm($fields_form);
+        return $helper->generate($fields_form);
+    }
+
+    /**
+     * treat the form datas if submited
+     *
+     * @return string
+     */
+    public function treat()
+    {
+        $treatmentResult = '';
+        $gaAccountId = \Tools::getValue('GA_ACCOUNT_ID');
+        $gaUserIdEnabled = \Tools::getValue('GA_USERID_ENABLED');
+        $gaCrossdomainEnabled = \Tools::getValue('GA_CROSSDOMAIN_ENABLED');
+        $gaAnonymizeEnabled = \Tools::getValue('GA_ANONYMIZE_ENABLED');
+
+        if (!empty($gaAccountId)) {
+            \Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
+            \Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Account ID updated successfully'));
+        }
+
+        if (null !== $gaUserIdEnabled) {
+            \Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for User ID updated successfully'));
+        }
+
+        if (null !== $gaCrossdomainEnabled) {
+            \Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for User ID updated successfully'));
+        }
+
+        if (null !== $gaAnonymizeEnabled) {
+            \Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Anonymize IP updated successfully'));
+        }
+
+        return $treatmentResult;
     }
 }

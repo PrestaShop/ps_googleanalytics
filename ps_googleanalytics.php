@@ -62,47 +62,21 @@ class Ps_Googleanalytics extends Module
         $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
     }
 
-    public function displayForm()
-    {
-        $configurationForm = new PrestaShop\Module\Ps_Googleanalytics\Form\ConfigurationForm($this);
-        return $configurationForm->generateForm();
-    }
-
     /**
      * back office module configuration page content
      */
     public function getContent()
     {
-        $output = '';
+        $configurationForm = new PrestaShop\Module\Ps_Googleanalytics\Form\ConfigurationForm($this);
+        $formOutput = '';
+
         if (Tools::isSubmit('submit'.$this->name)) {
-            $ga_account_id = Tools::getValue('GA_ACCOUNT_ID');
-            if (!empty($ga_account_id)) {
-                Configuration::updateValue('GA_ACCOUNT_ID', $ga_account_id);
-                Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-                $output .= $this->displayConfirmation($this->l('Account ID updated successfully'));
-            }
-            $ga_userid_enabled = Tools::getValue('GA_USERID_ENABLED');
-            if (null !== $ga_userid_enabled) {
-                Configuration::updateValue('GA_USERID_ENABLED', (bool)$ga_userid_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
-            }
-
-            $ga_crossdomain_enabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
-            if (null !== $ga_crossdomain_enabled) {
-                Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool)$ga_crossdomain_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for User ID updated successfully'));
-            }
-
-            $ga_anonymize_enabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
-            if (null !== $ga_anonymize_enabled) {
-                Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool)$ga_anonymize_enabled);
-                $output .= $this->displayConfirmation($this->l('Settings for Anonymize IP updated successfully'));
-            }
+            $formOutput = $configurationForm->treat();
         }
 
-        $output .= $this->displayForm();
+        $formOutput .= $configurationForm->generate();
 
-        return $this->display(__FILE__, './views/templates/admin/configuration.tpl').$output;
+        return $this->display(__FILE__, './views/templates/admin/configuration.tpl') . $formOutput;
     }
 
     public function hookdisplayHeader($params, $back_office = false)
