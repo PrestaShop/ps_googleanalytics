@@ -81,15 +81,17 @@ class GanalyticsRepository
      *
      * @param array $data
      * @param string $where
+     * @param int $limit
      *
      * @return bool
      */
-    public function updateData($data, $where)
+    public function updateData($data, $where, $limit = 0)
     {
         return \Db::getInstance()->update(
             self::TABLE_NAME,
             $data,
-            $where
+            $where,
+            $limit
         );
     }
 }

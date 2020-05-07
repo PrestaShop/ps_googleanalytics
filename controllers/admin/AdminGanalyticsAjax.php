@@ -17,20 +17,30 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+
+use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
+
 class AdminGanalyticsAjaxController extends ModuleAdminController
 {
     public $ssl = true;
 
     public function init()
     {
-        $order = new Order((int) Tools::getValue('orderid'));
-        $context = Context::getContext();
-        if (Validate::isLoadedObject($order) && (isset($context->employee->id) && $context->employee->id)) {
-            Db::getInstance()->execute('
-                UPDATE `' . _DB_PREFIX_ . 'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = ' . (int) Tools::getValue('orderid')
+        $orderId = (int) Tools::getValue('orderid');
+        $order = new Order($orderId);
+
+        if (Validate::isLoadedObject($order) && (isset($this->context->employee->id) && $this->context->employee->id)) {
+            (new GanalyticsRepository())->updateData(
+                [
+                    'sent' => 1,
+                    'date_add' => 'NOW()',
+                ],
+                'id_order = ' . $orderId
             );
-            die('OK');
+
+            $this->ajaxDie('OK');
         }
-        die('KO');
+
+        $this->ajaxDie('KO');
     }
 }
