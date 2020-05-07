@@ -28,6 +28,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 
 class HookDisplayOrderConfirmation implements HookInterface
@@ -70,11 +71,12 @@ class HookDisplayOrderConfirmation implements HookInterface
 
                 if ($order->id_customer == $this->context->cookie->id_customer) {
                     $orderProducts = array();
-                    $cart = new Cart($order->id_cart);
+                    $cart = new \Cart($order->id_cart);
                     $gaTools = new GoogleAnalyticsTools();
+                    $productWrapper = new ProductWrapper($this->context);
 
                     foreach ($cart->getProducts() as $order_product) {
-                        $orderProducts[] = $this->module->wrapProduct($order_product, array(), 0, true);
+                        $orderProducts[] = $productWrapper->wrapProduct($order_product, array(), 0, true);
                     }
 
                     $gaScripts = 'MBG.addCheckoutOption(3,\''.$order->payment.'\');';

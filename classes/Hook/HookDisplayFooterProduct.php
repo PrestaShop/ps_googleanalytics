@@ -28,6 +28,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookDisplayFooterProduct implements HookInterface
 {
@@ -58,7 +59,8 @@ class HookDisplayFooterProduct implements HookInterface
             $this->params['product'] = (array) $this->params['product'];
         }
         // Add product view
-        $gaProduct = $this->module->wrapProduct($this->params['product'], null, 0, true);
+        $productWrapper = new ProductWrapper($this->context);
+        $gaProduct = $productWrapper->wrapProduct($this->params['product'], null, 0, true);
         $js = 'MBG.addProductDetailView('.json_encode($gaProduct).');';
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {

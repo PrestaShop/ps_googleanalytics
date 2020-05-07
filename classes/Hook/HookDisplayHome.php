@@ -29,6 +29,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 
 class HookDisplayHome implements HookInterface
 {
@@ -53,8 +54,9 @@ class HookDisplayHome implements HookInterface
 
         // Home featured products
         if ($moduleHandler->isModuleEnabled('ps_featuredproducts')) {
-            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
-            $homeFeaturedProducts = $this->module->wrapProducts(
+            $category = new \Category($this->context->shop->getCategory(), $this->context->language->id);
+            $productWrapper = new ProductWrapper($this->context);
+            $homeFeaturedProducts = $productWrapper->wrapProductList(
                 $category->getProducts(
                     (int) $this->context->language->id,
                     1,

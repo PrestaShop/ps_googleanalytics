@@ -28,6 +28,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 
 class HookDisplayFooter implements HookInterface
@@ -79,7 +80,8 @@ class HookDisplayFooter implements HookInterface
         }
 
         $listing = $this->context->smarty->getTemplateVars('listing');
-        $products = $this->module->wrapProducts($listing['products'], array(), true);
+        $productWrapper = new ProductWrapper($this->context);
+        $products = $productWrapper->wrapProductList($listing['products'], array(), true);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
             $this->module->js_state = 1;

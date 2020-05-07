@@ -28,6 +28,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 
 class HookDisplayBackOfficeHeader implements HookInterface
@@ -65,7 +66,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                 $ganalyticsRepository = new GanalyticsRepository();
 
                 if (\Tools::getValue('id_order')) {
-                    $order = new Order((int)\Tools::getValue('id_order'));
+                    $order = new \Order((int)\Tools::getValue('id_order'));
                     if (\Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
                         $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) \Tools::getValue('id_order'));
                         if ($gaOrderSent === false) {
@@ -83,8 +84,9 @@ class HookDisplayBackOfficeHeader implements HookInterface
                     $gaOrderRecords = $ganalyticsRepository->findAllByShopIdAndDateAdd((int) $this->context->shop->id);
 
                     if ($gaOrderRecords) {
+                        $orderWrapper = new OrderWrapper($this->context);
                         foreach ($gaOrderRecords as $row) {
-                            $transaction = $this->module->wrapOrder($row['id_order']);
+                            $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
                                 $ganalyticsRepository->updateData(
                                     array(

@@ -119,7 +119,6 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
         $hook->setParams($params);
-
         return $hook->manageHook();
     }
 
@@ -201,120 +200,6 @@ class Ps_Googleanalytics extends Module
         $hook->setParams($params);
 
         return $hook->manageHook();
-    }
-
-    /**
-     * Return a detailed transaction for Google Analytics
-     */
-    public function wrapOrder($id_order)
-    {
-        $order = new Order((int)$id_order);
-
-        if (Validate::isLoadedObject($order)) {
-            return array(
-                'id' => $id_order,
-                'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                'revenue' => $order->total_paid,
-                'shipping' => $order->total_shipping,
-                'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer);
-        }
-    }
-
-    /**
-     * wrap products to provide a standard products information for google analytics script
-     */
-    public function wrapProducts($products, $extras = array(), $full = false)
-    {
-        $result_products = array();
-        if (!is_array($products)) {
-            return;
-        }
-
-        $currency = new Currency($this->context->currency->id);
-        $usetax = (Product::getTaxCalculationMethod((int)$this->context->customer->id) != PS_TAX_EXC);
-
-        if (count($products) > 20) {
-            $full = false;
-        } else {
-            $full = true;
-        }
-
-        foreach ($products as $index => $product) {
-            if ($product instanceof Product) {
-                $product = (array)$product;
-            }
-
-            if (!isset($product['price'])) {
-                $product['price'] = (float)Tools::displayPrice(Product::getPriceStatic((int)$product['id_product'], $usetax), $currency);
-            }
-            $result_products[] = $this->wrapProduct($product, $extras, $index, $full);
-        }
-
-        return $result_products;
-    }
-
-    /**
-     * wrap product to provide a standard product information for google analytics script
-     */
-    public function wrapProduct($product, $extras, $index = 0, $full = false)
-    {
-        $ga_product = '';
-
-        $variant = null;
-        if (isset($product['attributes_small'])) {
-            $variant = $product['attributes_small'];
-        } elseif (isset($extras['attributes_small'])) {
-            $variant = $extras['attributes_small'];
-        }
-
-        $product_qty = 1;
-        if (isset($extras['qty'])) {
-            $product_qty = $extras['qty'];
-        } elseif (isset($product['cart_quantity'])) {
-            $product_qty = $product['cart_quantity'];
-        }
-
-        $product_id = 0;
-        if (!empty($product['id_product'])) {
-            $product_id = $product['id_product'];
-        } elseif (!empty($product['id'])) {
-            $product_id = $product['id'];
-        }
-
-        if (!empty($product['id_product_attribute'])) {
-            $product_id .= '-'. $product['id_product_attribute'];
-        }
-
-        $product_type = 'typical';
-        if (isset($product['pack']) && $product['pack'] == 1) {
-            $product_type = 'pack';
-        } elseif (isset($product['virtual']) && $product['virtual'] == 1) {
-            $product_type = 'virtual';
-        }
-
-        if ($full) {
-            $ga_product = array(
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name']),
-                'category' => Tools::str2url($product['category']),
-                'brand' => isset($product['manufacturer_name']) ? Tools::str2url($product['manufacturer_name']) : '',
-                'variant' => Tools::str2url($variant),
-                'type' => $product_type,
-                'position' => $index ? $index : '0',
-                'quantity' => $product_qty,
-                'list' => Tools::getValue('controller'),
-                'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price']
-            );
-        } else {
-            $ga_product = array(
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name'])
-            );
-        }
-        return $ga_product;
     }
 
     protected function _debugLog($function, $log)

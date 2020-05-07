@@ -27,6 +27,7 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\HookInterface;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 
 class HookActionCartSave implements HookInterface
@@ -72,7 +73,7 @@ class HookActionCartSave implements HookInterface
         }
 
         if ($cart['removeAction'] == 'delete') {
-            $addProductObject = new Product((int)\Tools::getValue('id_product'), true, (int)\Configuration::get('PS_LANG_DEFAULT'));
+            $addProductObject = new \Product((int)\Tools::getValue('id_product'), true, (int)\Configuration::get('PS_LANG_DEFAULT'));
             if (\Validate::isLoadedObject($addProductObject)) {
                 $addProduct['name'] = $addProductObject->name;
                 $addProduct['manufacturer_name'] = $addProductObject->manufacturer_name;
@@ -98,7 +99,8 @@ class HookActionCartSave implements HookInterface
             );
 
             $this->module->products[] = (int)\Tools::getValue('id_product');
-            $gaProducts = $this->module->wrapProduct($addProduct, $cart, 0, true);
+            $productWrapper = new ProductWrapper($this->context);
+            $gaProducts = $productWrapper->wrapProduct($addProduct, $cart, 0, true);
 
             if (array_key_exists('id_product_attribute', $gaProducts) && $gaProducts['id_product_attribute'] != '' && $gaProducts['id_product_attribute'] != 0) {
                 $productId = $gaProducts['id_product_attribute'];
