@@ -37,12 +37,12 @@ class Ps_Googleanalytics extends Module
      */
     const PS_16_EQUIVALENT_MODULE = 'ganalytics';
 
-    protected $js_state = 0;
-    protected $eligible = 0;
-    protected $filterable = 1;
-    protected static $products = array();
-    protected $_debug = 0;
-    protected $psVersionIs17;
+    public $js_state = 0;
+    public $eligible = 0;
+    public $filterable = 1;
+    public $products = array();
+    public $_debug = 0;
+    public $psVersionIs17;
 
     public function __construct()
     {
@@ -223,43 +223,95 @@ class Ps_Googleanalytics extends Module
 
     public function hookdisplayHeader($params, $back_office = false)
     {
-        if (Configuration::get('GA_ACCOUNT_ID')) {
-            $this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
+        $hook->setBackOffice($back_office);
+        return $hook->manageHook();
+    }
 
-            $shops = Shop::getShops();
-            $is_multistore_active = Shop::isFeatureActive();
+    /**
+     * To track transactions
+     */
+    public function hookdisplayOrderConfirmation($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
+        $hook->setParams($params);
 
-            $current_shop_id = (int)Context::getContext()->shop->id;
+        return $hook->manageHook();
+    }
 
-            $user_id = null;
-            $ga_crossdomain_enabled = false;
+    /**
+     * hook footer to load JS script for standards actions such as product clicks
+     */
+    public function hookdisplayFooter()
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+        return $hook->manageHook();
+    }
 
-            if (Configuration::get('GA_USERID_ENABLED') &&
-                $this->context->customer && $this->context->customer->isLogged()
-            ) {
-                $user_id = (int)$this->context->customer->id;
-            }
+    /**
+     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
+     */
+    public function hookdisplayHome()
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHome($this, $this->context);
+        return $hook->manageHook();
+    }
 
-            $ga_anonymize_enabled = Configuration::get('GA_ANONYMIZE_ENABLED');
+    /**
+     * hook product page footer to load JS for product details view
+     */
+    public function hookdisplayFooterProduct($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
+        $hook->setParams($params);
 
-            if ((int)Configuration::get('GA_CROSSDOMAIN_ENABLED') && $is_multistore_active && count($shops) > 1) {
-                $ga_crossdomain_enabled = true;
-            }
+        return $hook->manageHook();
+    }
 
-            $this->smarty->assign(
-                array(
-                    'backOffice' => $back_office,
-                    'currentShopId' => $current_shop_id,
-                    'userId' => $user_id,
-                    'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                    'shops' => $shops,
-                    'gaCrossdomainEnabled' => $ga_crossdomain_enabled,
-                    'gaAnonymizeEnabled' => $ga_anonymize_enabled,
-                    'useSecureMode' => Configuration::get('PS_SSL_ENABLED')
-                )
-            );
-            return $this->display(__FILE__, 'ps_googleanalytics.tpl');
-        }
+    /**
+     * Hook admin order to send transactions and refunds details
+     */
+    public function hookdisplayAdminOrder()
+    {
+        echo $this->_runJs($this->context->cookie->ga_admin_refund, 1);
+        unset($this->context->cookie->ga_admin_refund);
+    }
+
+    /**
+     *  admin office header to add google analytics js
+     */
+    public function hookdisplayBackOfficeHeader()
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
+        return $hook->manageHook();
+    }
+
+    /**
+     * Hook admin office header to add google analytics js
+     */
+    public function hookactionProductCancel($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
+        $hook->setParams($params);
+
+        return $hook->manageHook();
+    }
+
+    /**
+     * hook save cart event to implement addtocart and remove from cart functionality
+     */
+    public function hookactionCartSave()
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
+        return $hook->manageHook();
+    }
+
+    public function hookactionCarrierProcess($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
+        $hook->setParams($params);
+
+        return $hook->manageHook();
     }
 
     /**
@@ -281,121 +333,6 @@ class Ps_Googleanalytics extends Module
         }
     }
 
-    /**
-     * To track transactions
-     */
-    public function hookdisplayOrderConfirmation($params)
-    {
-        if (true === $this->psVersionIs17) {
-            $order = $params['order'];
-        } else {
-            $order = $params['objOrder'];
-        }
-
-        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int)Configuration::get('PS_OS_ERROR')) {
-            $ganalyticsRepository = new PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository();
-            $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
-
-            if (false === $gaOrderSent) {
-                $ganalyticsRepository->addNewRow(
-                    array(
-                        'id_order' => (int) $order->id,
-                        'id_shop' => (int) $this->context->shop->id,
-                        'sent' => 0,
-                        'date_add' => 'NOW()',
-                    )
-                );
-
-                if ($order->id_customer == $this->context->cookie->id_customer) {
-                    $orderProducts = array();
-                    $cart = new Cart($order->id_cart);
-
-                    foreach ($cart->getProducts() as $order_product) {
-                        $orderProducts[] = $this->wrapProduct($order_product, array(), 0, true);
-                    }
-
-                    $gaScripts = 'MBG.addCheckoutOption(3,\''.$order->payment.'\');';
-                    $transaction = array(
-                        'id' => $order->id,
-                        'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                        'revenue' => $order->total_paid,
-                        'shipping' => $order->total_shipping,
-                        'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', array(), true),
-                        'customer' => $order->id_customer);
-                    $gaScripts .= $this->addTransaction($orderProducts, $transaction);
-
-                    $this->js_state = 1;
-                    return $this->_runJs($gaScripts);
-                }
-            }
-        }
-    }
-
-    /**
-     * hook footer to load JS script for standards actions such as product clicks
-     */
-    public function hookdisplayFooter()
-    {
-        $ganalyticsDataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
-        );
-
-        $gaScripts = '';
-        $this->js_state = 0;
-        $gacarts = $ganalyticsDataHandler->manageData('', 'R');
-        $controller_name = Tools::getValue('controller');
-
-        if (count($gacarts)>0 && $controller_name!='product') {
-            $this->filterable = 0;
-
-            foreach ($gacarts as $gacart) {
-                if (isset($gacart['quantity']))
-                {
-                    if ($gacart['quantity'] > 0) {
-                        $gaScripts .= 'MBG.addToCart('.json_encode($gacart).');';
-                    } elseif ($gacart['quantity'] < 0) {
-                        $gacart['quantity'] = abs($gacart['quantity']);
-                        $gaScripts .= 'MBG.removeFromCart('.json_encode($gacart).');';
-                    }
-                } else {
-                    $gaScripts .= $gacart;
-                }
-            }
-
-            $ganalyticsDataHandler->manageData('', 'D');
-        }
-
-        $listing = $this->context->smarty->getTemplateVars('listing');
-        $products = $this->wrapProducts($listing['products'], array(), true);
-
-        if ($controller_name == 'order' || $controller_name == 'orderopc') {
-            $this->js_state = 1;
-            $this->eligible = 1;
-            $step = Tools::getValue('step');
-            if (empty($step)) {
-                $step = 0;
-            }
-            $gaScripts .= $this->addProductFromCheckout($products, $step);
-            $gaScripts .= 'MBG.addCheckout(\''.(int)$step.'\');';
-        }
-
-        $confirmation_hook_id = (int)Hook::getIdByName('displayOrderConfirmation');
-        if (isset(Hook::$executed_hooks[$confirmation_hook_id])) {
-            $this->eligible = 1;
-        }
-
-        if (isset($products) && count($products) && $controller_name != 'index') {
-            if ($this->eligible == 0) {
-                $gaScripts .= $this->addProductImpression($products);
-            }
-            $gaScripts .= $this->addProductClick($products);
-        }
-
-        return $this->_runJs($gaScripts);
-    }
-
     protected function filter($gaScripts)
     {
         if ($this->filterable = 1) {
@@ -403,45 +340,6 @@ class Ps_Googleanalytics extends Module
         }
 
         return $gaScripts;
-    }
-
-    /**
-     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
-     */
-    public function hookdisplayHome()
-    {
-        $gaScripts = '';
-
-        // Home featured products
-        if ($this->isModuleEnabled('ps_featuredproducts')) {
-            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
-            $home_featured_products = $this->wrapProducts(
-                $category->getProducts(
-                    (int)Context::getContext()->language->id,
-                    1,
-                    (Configuration::get('HOME_FEATURED_NBR') ? (int)Configuration::get('HOME_FEATURED_NBR') : 8),
-                    'position'
-                ),
-                array(),
-                true
-            );
-            $gaScripts .= $this->addProductImpression($home_featured_products).$this->addProductClick($home_featured_products);
-        }
-
-        $this->js_state = 1;
-        return $this->_runJs($this->filter($gaScripts));
-    }
-
-    /**
-     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
-     */
-    public function isModuleEnabled($module_name)
-    {
-        if (($module = Module::getInstanceByName($module_name)) !== false &&
-            Module::isInstalled($module_name) &&
-            $module->active) {
-            return $module->registerHook('displayHome');
-        }
     }
 
     /**
@@ -619,33 +517,9 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook product page footer to load JS for product details view
-     */
-    public function hookdisplayFooterProduct($params)
-    {
-        $controller_name = Tools::getValue('controller');
-        if ($controller_name == 'product')
-        {
-            if ($params['product'] instanceof Product) {
-                $params['product'] = (array) $params['product'];
-            }
-            // Add product view
-            $ga_product = $this->wrapProduct($params['product'], null, 0, true);
-            $js = 'MBG.addProductDetailView('.json_encode($ga_product).');';
-
-            if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-                $js .= $this->addProductClickByHttpReferal(array($ga_product));
-            }
-
-            $this->js_state = 1;
-            return $this->_runJs($js);
-        }
-    }
-
-    /**
      * Generate Google Analytics js
      */
-    protected function _runJs($js_code, $backoffice = 0)
+    public function _runJs($js_code, $backoffice = 0)
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $runjs_code = '';
@@ -671,198 +545,6 @@ class Ps_Googleanalytics extends Module
         }
     }
 
-    /**
-     * Hook admin order to send transactions and refunds details
-     */
-    public function hookdisplayAdminOrder()
-    {
-        echo $this->_runJs($this->context->cookie->ga_admin_refund, 1);
-        unset($this->context->cookie->ga_admin_refund);
-    }
-
-    /**
-     *  admin office header to add google analytics js
-     */
-    public function hookdisplayBackOfficeHeader()
-    {
-        $js = '';
-        if (strcmp(Tools::getValue('configure'), $this->name) === 0) {
-            $this->context->controller->addCSS($this->_path.'views/css/ganalytics.css');
-        }
-
-        $ga_account_id = Configuration::get('GA_ACCOUNT_ID');
-
-        if (!empty($ga_account_id) && $this->active) {
-            $this->context->controller->addJs($this->_path.'views/js/GoogleAnalyticActionLib.js');
-
-            $this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
-
-            $gaScripts = '';
-            if ($this->context->controller->controller_name == 'AdminOrders') {
-                $ganalyticsRepository = new PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository();
-
-                if (Tools::getValue('id_order')) {
-                    $order = new Order((int)Tools::getValue('id_order'));
-                    if (Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
-                        $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) Tools::getValue('id_order'));
-                        if ($gaOrderSent === false) {
-                            $ganalyticsRepository->addNewRow(
-                                array(
-                                    'id_order' => (int) Tools::getValue('id_order'),
-                                    'id_shop' => (int) $this->context->shop->id,
-                                    'sent' => 0,
-                                    'date_add' => 'NOW()',
-                                )
-                            );
-                        }
-                    }
-                } else {
-                    $gaOrderRecords = $ganalyticsRepository->findAllByShopIdAndDateAdd((int) $this->context->shop->id);
-
-                    if ($gaOrderRecords) {
-                        foreach ($gaOrderRecords as $row) {
-                            $transaction = $this->wrapOrder($row['id_order']);
-                            if (!empty($transaction)) {
-                                $ganalyticsRepository->updateData(
-                                    array(
-                                        'date_add' => 'NOW()',
-                                        'sent' => 1
-                                    ),
-                                    'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
-                                );
-                                $transaction = json_encode($transaction);
-                                $gaScripts .= 'MBG.addTransaction('.$transaction.');';
-                            }
-                        }
-                    }
-                }
-            }
-            return $js.$this->hookdisplayHeader(null, true).$this->_runJs($gaScripts, 1);
-        }
-
-        return $js;
-    }
-
-    /**
-     * Hook admin office header to add google analytics js
-     */
-    public function hookactionProductCancel($params)
-    {
-        $qty_refunded = Tools::getValue('cancelQuantity');
-        $gaScripts = '';
-        foreach ($qty_refunded as $orderdetail_id => $qty) {
-            // Display GA refund product
-            $order_detail = new OrderDetail($orderdetail_id);
-            $gaScripts .= 'MBG.add('.json_encode(
-                array(
-                    'id' => empty($order_detail->product_attribute_id)?$order_detail->product_id:$order_detail->product_id.'-'.$order_detail->product_attribute_id,
-                    'quantity' => $qty)
-                )
-                .');';
-        }
-        $this->context->cookie->ga_admin_refund = $gaScripts.'MBG.refundByProduct('.json_encode(array('id' => $params['order']->id)).');';
-    }
-
-    /**
-     * hook save cart event to implement addtocart and remove from cart functionality
-     */
-    public function hookactionCartSave()
-    {
-        if (!isset($this->context->cart)) {
-            return;
-        }
-
-        if (!Tools::getIsset('id_product')) {
-            return;
-        }
-
-        $cart = array(
-            'controller' => Tools::getValue('controller'),
-            'addAction' => Tools::getValue('add') ? 'add' : '',
-            'removeAction' => Tools::getValue('delete') ? 'delete' : '',
-            'extraAction' => Tools::getValue('op'),
-            'qty' => (int)Tools::getValue('qty', 1)
-        );
-
-        $cart_products = $this->context->cart->getProducts();
-        if (isset($cart_products) && count($cart_products)) {
-            foreach ($cart_products as $cart_product) {
-                if ($cart_product['id_product'] == Tools::getValue('id_product')) {
-                    $add_product = $cart_product;
-                }
-            }
-        }
-
-        if ($cart['removeAction'] == 'delete') {
-            $add_product_object = new Product((int)Tools::getValue('id_product'), true, (int)Configuration::get('PS_LANG_DEFAULT'));
-            if (Validate::isLoadedObject($add_product_object)) {
-                $add_product['name'] = $add_product_object->name;
-                $add_product['manufacturer_name'] = $add_product_object->manufacturer_name;
-                $add_product['category'] = $add_product_object->category;
-                $add_product['reference'] = $add_product_object->reference;
-                $add_product['link_rewrite'] = $add_product_object->link_rewrite;
-                $add_product['link'] = $add_product_object->link_rewrite;
-                $add_product['price'] = $add_product_object->price;
-                $add_product['ean13'] = $add_product_object->ean13;
-                $add_product['id_product'] = Tools::getValue('id_product');
-                $add_product['id_category_default'] = $add_product_object->id_category_default;
-                $add_product['out_of_stock'] = $add_product_object->out_of_stock;
-                $add_product['minimal_quantity'] = 1;
-                $add_product['unit_price_ratio'] = 0;
-                $add_product = Product::getProductProperties((int)Configuration::get('PS_LANG_DEFAULT'), $add_product);
-            }
-        }
-
-        if (isset($add_product) && !in_array((int)Tools::getValue('id_product'), self::$products)) {
-            $ganalyticsDataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
-                $this->context->cart->id,
-                $this->context->shop->id
-            );
-
-            self::$products[] = (int)Tools::getValue('id_product');
-            $ga_products = $this->wrapProduct($add_product, $cart, 0, true);
-
-            if (array_key_exists('id_product_attribute', $ga_products) && $ga_products['id_product_attribute'] != '' && $ga_products['id_product_attribute'] != 0) {
-                $id_product = $ga_products['id_product_attribute'];
-            } else {
-                $id_product = Tools::getValue('id_product');
-            }
-
-            $gacart = $ganalyticsDataHandler->manageData('', 'R');
-
-            if ($cart['removeAction'] == 'delete') {
-                $ga_products['quantity'] = -1;
-            } elseif ($cart['extraAction'] == 'down') {
-                if (array_key_exists($id_product, $gacart)) {
-                    $ga_products['quantity'] = $gacart[$id_product]['quantity'] - $cart['qty'];
-                } else {
-                    $ga_products['quantity'] = $cart['qty'] * -1;
-                }
-            } elseif (Tools::getValue('step') <= 0) { // Sometimes cartsave is called in checkout
-                if (array_key_exists($id_product, $gacart)) {
-                    $ga_products['quantity'] = $gacart[$id_product]['quantity'] + $cart['qty'];
-                }
-            }
-
-            $gacart[$id_product] = $ga_products;
-            $ganalyticsDataHandler->manageData($gacart, 'W');
-        }
-    }
-
-    public function hookactionCarrierProcess($params)
-    {
-        if (isset($params['cart']->id_carrier)) {
-            $carrierRepository = new PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository();
-            $ganalyticsDataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
-                $this->context->cart->id,
-                $this->context->shop->id
-            );
-
-            $carrierName = $carrierRepository->findByCarrierId((int) $params['cart']->id_carrier);
-            $ganalyticsDataHandler->manageData('MBG.addCheckoutOption(2,\''.$carrierName.'\');', 'A');
-        }
-    }
-
     protected function _debugLog($function, $log)
     {
         if (!$this->_debug) {
@@ -885,8 +567,10 @@ class Ps_Googleanalytics extends Module
      */
     public function install()
     {
-        $this->uninstallPrestaShop16Module();
+        $moduleHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler();
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($this);
+
+        $moduleHandler->uninstallModule(self::PS_16_EQUIVALENT_MODULE);
 
         return parent::install() &&
             $database->registerHooks() &&
@@ -905,36 +589,5 @@ class Ps_Googleanalytics extends Module
 
         return parent::uninstall() &&
             $database->uninstallTables();
-    }
-
-    /**
-     * Migrate data from 1.6 equivalent module (if applicable), then uninstall
-     *
-     * @return bool
-     */
-    public function uninstallPrestaShop16Module()
-    {
-        if (!Module::isInstalled(self::PS_16_EQUIVALENT_MODULE)) {
-            return false;
-        }
-
-        $oldModule = Module::getInstanceByName(self::PS_16_EQUIVALENT_MODULE);
-
-        if ($oldModule) {
-            if (method_exists($oldModule, 'uninstallTab')) {
-                $oldModule->uninstallTab();
-            }
-
-            // This closure calls the parent class to prevent data to be erased
-            // It allows the new module to be configured without migration
-            $parentUninstallClosure = function() {
-                return parent::uninstall();
-            };
-
-            $parentUninstallClosure = $parentUninstallClosure->bindTo($oldModule, get_class($oldModule));
-            $parentUninstallClosure();
-        }
-
-        return true;
     }
 }
