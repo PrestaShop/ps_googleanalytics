@@ -61,7 +61,7 @@ class GanalyticsRepository
      * addNewRow
      *
      * @param array $data
-     * @param \Db $type
+     * @param int $type
      *
      * @return bool
      */

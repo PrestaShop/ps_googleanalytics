@@ -51,7 +51,7 @@ class ProductWrapper implements WrapperInterface
         }
 
         foreach ($products as $index => $product) {
-            if ($product instanceof Product) {
+            if ($product instanceof \Product) {
                 $product = (array) $product;
             }
 

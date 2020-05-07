@@ -64,7 +64,7 @@ class GoogleAnalyticsTools
     /**
      * add product impression js and product click js
      *
-     * @param array ixed $products
+     * @param array $products
      *
      * @return string|void
      */

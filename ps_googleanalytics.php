@@ -30,6 +30,16 @@ class Ps_Googleanalytics extends Module
      */
     const PS_16_EQUIVALENT_MODULE = 'ganalytics';
 
+    public $name;
+    public $tab;
+    public $version;
+    public $ps_versions_compliancy;
+    public $author;
+    public $module_key;
+    public $bootstrap;
+    public $displayName;
+    public $description;
+    public $confirmUninstall;
     public $js_state = 0;
     public $eligible = 0;
     public $filterable = 1;
@@ -153,8 +163,7 @@ class Ps_Googleanalytics extends Module
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
         $hook->setParams($params);
-
-        return $hook->run();
+        $hook->run();
     }
 
     /**
@@ -163,16 +172,14 @@ class Ps_Googleanalytics extends Module
     public function hookactionCartSave()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
-
-        return $hook->run();
+        $hook->run();
     }
 
     public function hookactionCarrierProcess($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
         $hook->setParams($params);
-
-        return $hook->run();
+        $hook->run();
     }
 
     protected function _debugLog($function, $log)

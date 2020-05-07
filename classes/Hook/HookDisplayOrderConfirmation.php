@@ -92,6 +92,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                 }
             }
         }
+
+        return '';
     }
 
     /**

@@ -85,7 +85,7 @@ class HookDisplayFooter implements HookInterface
             if (empty($step)) {
                 $step = 0;
             }
-            $gaScripts .= $gaTools->addProductFromCheckout($products, $step);
+            $gaScripts .= $gaTools->addProductFromCheckout($products);
             $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
         }
 

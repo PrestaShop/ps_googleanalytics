@@ -36,7 +36,7 @@ class HookDisplayHeader implements HookInterface
     /**
      * run
      *
-     * @return string
+     * @return void|string
      */
     public function run()
     {

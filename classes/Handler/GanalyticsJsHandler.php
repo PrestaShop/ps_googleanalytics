@@ -25,7 +25,7 @@ class GanalyticsJsHandler
     private $module;
     private $context;
 
-    public function __construct(\Ps_googleanalytics $module, \Context $context)
+    public function __construct(\Ps_Googleanalytics $module, \Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -37,7 +37,7 @@ class GanalyticsJsHandler
      * @param string $jsCode
      * @param int $isBackoffice
      *
-     * @return string
+     * @return void|string
      */
     public function generate($jsCode, $isBackoffice = 0)
     {

@@ -35,7 +35,7 @@ class HookActionProductCancel implements HookInterface
     /**
      * run
      *
-     * @return string
+     * @return void
      */
     public function run()
     {

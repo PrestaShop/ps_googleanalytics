@@ -47,7 +47,7 @@ class GanalyticsDataRepository
      *
      * @param int $cartId
      * @param int $shopId
-     * @param array $data
+     * @param string $data
      *
      * @return bool
      */
@@ -66,7 +66,7 @@ class GanalyticsDataRepository
      * @param int $cartId
      * @param int $shopId
      *
-     * @return void
+     * @return bool
      */
     public function deleteRow($cartId, $shopId)
     {

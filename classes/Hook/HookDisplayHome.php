@@ -65,7 +65,7 @@ class HookDisplayHome implements HookInterface
             $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts) . $gaTools->addProductClick($homeFeaturedProducts);
         }
 
-        $this->js_state = 1;
+        $this->module->js_state = 1;
 
         return $gaTagHandler->generate(
             $gaTools->filter($gaScripts, $this->module->filterable)
