@@ -158,7 +158,7 @@ class ConfigurationForm
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = \Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = \Configuration::get('GA_ANONYMIZE_ENABLED');
 
-        return $helper->generate($fields_form);
+        return $helper->generateForm($fields_form);
     }
 
     /**

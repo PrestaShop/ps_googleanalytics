@@ -81,7 +81,10 @@ class HookDisplayHeader implements HookInterface
                 )
             );
 
-            return $this->module->display(__FILE__, 'ps_googleanalytics.tpl');
+            return $this->module->display(
+                $this->module->getLocalPath().$this->module->name,
+                'ps_googleanalytics.tpl'
+            );
         }
     }
 
