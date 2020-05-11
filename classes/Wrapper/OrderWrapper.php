@@ -26,7 +26,7 @@ class OrderWrapper implements WrapperInterface
 {
     private $context;
 
-    public function __construct($context)
+    public function __construct(\Context $context)
     {
         $this->context = $context;
     }
