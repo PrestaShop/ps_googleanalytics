@@ -26,7 +26,7 @@ class HookActionProductCancel implements HookInterface
     private $context;
     private $params;
 
-    public function __construct($module, $context)
+    public function __construct(\Ps_Googleanalytics $module, \Context $context)
     {
         $this->module = $module;
         $this->context = $context;
