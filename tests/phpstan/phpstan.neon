@@ -10,9 +10,6 @@ parameters:
 	ignoreErrors:
 		- '#Property Ps_Googleanalytics::\$version \(float\) does not accept string.#'
 		- '#Strict comparison using === between false and Module will always evaluate to false.#'
-		-
-			message: '#Access to an undefined property object::\$shop.#'
-			path: ../../classes/Hook/HookActionCartSave.php
 		- '#PrestaShop.Module.Ps_Googleanalytics.Handler.ModuleHandler::uninstallModule\(\) calls parent::uninstall\(\) but PrestaShop.Module.Ps_Googleanalytics.Handler.ModuleHandler does not extend any class.#'
 
 	level: 5

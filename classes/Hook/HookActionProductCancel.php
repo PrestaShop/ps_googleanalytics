@@ -48,8 +48,8 @@ class HookActionProductCancel implements HookInterface
             $gaScripts .= 'MBG.add(' . json_encode(
                 [
                     'id' => empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id,
-                    'quantity' => $quantity, ]
-                )
+                    'quantity' => $quantity,
+                ])
                 . ');';
         }
 

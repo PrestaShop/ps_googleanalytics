@@ -26,6 +26,10 @@ use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 class HookActionCartSave implements HookInterface
 {
     private $module;
+
+    /**
+     * @var \Context
+     */
     private $context;
 
     public function __construct(\Ps_Googleanalytics $module, \Context $context)
@@ -58,7 +62,7 @@ class HookActionCartSave implements HookInterface
         ];
 
         $cartProducts = $this->context->cart->getProducts();
-        if (isset($cartProducts) && count($cartProducts)) {
+        if (!empty($cartProducts)) {
             foreach ($cartProducts as $cartProduct) {
                 if ($cartProduct['id_product'] == \Tools::getValue('id_product')) {
                     $addProduct = $cartProduct;
