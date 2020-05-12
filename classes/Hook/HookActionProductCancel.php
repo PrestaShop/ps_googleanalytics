@@ -53,7 +53,11 @@ class HookActionProductCancel implements HookInterface
                 . ');';
         }
 
-        $this->context->cookie->ga_admin_refund = $gaScripts . 'MBG.refundByProduct(' . json_encode(['id' => $this->params['order']->id]) . ');';
+        $this->context->cookie->__set(
+            'ga_admin_refund',
+            $gaScripts . 'MBG.refundByProduct(' . json_encode(['id' => $this->params['order']->id]) . ');'
+        );
+        $this->context->cookie->write();
     }
 
     /**

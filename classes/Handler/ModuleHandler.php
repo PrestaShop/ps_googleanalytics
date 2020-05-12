@@ -77,8 +77,7 @@ class ModuleHandler
         };
 
         $parentUninstallClosure = $parentUninstallClosure->bindTo($oldModule, get_class($oldModule));
-        $parentUninstallClosure();
 
-        return true;
+        return $parentUninstallClosure();
     }
 }
