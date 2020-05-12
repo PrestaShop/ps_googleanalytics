@@ -82,7 +82,7 @@ class Ps_Googleanalytics extends Module
         return $this->display(__FILE__, './views/templates/admin/configuration.tpl') . $formOutput;
     }
 
-    public function hookdisplayHeader($params, $back_office = false)
+    public function hookDisplayHeader($params, $back_office = false)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
         $hook->setBackOffice($back_office);
@@ -93,7 +93,7 @@ class Ps_Googleanalytics extends Module
     /**
      * To track transactions
      */
-    public function hookdisplayOrderConfirmation($params)
+    public function hookDisplayOrderConfirmation($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
         $hook->setParams($params);
@@ -104,7 +104,7 @@ class Ps_Googleanalytics extends Module
     /**
      * hook footer to load JS script for standards actions such as product clicks
      */
-    public function hookdisplayFooter()
+    public function hookDisplayFooter()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
 
@@ -114,7 +114,7 @@ class Ps_Googleanalytics extends Module
     /**
      * hook home to display generate the product list associated to home featured, news products and best sellers Modules
      */
-    public function hookdisplayHome()
+    public function hookDisplayHome()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHome($this, $this->context);
 
@@ -124,7 +124,7 @@ class Ps_Googleanalytics extends Module
     /**
      * hook product page footer to load JS for product details view
      */
-    public function hookdisplayFooterProduct($params)
+    public function hookDisplayFooterProduct($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
         $hook->setParams($params);
@@ -135,7 +135,7 @@ class Ps_Googleanalytics extends Module
     /**
      * Hook admin order to send transactions and refunds details
      */
-    public function hookdisplayAdminOrder()
+    public function hookDisplayAdminOrder()
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
@@ -149,7 +149,7 @@ class Ps_Googleanalytics extends Module
     /**
      *  admin office header to add google analytics js
      */
-    public function hookdisplayBackOfficeHeader()
+    public function hookDisplayBackOfficeHeader()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
 
@@ -159,7 +159,7 @@ class Ps_Googleanalytics extends Module
     /**
      * Hook admin office header to add google analytics js
      */
-    public function hookactionProductCancel($params)
+    public function hookActionProductCancel($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
         $hook->setParams($params);
@@ -169,13 +169,13 @@ class Ps_Googleanalytics extends Module
     /**
      * hook save cart event to implement addtocart and remove from cart functionality
      */
-    public function hookactionCartSave()
+    public function hookActionCartSave()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
         $hook->run();
     }
 
-    public function hookactionCarrierProcess($params)
+    public function hookActionCarrierProcess($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
         $hook->setParams($params);
