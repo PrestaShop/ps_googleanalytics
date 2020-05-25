@@ -385,6 +385,11 @@ class Ps_Googleanalytics extends Module
         }
     }
 
+    public function hookdisplayOrderConfirmation1($params)
+    {
+        $this->hookdisplayOrderConfirmation($params);
+    }
+
     /**
      * To track transactions
      */
