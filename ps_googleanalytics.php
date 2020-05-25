@@ -73,6 +73,7 @@ class Ps_Googleanalytics extends Module
             $this->registerHook('displayHome') &&
             $this->registerHook('displayFooterProduct') &&
             $this->registerHook('displayOrderConfirmation') &&
+            $this->registerHook('displayOrderConfirmation1') &&
             $this->registerHook('actionProductCancel') &&
             $this->registerHook('actionCartSave') &&
             $this->registerHook('displayBackOfficeHeader') &&
