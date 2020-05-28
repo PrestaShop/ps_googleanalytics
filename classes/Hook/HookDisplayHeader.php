@@ -40,7 +40,9 @@ class HookDisplayHeader implements HookInterface
      */
     public function run()
     {
-        if (\Configuration::get('GA_ACCOUNT_ID')) {
+        if (!\Configuration::get('GA_ACCOUNT_ID')) {
+            return;
+        }
             $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
             $shops = \Shop::getShops();
