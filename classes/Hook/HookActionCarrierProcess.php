@@ -22,6 +22,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
+use Ps_Googleanalytics;
 
 class HookActionCarrierProcess implements HookInterface
 {
@@ -29,7 +30,7 @@ class HookActionCarrierProcess implements HookInterface
     private $context;
     private $params;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;

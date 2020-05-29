@@ -20,13 +20,16 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Context;
+use Ps_Googleanalytics;
+
 interface HookInterface
 {
     /**
-     * @param \Ps_Googleanalytics $module
-     * @param \Context $context
+     * @param Ps_Googleanalytics $module
+     * @param Context $context
      */
-    public function __construct(\Ps_Googleanalytics $module, \Context $context);
+    public function __construct(Ps_Googleanalytics $module, Context $context);
 
     public function run();
 }

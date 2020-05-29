@@ -20,16 +20,22 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Configuration;
+use Context;
+use Order;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
+use Ps_Googleanalytics;
+use Tools;
+use Validate;
 
 class HookDisplayBackOfficeHeader implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -43,11 +49,11 @@ class HookDisplayBackOfficeHeader implements HookInterface
     public function run()
     {
         $js = '';
-        if (strcmp(\Tools::getValue('configure'), $this->module->name) === 0) {
+        if (strcmp(Tools::getValue('configure'), $this->module->name) === 0) {
             $this->context->controller->addCSS($this->module->getPathUri() . 'views/css/ganalytics.css');
         }
 
-        $ga_account_id = \Configuration::get('GA_ACCOUNT_ID');
+        $ga_account_id = Configuration::get('GA_ACCOUNT_ID');
 
         if (!empty($ga_account_id) && $this->module->active) {
             $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
@@ -59,14 +65,14 @@ class HookDisplayBackOfficeHeader implements HookInterface
             if ($this->context->controller->controller_name == 'AdminOrders') {
                 $ganalyticsRepository = new GanalyticsRepository();
 
-                if (\Tools::getValue('id_order')) {
-                    $order = new \Order((int) \Tools::getValue('id_order'));
-                    if (\Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
-                        $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) \Tools::getValue('id_order'));
+                if (Tools::getValue('id_order')) {
+                    $order = new Order((int) Tools::getValue('id_order'));
+                    if (Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
+                        $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) Tools::getValue('id_order'));
                         if ($gaOrderSent === false) {
                             $ganalyticsRepository->addNewRow(
                                 [
-                                    'id_order' => (int) \Tools::getValue('id_order'),
+                                    'id_order' => (int) Tools::getValue('id_order'),
                                     'id_shop' => (int) $this->context->shop->id,
                                     'sent' => 0,
                                     'date_add' => 'NOW()',

@@ -20,17 +20,21 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Context;
+use Hook;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use Ps_Googleanalytics;
+use Tools;
 
 class HookDisplayFooter implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -53,7 +57,7 @@ class HookDisplayFooter implements HookInterface
         $gaScripts = '';
         $this->module->js_state = 0;
         $gacarts = $ganalyticsDataHandler->manageData('', 'R');
-        $controller_name = \Tools::getValue('controller');
+        $controller_name = Tools::getValue('controller');
 
         if (count($gacarts) > 0 && $controller_name != 'product') {
             $this->module->filterable = 0;
@@ -81,7 +85,7 @@ class HookDisplayFooter implements HookInterface
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
             $this->module->js_state = 1;
             $this->module->eligible = 1;
-            $step = \Tools::getValue('step');
+            $step = Tools::getValue('step');
             if (empty($step)) {
                 $step = 0;
             }
@@ -89,8 +93,8 @@ class HookDisplayFooter implements HookInterface
             $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
         }
 
-        $confirmation_hook_id = (int) \Hook::getIdByName('displayOrderConfirmation');
-        if (isset(\Hook::$executed_hooks[$confirmation_hook_id])) {
+        $confirmation_hook_id = (int) Hook::getIdByName('displayOrderConfirmation');
+        if (isset(Hook::$executed_hooks[$confirmation_hook_id])) {
             $this->module->eligible = 1;
         }
 

@@ -20,13 +20,18 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
+use Configuration;
+use Context;
+use Order;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
+use Shop;
+use Validate;
 
 class OrderWrapper implements WrapperInterface
 {
     private $context;
 
-    public function __construct(\Context $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }
@@ -36,12 +41,12 @@ class OrderWrapper implements WrapperInterface
      */
     public function wrapOrder($id_order)
     {
-        $order = new \Order((int) $id_order);
+        $order = new Order((int) $id_order);
 
-        if (\Validate::isLoadedObject($order)) {
+        if (Validate::isLoadedObject($order)) {
             return [
                 'id' => $id_order,
-                'affiliation' => \Shop::isFeatureActive() ? $this->context->shop->name : \Configuration::get('PS_SHOP_NAME'),
+                'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
                 'revenue' => $order->total_paid,
                 'shipping' => $order->total_shipping,
                 'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,

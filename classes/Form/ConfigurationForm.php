@@ -20,11 +20,18 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
+use AdminController;
+use Configuration;
+use HelperForm;
+use Ps_Googleanalytics;
+use Shop;
+use Tools;
+
 class ConfigurationForm
 {
     private $module;
 
-    public function __construct(\Ps_Googleanalytics $module)
+    public function __construct(Ps_Googleanalytics $module)
     {
         $this->module = $module;
     }
@@ -37,18 +44,18 @@ class ConfigurationForm
     public function generate()
     {
         // Check if multistore is active
-        $is_multistore_active = \Shop::isFeatureActive();
+        $is_multistore_active = Shop::isFeatureActive();
 
         // Get default language
-        $default_lang = (int) \Configuration::get('PS_LANG_DEFAULT');
+        $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
-        $helper = new \HelperForm();
+        $helper = new HelperForm();
 
         // Module, token and currentIndex
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
-        $helper->token = \Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = \AdminController::$currentIndex . '&configure=' . $this->module->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->module->name;
 
         // Language
         $helper->default_form_language = $default_lang;
@@ -62,11 +69,11 @@ class ConfigurationForm
         $helper->toolbar_btn = [
             'save' => [
                 'desc' => $this->module->l('Save'),
-                'href' => \AdminController::$currentIndex . '&configure=' . $this->module->name . '&save' . $this->module->name .
-                '&token=' . \Tools::getAdminTokenLite('AdminModules'),
+                'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save' . $this->module->name .
+                '&token=' . Tools::getAdminTokenLite('AdminModules'),
             ],
             'back' => [
-                'href' => \AdminController::$currentIndex . '&token=' . \Tools::getAdminTokenLite('AdminModules'),
+                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
                 'desc' => $this->module->l('Back to list'),
             ],
         ];
@@ -147,10 +154,10 @@ class ConfigurationForm
         }
 
         // Load current value
-        $helper->fields_value['GA_ACCOUNT_ID'] = \Configuration::get('GA_ACCOUNT_ID');
-        $helper->fields_value['GA_USERID_ENABLED'] = \Configuration::get('GA_USERID_ENABLED');
-        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = \Configuration::get('GA_CROSSDOMAIN_ENABLED');
-        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = \Configuration::get('GA_ANONYMIZE_ENABLED');
+        $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
+        $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
+        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -163,29 +170,29 @@ class ConfigurationForm
     public function treat()
     {
         $treatmentResult = '';
-        $gaAccountId = \Tools::getValue('GA_ACCOUNT_ID');
-        $gaUserIdEnabled = \Tools::getValue('GA_USERID_ENABLED');
-        $gaCrossdomainEnabled = \Tools::getValue('GA_CROSSDOMAIN_ENABLED');
-        $gaAnonymizeEnabled = \Tools::getValue('GA_ANONYMIZE_ENABLED');
+        $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
+        $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
+        $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
+        $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
 
         if (!empty($gaAccountId)) {
-            \Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
-            \Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
+            Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
+            Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Account ID updated successfully'));
         }
 
         if (null !== $gaUserIdEnabled) {
-            \Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
+            Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for User ID updated successfully'));
         }
 
         if (null !== $gaCrossdomainEnabled) {
-            \Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
+            Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for User ID updated successfully'));
         }
 
         if (null !== $gaAnonymizeEnabled) {
-            \Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
+            Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Anonymize IP updated successfully'));
         }
 

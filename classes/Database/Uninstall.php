@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
+use Db;
+
 class Uninstall
 {
     /**
@@ -33,7 +35,7 @@ class Uninstall
         $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'ganalytics_data`';
 
         foreach ($sql as $query) {
-            if (!\Db::getInstance()->execute($query)) {
+            if (!Db::getInstance()->execute($query)) {
                 return false;
             }
         }

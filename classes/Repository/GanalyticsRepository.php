@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Repository;
 
+use Db;
+
 class GanalyticsRepository
 {
     const TABLE_NAME = 'ganalytics';
@@ -33,7 +35,7 @@ class GanalyticsRepository
      */
     public function findGaOrderByOrderId($orderId)
     {
-        return \Db::getInstance()->getValue(
+        return Db::getInstance()->getValue(
             'SELECT id_order
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE id_order = ' . (int) $orderId);
@@ -48,7 +50,7 @@ class GanalyticsRepository
      */
     public function findAllByShopIdAndDateAdd($shopId)
     {
-        return \Db::getInstance()->ExecuteS(
+        return Db::getInstance()->ExecuteS(
             'SELECT *
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE sent = 0
@@ -65,9 +67,9 @@ class GanalyticsRepository
      *
      * @return bool
      */
-    public function addNewRow(array $data, $type = \Db::INSERT_IGNORE)
+    public function addNewRow(array $data, $type = Db::INSERT_IGNORE)
     {
-        return \Db::getInstance()->insert(
+        return Db::getInstance()->insert(
             self::TABLE_NAME,
             $data,
             false,
@@ -87,7 +89,7 @@ class GanalyticsRepository
      */
     public function updateData($data, $where, $limit = 0)
     {
-        return \Db::getInstance()->update(
+        return Db::getInstance()->update(
             self::TABLE_NAME,
             $data,
             $where,

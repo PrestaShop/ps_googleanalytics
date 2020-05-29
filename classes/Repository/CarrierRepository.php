@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Repository;
 
+use Db;
+
 class CarrierRepository
 {
     const TABLE_NAME = 'carrier';
@@ -33,7 +35,7 @@ class CarrierRepository
      */
     public function findByCarrierId($carrierId)
     {
-        return \Db::getInstance()->getValue(
+        return Db::getInstance()->getValue(
             'SELECT name
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE id_carrier = ' . (int) $carrierId

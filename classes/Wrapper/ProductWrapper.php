@@ -20,13 +20,17 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
+use Context;
+use Currency;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
+use Product;
+use Tools;
 
 class ProductWrapper implements WrapperInterface
 {
     private $context;
 
-    public function __construct(\Context $context)
+    public function __construct(Context $context)
     {
         $this->context = $context;
     }
@@ -41,8 +45,8 @@ class ProductWrapper implements WrapperInterface
             return;
         }
 
-        $currency = new \Currency($this->context->currency->id);
-        $usetax = (\Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
+        $currency = new Currency($this->context->currency->id);
+        $usetax = (Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
 
         if (count($products) > 20) {
             $full = false;
@@ -51,12 +55,12 @@ class ProductWrapper implements WrapperInterface
         }
 
         foreach ($products as $index => $product) {
-            if ($product instanceof \Product) {
+            if ($product instanceof Product) {
                 $product = (array) $product;
             }
 
             if (!isset($product['price'])) {
-                $product['price'] = (float) \Tools::displayPrice(\Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
+                $product['price'] = (float) Tools::displayPrice(Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
             }
             $result_products[] = $this->wrapProduct($product, $extras, $index, $full);
         }
@@ -106,21 +110,21 @@ class ProductWrapper implements WrapperInterface
         if ($full) {
             $ga_product = [
                 'id' => $product_id,
-                'name' => \Tools::str2url($product['name']),
-                'category' => \Tools::str2url($product['category']),
-                'brand' => isset($product['manufacturer_name']) ? \Tools::str2url($product['manufacturer_name']) : '',
-                'variant' => \Tools::str2url($variant),
+                'name' => Tools::str2url($product['name']),
+                'category' => Tools::str2url($product['category']),
+                'brand' => isset($product['manufacturer_name']) ? Tools::str2url($product['manufacturer_name']) : '',
+                'variant' => Tools::str2url($variant),
                 'type' => $product_type,
                 'position' => $index ? $index : '0',
                 'quantity' => $product_qty,
-                'list' => \Tools::getValue('controller'),
+                'list' => Tools::getValue('controller'),
                 'url' => isset($product['link']) ? urlencode($product['link']) : '',
                 'price' => $product['price'],
             ];
         } else {
             $ga_product = [
                 'id' => $product_id,
-                'name' => \Tools::str2url($product['name']),
+                'name' => Tools::str2url($product['name']),
             ];
         }
 

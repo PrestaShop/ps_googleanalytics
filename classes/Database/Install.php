@@ -20,17 +20,21 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
+use Db;
+use Ps_Googleanalytics;
+use Shop;
+
 class Install
 {
     /**
-     * @var \Ps_Googleanalytics
+     * @var Ps_Googleanalytics
      */
     private $module;
 
-    public function __construct(\Ps_Googleanalytics $module)
+    public function __construct(Ps_Googleanalytics $module)
     {
-        if (\Shop::isFeatureActive()) {
-            \Shop::setContext(\Shop::CONTEXT_ALL);
+        if (Shop::isFeatureActive()) {
+            Shop::setContext(Shop::CONTEXT_ALL);
         }
 
         $this->module = $module;
@@ -65,7 +69,7 @@ class Install
         ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
 
         foreach ($sql as $query) {
-            if (!\Db::getInstance()->execute($query)) {
+            if (!Db::getInstance()->execute($query)) {
                 return false;
             }
         }

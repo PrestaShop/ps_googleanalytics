@@ -20,9 +20,13 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Context;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use Product;
+use Ps_Googleanalytics;
+use Tools;
 
 class HookDisplayFooterProduct implements HookInterface
 {
@@ -30,7 +34,7 @@ class HookDisplayFooterProduct implements HookInterface
     private $context;
     private $params;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -45,13 +49,13 @@ class HookDisplayFooterProduct implements HookInterface
     {
         $gaTools = new GoogleAnalyticsTools();
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $controllerName = \Tools::getValue('controller');
+        $controllerName = Tools::getValue('controller');
 
         if ('product' !== $controllerName) {
             return '';
         }
 
-        if ($this->params['product'] instanceof \Product) {
+        if ($this->params['product'] instanceof Product) {
             $this->params['product'] = (array) $this->params['product'];
         }
         // Add product view

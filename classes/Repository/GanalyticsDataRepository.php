@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Repository;
 
+use Db;
+
 class GanalyticsDataRepository
 {
     const TABLE_NAME = 'ganalytics_data';
@@ -34,7 +36,7 @@ class GanalyticsDataRepository
      */
     public function findDataByCartIdAndShopId($cartId, $shopId)
     {
-        return \Db::getInstance()->getValue(
+        return Db::getInstance()->getValue(
             'SELECT data
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE id_cart = ' . (int) $cartId . '
@@ -53,7 +55,7 @@ class GanalyticsDataRepository
      */
     public function addNewRow($cartId, $shopId, $data)
     {
-        return \Db::getInstance()->Execute(
+        return Db::getInstance()->Execute(
             'INSERT INTO `' . _DB_PREFIX_ . self::TABLE_NAME . '` (id_cart, id_shop, data)
             VALUES(\'' . (int) $cartId . '\',\'' . (int) $shopId . '\',\'' . pSQL($data) . '\')
             ON DUPLICATE KEY UPDATE data = \'' . pSQL($data) . '\';'
@@ -70,7 +72,7 @@ class GanalyticsDataRepository
      */
     public function deleteRow($cartId, $shopId)
     {
-        return \Db::getInstance()->delete(
+        return Db::getInstance()->delete(
             self::TABLE_NAME,
             'id_cart = ' . (int) $cartId . ' AND id_shop = ' . (int) $shopId
         );

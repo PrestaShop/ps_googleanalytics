@@ -20,10 +20,16 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Cart;
+use Configuration;
+use Context;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use Ps_Googleanalytics;
+use Shop;
+use Validate;
 
 class HookDisplayOrderConfirmation implements HookInterface
 {
@@ -31,7 +37,7 @@ class HookDisplayOrderConfirmation implements HookInterface
     private $context;
     private $params;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -50,7 +56,7 @@ class HookDisplayOrderConfirmation implements HookInterface
             $order = $this->params['objOrder'];
         }
 
-        if (\Validate::isLoadedObject($order) && $order->getCurrentState() != (int) \Configuration::get('PS_OS_ERROR')) {
+        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int) Configuration::get('PS_OS_ERROR')) {
             $ganalyticsRepository = new GanalyticsRepository();
             $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
 
@@ -66,7 +72,7 @@ class HookDisplayOrderConfirmation implements HookInterface
 
                 if ($order->id_customer == $this->context->cookie->id_customer) {
                     $orderProducts = [];
-                    $cart = new \Cart($order->id_cart);
+                    $cart = new Cart($order->id_cart);
                     $gaTools = new GoogleAnalyticsTools();
                     $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                     $productWrapper = new ProductWrapper($this->context);
@@ -78,7 +84,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                     $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
                     $transaction = [
                         'id' => $order->id,
-                        'affiliation' => (\Shop::isFeatureActive()) ? $this->context->shop->name : \Configuration::get('PS_SHOP_NAME'),
+                        'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
                         'revenue' => $order->total_paid,
                         'shipping' => $order->total_shipping,
                         'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,

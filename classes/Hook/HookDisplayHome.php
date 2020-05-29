@@ -20,17 +20,21 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Category;
+use Configuration;
+use Context;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use Ps_Googleanalytics;
 
 class HookDisplayHome implements HookInterface
 {
     private $module;
     private $context;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -50,13 +54,13 @@ class HookDisplayHome implements HookInterface
 
         // Home featured products
         if ($moduleHandler->isModuleEnabled('ps_featuredproducts')) {
-            $category = new \Category($this->context->shop->getCategory(), $this->context->language->id);
+            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
             $productWrapper = new ProductWrapper($this->context);
             $homeFeaturedProducts = $productWrapper->wrapProductList(
                 $category->getProducts(
                     (int) $this->context->language->id,
                     1,
-                    (\Configuration::get('HOME_FEATURED_NBR') ? (int) \Configuration::get('HOME_FEATURED_NBR') : 8),
+                    (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
                     'position'
                 ),
                 [],

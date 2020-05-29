@@ -20,10 +20,12 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Context;
+
 interface WrapperInterface
 {
     /**
-     * @param \Context $context
+     * @param Context $context
      */
-    public function __construct(\Context $context);
+    public function __construct(Context $context);
 }

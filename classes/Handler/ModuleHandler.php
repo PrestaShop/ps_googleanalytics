@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Handler;
 
+use Module;
+
 class ModuleHandler
 {
     /**
@@ -31,13 +33,13 @@ class ModuleHandler
      */
     public function isModuleEnabled($moduleName)
     {
-        $module = \Module::getInstanceByName($moduleName);
+        $module = Module::getInstanceByName($moduleName);
 
         if (false === $module) {
             return false;
         }
 
-        if (false === \Module::isInstalled($moduleName)) {
+        if (false === Module::isInstalled($moduleName)) {
             return false;
         }
 
@@ -57,11 +59,11 @@ class ModuleHandler
      */
     public function uninstallModule($moduleName)
     {
-        if (false === \Module::isInstalled($moduleName)) {
+        if (false === Module::isInstalled($moduleName)) {
             return false;
         }
 
-        $oldModule = \Module::getInstanceByName($moduleName);
+        $oldModule = Module::getInstanceByName($moduleName);
 
         if (false === $oldModule) {
             return false;

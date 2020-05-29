@@ -20,6 +20,12 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Configuration;
+use Context;
+use Ps_Googleanalytics;
+use Shop;
+use Tools;
+
 class HookDisplayHeader implements HookInterface
 {
     private $module;
@@ -27,7 +33,7 @@ class HookDisplayHeader implements HookInterface
     private $params;
     private $backOffice;
 
-    public function __construct(\Ps_Googleanalytics $module, \Context $context)
+    public function __construct(Ps_Googleanalytics $module, Context $context)
     {
         $this->module = $module;
         $this->context = $context;
@@ -40,27 +46,27 @@ class HookDisplayHeader implements HookInterface
      */
     public function run()
     {
-        if (!\Configuration::get('GA_ACCOUNT_ID')) {
+        if (!Configuration::get('GA_ACCOUNT_ID')) {
             return;
         }
 
         $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
-        $shops = \Shop::getShops();
-        $isMultistoreActive = \Shop::isFeatureActive();
-        $currentShopId = (int) \Context::getContext()->shop->id;
+        $shops = Shop::getShops();
+        $isMultistoreActive = Shop::isFeatureActive();
+        $currentShopId = (int) Context::getContext()->shop->id;
         $userId = null;
         $gaCrossdomainEnabled = false;
 
-        if (\Configuration::get('GA_USERID_ENABLED') &&
+        if (Configuration::get('GA_USERID_ENABLED') &&
             $this->context->customer && $this->context->customer->isLogged()
         ) {
             $userId = (int) $this->context->customer->id;
         }
 
-        $gaAnonymizeEnabled = \Configuration::get('GA_ANONYMIZE_ENABLED');
+        $gaAnonymizeEnabled = Configuration::get('GA_ANONYMIZE_ENABLED');
 
-        if ((int) \Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
+        if ((int) Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
             $gaCrossdomainEnabled = true;
         }
 
@@ -69,11 +75,11 @@ class HookDisplayHeader implements HookInterface
                 'backOffice' => $this->backOffice,
                 'currentShopId' => $currentShopId,
                 'userId' => $userId,
-                'gaAccountId' => \Tools::safeOutput(\Configuration::get('GA_ACCOUNT_ID')),
+                'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
                 'shops' => $shops,
                 'gaCrossdomainEnabled' => $gaCrossdomainEnabled,
                 'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
-                'useSecureMode' => \Configuration::get('PS_SSL_ENABLED'),
+                'useSecureMode' => Configuration::get('PS_SSL_ENABLED'),
             ]
         );
 
