@@ -43,44 +43,44 @@ class HookDisplayHeader implements HookInterface
         if (!\Configuration::get('GA_ACCOUNT_ID')) {
             return;
         }
-            $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
-            $shops = \Shop::getShops();
-            $isMultistoreActive = \Shop::isFeatureActive();
-            $currentShopId = (int) \Context::getContext()->shop->id;
-            $userId = null;
-            $gaCrossdomainEnabled = false;
+        $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
-            if (\Configuration::get('GA_USERID_ENABLED') &&
-                $this->context->customer && $this->context->customer->isLogged()
-            ) {
-                $userId = (int) $this->context->customer->id;
-            }
+        $shops = \Shop::getShops();
+        $isMultistoreActive = \Shop::isFeatureActive();
+        $currentShopId = (int) \Context::getContext()->shop->id;
+        $userId = null;
+        $gaCrossdomainEnabled = false;
 
-            $gaAnonymizeEnabled = \Configuration::get('GA_ANONYMIZE_ENABLED');
-
-            if ((int) \Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
-                $gaCrossdomainEnabled = true;
-            }
-
-            $this->context->smarty->assign(
-                [
-                    'backOffice' => $this->backOffice,
-                    'currentShopId' => $currentShopId,
-                    'userId' => $userId,
-                    'gaAccountId' => \Tools::safeOutput(\Configuration::get('GA_ACCOUNT_ID')),
-                    'shops' => $shops,
-                    'gaCrossdomainEnabled' => $gaCrossdomainEnabled,
-                    'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
-                    'useSecureMode' => \Configuration::get('PS_SSL_ENABLED'),
-                ]
-            );
-
-            return $this->module->display(
-                $this->module->getLocalPath() . $this->module->name,
-                'ps_googleanalytics.tpl'
-            );
+        if (\Configuration::get('GA_USERID_ENABLED') &&
+            $this->context->customer && $this->context->customer->isLogged()
+        ) {
+            $userId = (int) $this->context->customer->id;
         }
+
+        $gaAnonymizeEnabled = \Configuration::get('GA_ANONYMIZE_ENABLED');
+
+        if ((int) \Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
+            $gaCrossdomainEnabled = true;
+        }
+
+        $this->context->smarty->assign(
+            [
+                'backOffice' => $this->backOffice,
+                'currentShopId' => $currentShopId,
+                'userId' => $userId,
+                'gaAccountId' => \Tools::safeOutput(\Configuration::get('GA_ACCOUNT_ID')),
+                'shops' => $shops,
+                'gaCrossdomainEnabled' => $gaCrossdomainEnabled,
+                'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
+                'useSecureMode' => \Configuration::get('PS_SSL_ENABLED'),
+            ]
+        );
+
+        return $this->module->display(
+            $this->module->getLocalPath() . $this->module->name,
+            'ps_googleanalytics.tpl'
+        );
     }
 
     /**
