@@ -84,16 +84,16 @@ class GanalyticsDataHandler
      */
     private function readData()
     {
-        $dataRetuned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
+        $dataReturned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
             $this->cartId,
             $this->shopId
         );
 
-        if (false === $dataRetuned) {
+        if (false === $dataReturned) {
             return [];
         }
 
-        return json_decode($dataRetuned, true);
+        return json_decode($dataReturned, true);
     }
 
     /**
@@ -105,15 +105,15 @@ class GanalyticsDataHandler
      */
     private function appendData($data)
     {
-        $dataRetuned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
+        $dataReturned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
             $this->cartId,
             $this->shopId
         );
 
-        if (false === $dataRetuned) {
+        if (false === $dataReturned) {
             $newData = [$data];
         } else {
-            $newData = json_decode($dataRetuned, true);
+            $newData = json_decode($dataReturned, true);
             $newData[] = $data;
         }
 
