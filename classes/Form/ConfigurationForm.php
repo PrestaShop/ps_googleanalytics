@@ -69,7 +69,7 @@ class ConfigurationForm
         $helper->toolbar_btn = [
             'save' => [
                 'desc' => $this->module->l('Save'),
-                'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save' . $this->module->name .
+                'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save=' . $this->module->name .
                 '&token=' . Tools::getAdminTokenLite('AdminModules'),
             ],
             'back' => [

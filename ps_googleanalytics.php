@@ -141,7 +141,7 @@ class Ps_Googleanalytics extends Module
 
         echo $gaTagHandler->generate(
             $this->context->cookie->__get('ga_admin_refund'),
-            1
+            true
         );
         $this->context->cookie->__unset('ga_admin_refund');
     }

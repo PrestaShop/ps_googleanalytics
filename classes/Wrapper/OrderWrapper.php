@@ -51,7 +51,8 @@ class OrderWrapper implements WrapperInterface
                 'shipping' => $order->total_shipping,
                 'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                 'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer, ];
+                'customer' => $order->id_customer,
+            ];
         }
     }
 }

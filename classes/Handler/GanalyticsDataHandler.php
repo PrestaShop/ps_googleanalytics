@@ -93,7 +93,7 @@ class GanalyticsDataHandler
             return [];
         }
 
-        return json_decode($dataReturned, true);
+        return $this->jsonDecodeValidJson($dataReturned);
     }
 
     /**
@@ -113,8 +113,7 @@ class GanalyticsDataHandler
         if (false === $dataReturned) {
             $newData = [$data];
         } else {
-            $newData = json_decode($dataReturned, true);
-            $newData[] = $data;
+            $newData[] = $this->jsonDecodeValidJson($dataReturned);
         }
 
         return $this->ganalyticsDataRepository->addNewRow(
@@ -122,5 +121,23 @@ class GanalyticsDataHandler
             (int) $this->shopId,
             json_encode($newData)
         );
+    }
+
+    /**
+     * Check if the json is valid and returns an empty array if not
+     *
+     * @param string $json
+     *
+     * @return array
+     */
+    protected function jsonDecodeValidJson($json)
+    {
+        $array = json_decode($json, true);
+
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return $array;
+        }
+
+        return [];
     }
 }

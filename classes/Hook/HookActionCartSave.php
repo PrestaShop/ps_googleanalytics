@@ -72,6 +72,7 @@ class HookActionCartSave implements HookInterface
             foreach ($cartProducts as $cartProduct) {
                 if ($cartProduct['id_product'] == Tools::getValue('id_product')) {
                     $addProduct = $cartProduct;
+                    break;
                 }
             }
         }

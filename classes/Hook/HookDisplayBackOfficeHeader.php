@@ -103,7 +103,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                 }
             }
 
-            return $js . $this->module->hookdisplayHeader(null, true) . $gaTagHandler->generate($gaScripts, 1);
+            return $js . $this->module->hookdisplayHeader(null, true) . $gaTagHandler->generate($gaScripts, true);
         }
 
         return $js;

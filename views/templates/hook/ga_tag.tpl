@@ -29,7 +29,7 @@
     {/literal}
 {/if}
 
-{if ($jsState != 1 && $isBackoffice == 0)}
+{if ($jsState != 1 && $isBackoffice === true)}
     {literal}
     <script type="text/javascript">
         ga('send', 'pageview');

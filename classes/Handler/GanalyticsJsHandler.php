@@ -40,11 +40,11 @@ class GanalyticsJsHandler
      * Generate Google Analytics js
      *
      * @param string $jsCode
-     * @param int $isBackoffice
+     * @param bool $isBackoffice
      *
      * @return void|string
      */
-    public function generate($jsCode, $isBackoffice = 0)
+    public function generate($jsCode, $isBackoffice = false)
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->smarty->assign(
