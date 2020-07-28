@@ -1,0 +1,14 @@
+includes:
+	- %currentWorkingDirectory%/vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
+
+parameters:
+	paths:
+		- ../../classes
+		- ../../controllers
+		- ../../ps_googleanalytics.php
+	reportUnmatchedIgnoredErrors: false
+	ignoreErrors:
+		- '#Strict comparison using === between false and Module will always evaluate to false.#'
+		- '#PrestaShop.Module.Ps_Googleanalytics.Handler.ModuleHandler::uninstallModule\(\) calls parent::uninstall\(\) but PrestaShop.Module.Ps_Googleanalytics.Handler.ModuleHandler does not extend any class.#'
+
+	level: 5

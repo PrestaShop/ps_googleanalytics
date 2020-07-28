@@ -1,7 +1,24 @@
 <?php
-
+/**
+ * 2007-2020 PrestaShop and Contributors
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2020 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
+ * International Registered Trademark & Property of PrestaShop SA
+ */
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_7510f8b22dd3e10476096425f78d4239'] = 'Non hai ancora impostato l\'ID di Google Analytics';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_aba1a7971f85c725ba4aed21343eeb4b'] = 'Integra lo script di Google Analytics nel tuo negozio';
 $_MODULE['<{ps_googleanalytics}prestashop>ps_googleanalytics_fa214007826415a21a8456e3e09f999d'] = 'Sei sicuro di voler cancellare i tuoi dati?';

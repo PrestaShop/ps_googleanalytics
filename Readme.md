@@ -4,11 +4,17 @@
 
 Gain clear insights into important metrics about your customers, using Google Analytics.
 
+## Notes
+
+Enhanced Ecommerce must be enabled in Google Analytics settings for full functionality. Otherwise, some data (refunds etc.) will not be visible. Follow [instructions][4].
+
+Google Tag Assistant will report "No HTTP Response detected" error in Prestashop back-office. **This is not a bug.** This happens, because the module does not send page views in BO, not to influence statistics. Only events, like refunds, are sent from BO.
+
 ## Contributing
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 1.7
+Google Analytics is compatible with all versions of PrestaShop 1.7 and 1.6
 
 ### Requirements
 
@@ -36,5 +42,5 @@ That's it: you have contributed to this open-source project! Congratulations!
 [1]: http://doc.prestashop.com/display/PS16/Coding+Standards
 [2]: http://doc.prestashop.com/display/PS16/How+to+write+a+commit+message
 [3]: https://help.github.com/articles/using-pull-requests
-
+[4]: https://support.google.com/analytics/answer/6032539
 
