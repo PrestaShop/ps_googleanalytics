@@ -22,7 +22,9 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
 use AdminController;
 use Configuration;
+use Context;
 use HelperForm;
+use OrderState;
 use Ps_Googleanalytics;
 use Shop;
 use Tools;
@@ -145,6 +147,19 @@ class ConfigurationForm
                         ],
                     ],
                 ],
+                [
+                    'type' => 'select',
+                    'label' => $this->module->l('Cancelled order states'),
+                    'name' => 'GA_CANCELLED_STATES',
+                    'desc' => $this->module->l('Choose order states, in which you consider the given order cancelled. This will be usually only the default "Cancelled" state, but some shops may have extra states like "Returned" etc.'),
+                    'class' => 'chosen',
+                    'multiple' => true,
+                    'options' => [
+                        'query' => OrderState::getOrderStates((int) Context::getContext()->language->id),
+                        'id' => 'id_order_state',
+                        'name' => 'name',
+                    ],
+                ],
             ],
             'submit' => [
                 'title' => $this->module->l('Save'),
@@ -177,6 +192,7 @@ class ConfigurationForm
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
         $helper->fields_value['GA_TRACK_BACKOFFICE_DISABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_DISABLED');
+        $helper->fields_value['GA_CANCELLED_STATES[]'] = json_decode(Configuration::get('GA_CANCELLED_STATES'), true);
 
         return $helper->generateForm($fields_form);
     }
@@ -194,6 +210,7 @@ class ConfigurationForm
         $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
         $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_DISABLED');
+        $gaCancelledStates = Tools::getValue('GA_CANCELLED_STATES');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
@@ -220,6 +237,13 @@ class ConfigurationForm
             Configuration::updateValue('GA_TRACK_BACKOFFICE_DISABLED', (bool) $gaTrackBackOffice);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Disable Back Office tracking updated successfully'));
         }
+
+        if ($gaCancelledStates === false) {
+            Configuration::updateValue('GA_CANCELLED_STATES', '');
+        } else {
+            Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
+        }
+        $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for cancelled order states updated successfully'));
 
         return $treatmentResult;
     }
