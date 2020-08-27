@@ -27,9 +27,9 @@ use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use Tools;
-use RecursiveIteratorIterator;
 use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
+use Tools;
 
 class HookDisplayFooter implements HookInterface
 {
@@ -74,8 +74,8 @@ class HookDisplayFooter implements HookInterface
                     }
                 } elseif (is_array($gacart)) {
                     $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
-                    foreach($it as $v) {
-                      $gaScripts .= $v;
+                    foreach ($it as $v) {
+                        $gaScripts .= $v;
                     }
                 } else {
                     $gaScripts .= $gacart;
