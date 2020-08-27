@@ -49,7 +49,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
     public function run()
     {
         if (Configuration::get('GA_TRACK_BACKOFFICE_DISABLED')) {
-            return;
+            return '';
         }
 
         $js = '';
