@@ -31,6 +31,10 @@ class HookDisplayHeader implements HookInterface
     private $module;
     private $context;
     private $params;
+
+    /**
+     * @var bool
+     */
     private $backOffice;
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
@@ -100,12 +104,18 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * setBackOffice
-     *
-     * @param array $backOffice
+     * @param bool $backOffice
      */
     public function setBackOffice($backOffice)
     {
-        $this->module->backOffice = $backOffice;
+        $this->acknowledgeBackOfficeContext($backOffice);
+    }
+
+    /**
+     * @param bool $isBackOffice
+     */
+    public function acknowledgeBackOfficeContext($isBackOffice)
+    {
+        $this->backOffice = $isBackOffice;
     }
 }
