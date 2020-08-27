@@ -25,8 +25,6 @@ use Module;
 class ModuleHandler
 {
     /**
-     * isModuleEnabled
-     *
      * @param string $moduleName
      *
      * @return bool
@@ -47,12 +45,27 @@ class ModuleHandler
             return false;
         }
 
-        return $module->registerHook('displayHome');
+        return true;
     }
 
     /**
-     * uninstallModule
+     * @param string $moduleName
+     * @param string $hookName
      *
+     * @return bool
+     */
+    public function isModuleEnabledAndHookedOn($moduleName, $hookName)
+    {
+        $module = Module::getInstanceByName($moduleName);
+
+        if (false === $this->isModuleEnabled($moduleName)) {
+            return false;
+        }
+
+        return $module->isRegisteredInHook($hookName);
+    }
+
+    /**
      * @param string $moduleName
      *
      * @return bool
