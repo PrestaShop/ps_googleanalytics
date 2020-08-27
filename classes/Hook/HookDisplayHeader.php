@@ -50,6 +50,10 @@ class HookDisplayHeader implements HookInterface
             return;
         }
 
+        if (Configuration::get('GA_TRACK_BACKOFFICE_DISABLED') && $this->backOffice) {
+            return;
+        }
+
         $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
         $shops = Shop::getShops();
