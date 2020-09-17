@@ -139,7 +139,6 @@ class Ps_Googleanalytics extends Module
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        $output = '';
         $output = $gaTagHandler->generate(
             $this->context->cookie->__get('ga_admin_refund'),
             true
