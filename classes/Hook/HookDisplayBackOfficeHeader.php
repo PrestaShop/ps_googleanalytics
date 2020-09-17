@@ -48,6 +48,10 @@ class HookDisplayBackOfficeHeader implements HookInterface
      */
     public function run()
     {
+        if (Configuration::get('GA_TRACK_BACKOFFICE_DISABLED')) {
+            return '';
+        }
+
         $js = '';
         if (strcmp(Tools::getValue('configure'), $this->module->name) === 0) {
             $this->context->controller->addCSS($this->module->getPathUri() . 'views/css/ganalytics.css');

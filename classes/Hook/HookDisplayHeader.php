@@ -47,7 +47,11 @@ class HookDisplayHeader implements HookInterface
     public function run()
     {
         if (!Configuration::get('GA_ACCOUNT_ID')) {
-            return;
+            return '';
+        }
+
+        if (Configuration::get('GA_TRACK_BACKOFFICE_DISABLED') && $this->backOffice) {
+            return '';
         }
 
         $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');

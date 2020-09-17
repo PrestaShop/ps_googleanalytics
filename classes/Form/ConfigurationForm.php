@@ -127,6 +127,24 @@ class ConfigurationForm
                         ],
                     ],
                 ],
+                [
+                    'type' => 'switch',
+                    'label' => $this->module->l('Disable Back Office Tracking'),
+                    'name' => 'GA_TRACK_BACKOFFICE_DISABLED',
+                    'hint' => $this->module->l('Use this option to disable the tracking inside the Back Office'),
+                    'values' => [
+                        [
+                            'id' => 'ga_track_backoffice',
+                            'value' => 1,
+                            'label' => $this->module->l('Enabled'),
+                        ],
+                        [
+                            'id' => 'ga_do_not_track_backoffice',
+                            'value' => 0,
+                            'label' => $this->module->l('Disabled'),
+                        ],
+                    ],
+                ],
             ],
             'submit' => [
                 'title' => $this->module->l('Save'),
@@ -158,6 +176,7 @@ class ConfigurationForm
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
+        $helper->fields_value['GA_TRACK_BACKOFFICE_DISABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_DISABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -174,6 +193,7 @@ class ConfigurationForm
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
         $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
+        $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_DISABLED');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
@@ -194,6 +214,11 @@ class ConfigurationForm
         if (null !== $gaAnonymizeEnabled) {
             Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Anonymize IP updated successfully'));
+        }
+
+        if (null !== $gaTrackBackOffice) {
+            Configuration::updateValue('GA_TRACK_BACKOFFICE_DISABLED', (bool) $gaTrackBackOffice);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Disable Back Office tracking updated successfully'));
         }
 
         return $treatmentResult;
