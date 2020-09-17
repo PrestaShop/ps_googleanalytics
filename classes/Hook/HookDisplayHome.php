@@ -53,7 +53,7 @@ class HookDisplayHome implements HookInterface
         $gaScripts = '';
 
         // Home featured products
-        if ($moduleHandler->isModuleEnabled('ps_featuredproducts')) {
+        if ($moduleHandler->isModuleEnabledAndHookedOn('ps_featuredproducts', 'displayHome')) {
             $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
             $productWrapper = new ProductWrapper($this->context);
             $homeFeaturedProducts = $productWrapper->wrapProductList(
