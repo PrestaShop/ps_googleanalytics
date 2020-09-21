@@ -209,6 +209,8 @@ class Ps_Googleanalytics extends Module
 
         $moduleHandler->uninstallModule(self::PS_16_EQUIVALENT_MODULE);
 
+        Configuration::updateValue('GA_TRACK_BACKOFFICE_DISABLED', true);
+
         return parent::install() &&
             $database->registerHooks() &&
             $database->installTables();
