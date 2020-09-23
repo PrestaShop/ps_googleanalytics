@@ -77,7 +77,7 @@ class HookDisplayHeader implements HookInterface
         $this->context->smarty->assign(
             [
                 'backOffice' => $this->backOffice,
-                'trackBackOfficeDisabled' => Configuration::get('GA_TRACK_BACKOFFICE_DISABLED'),
+                'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
                 'currentShopId' => $currentShopId,
                 'userId' => $userId,
                 'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
