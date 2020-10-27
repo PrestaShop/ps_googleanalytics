@@ -2,7 +2,7 @@
 
 ## About
 
-This modules integrates Google Analytics into your shop. It allows you to gain clear insights into important metrics about your customers.
+Gain clear insights into important metrics about your customers, using Google Analytics.
 
 To use it, you will need to create a Google Analytics account and insert your Google Analytics Identifier into the Module configuration page.
 
