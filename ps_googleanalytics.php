@@ -91,7 +91,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Confirmation page hook ; to track transactions
+     * Confirmation page hook.
+     * This function is run to track transactions.
      */
     public function hookDisplayOrderConfirmation($params)
     {
