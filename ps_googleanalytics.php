@@ -103,7 +103,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Footer hook ; to load JS script for standards actions such as product clicks
+     * Footer hook.
+     * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayFooter()
     {
@@ -113,7 +114,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Homepage hook ; to manage analytics for product list associated to home featured, news products and best sellers Modules
+     * Homepage hook.
+     * This function is run to manage analytics for product list associated to home featured, news products and best sellers Modules
      */
     public function hookDisplayHome()
     {
@@ -123,7 +125,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Product page footer hook ; to load JS for product details view
+     * Product page footer hook
+     * This function is run to load JS for product details view
      */
     public function hookDisplayFooterProduct($params)
     {
@@ -134,7 +137,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Hook admin order to send transactions and refunds details
+     * Hook admin order.
+     * This function is run to send transactions and refunds details
      */
     public function hookDisplayAdminOrder()
     {
@@ -148,7 +152,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Admin office header hook ; to add google analytics js
+     * Admin office header hook.
+     * This function is run to add Google Analytics JavaScript
      */
     public function hookDisplayBackOfficeHeader()
     {
@@ -158,7 +163,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Product cancel action hook in Back office ; to add google analytics js
+     * Product cancel action hook (in Back office).
+     * This function is run to add Google Analytics JavaScript
      */
     public function hookActionProductCancel($params)
     {
@@ -168,7 +174,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Save cart event hook ; to implement addtocart and remove from cart functionality
+     * Save cart event hook.
+     * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
     public function hookActionCartSave()
     {
