@@ -129,9 +129,9 @@ class ConfigurationForm
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->l('Disable Back Office Tracking'),
-                    'name' => 'GA_TRACK_BACKOFFICE_DISABLED',
-                    'hint' => $this->module->l('Use this option to disable the tracking inside the Back Office'),
+                    'label' => $this->module->l('Enable Back Office Tracking'),
+                    'name' => 'GA_TRACK_BACKOFFICE_ENABLED',
+                    'hint' => $this->module->l('Use this option to enable the tracking inside the Back Office'),
                     'values' => [
                         [
                             'id' => 'ga_track_backoffice',
@@ -176,7 +176,7 @@ class ConfigurationForm
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
-        $helper->fields_value['GA_TRACK_BACKOFFICE_DISABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_DISABLED');
+        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
 
         return $helper->generateForm($fields_form);
     }
@@ -193,7 +193,7 @@ class ConfigurationForm
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
         $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
-        $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_DISABLED');
+        $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_ENABLED');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
@@ -217,8 +217,8 @@ class ConfigurationForm
         }
 
         if (null !== $gaTrackBackOffice) {
-            Configuration::updateValue('GA_TRACK_BACKOFFICE_DISABLED', (bool) $gaTrackBackOffice);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Disable Back Office tracking updated successfully'));
+            Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Enable Back Office tracking updated successfully'));
         }
 
         return $treatmentResult;
