@@ -51,7 +51,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '4.0.0';
+        $this->version = '4.1.0';
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -177,6 +177,16 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
+     * Hook called after order status change, used to "refund" order after cancelling it
+     */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionOrderStatusPostUpdate($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
      * Save cart event hook.
      * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
@@ -222,6 +232,7 @@ class Ps_Googleanalytics extends Module
 
         return parent::install() &&
             $database->registerHooks() &&
+            $database->setDefaultConfiguration() &&
             $database->installTables();
     }
 
