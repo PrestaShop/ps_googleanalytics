@@ -75,7 +75,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     'id_order' => (int) Tools::getValue('id_order'),
                                     'id_shop' => (int) $this->context->shop->id,
                                     'sent' => 0,
-                                    'date_add' => 'NOW()',
+                                    'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
                                 ]
                             );
                         }

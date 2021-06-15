@@ -44,7 +44,7 @@
     {if $gaAnonymizeEnabled}
         ga('set', 'anonymizeIp', true);
     {/if}
-    {if $backOffice}
+    {if $backOffice && !$trackBackOffice}
         ga('set', 'nonInteraction', true);
     {else}
         ga('send', 'pageview');

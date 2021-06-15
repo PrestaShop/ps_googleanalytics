@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
+use Configuration;
 use Db;
 use Ps_Googleanalytics;
 use Shop;
@@ -55,6 +56,7 @@ class Install
             `id_customer` int(10) NOT NULL,
             `id_shop` int(11) NOT NULL,
             `sent` tinyint(1) DEFAULT NULL,
+            `refund_sent` tinyint(1) DEFAULT NULL,
             `date_add` datetime DEFAULT NULL,
             PRIMARY KEY (`id_google_analytics`),
             KEY `id_order` (`id_order`),
@@ -78,6 +80,18 @@ class Install
     }
 
     /**
+     * Insert default data to database
+     *
+     * @return bool
+     */
+    public function setDefaultConfiguration()
+    {
+        Configuration::updateValue('GA_CANCELLED_STATES', json_encode([Configuration::get('PS_OS_CANCELED')]));
+
+        return true;
+    }
+
+    /**
      * Register Module hooks
      *
      * @return bool
@@ -91,6 +105,7 @@ class Install
             $this->module->registerHook('displayFooterProduct') &&
             $this->module->registerHook('displayOrderConfirmation') &&
             $this->module->registerHook('actionProductCancel') &&
+            $this->module->registerHook('actionOrderStatusPostUpdate') &&
             $this->module->registerHook('actionCartSave') &&
             $this->module->registerHook('displayBackOfficeHeader') &&
             $this->module->registerHook('actionCarrierProcess');

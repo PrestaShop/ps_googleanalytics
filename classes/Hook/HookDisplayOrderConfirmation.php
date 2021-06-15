@@ -66,7 +66,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                         'id_order' => (int) $order->id,
                         'id_shop' => (int) $this->context->shop->id,
                         'sent' => 0,
-                        'date_add' => 'NOW()',
+                        'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
                     ]
                 );
 

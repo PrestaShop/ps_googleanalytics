@@ -22,7 +22,9 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
 use AdminController;
 use Configuration;
+use Context;
 use HelperForm;
+use OrderState;
 use Ps_Googleanalytics;
 use Shop;
 use Tools;
@@ -101,12 +103,12 @@ class ConfigurationForm
                         [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled'),
+                            'label' => $this->module->l('Yes'),
                         ],
                         [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled'),
+                            'label' => $this->module->l('No'),
                         ], ],
                 ],
                 [
@@ -118,13 +120,44 @@ class ConfigurationForm
                         [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled'),
+                            'label' => $this->module->l('Yes'),
                         ],
                         [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled'),
+                            'label' => $this->module->l('No'),
                         ],
+                    ],
+                ],
+                [
+                    'type' => 'switch',
+                    'label' => $this->module->l('Enable Back Office Tracking'),
+                    'name' => 'GA_TRACK_BACKOFFICE_ENABLED',
+                    'hint' => $this->module->l('Use this option to enable the tracking inside the Back Office'),
+                    'values' => [
+                        [
+                            'id' => 'ga_track_backoffice',
+                            'value' => 1,
+                            'label' => $this->module->l('Yes'),
+                        ],
+                        [
+                            'id' => 'ga_do_not_track_backoffice',
+                            'value' => 0,
+                            'label' => $this->module->l('No'),
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'select',
+                    'label' => $this->module->l('Cancelled order states'),
+                    'name' => 'GA_CANCELLED_STATES',
+                    'desc' => $this->module->l('Choose order states, in which you consider the given order cancelled. This will be usually only the default "Cancelled" state, but some shops may have extra states like "Returned" etc.'),
+                    'class' => 'chosen',
+                    'multiple' => true,
+                    'options' => [
+                        'query' => OrderState::getOrderStates((int) Context::getContext()->language->id),
+                        'id' => 'id_order_state',
+                        'name' => 'name',
                     ],
                 ],
             ],
@@ -142,12 +175,12 @@ class ConfigurationForm
                     [
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->module->l('Enabled'),
+                        'label' => $this->module->l('Yes'),
                     ],
                     [
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->module->l('Disabled'),
+                         'label' => $this->module->l('No'),
                     ],
                 ],
             ];
@@ -158,6 +191,8 @@ class ConfigurationForm
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
+        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
+        $helper->fields_value['GA_CANCELLED_STATES[]'] = json_decode(Configuration::get('GA_CANCELLED_STATES'), true);
 
         return $helper->generateForm($fields_form);
     }
@@ -174,6 +209,8 @@ class ConfigurationForm
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
         $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
+        $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_ENABLED');
+        $gaCancelledStates = Tools::getValue('GA_CANCELLED_STATES');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
@@ -195,6 +232,18 @@ class ConfigurationForm
             Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
             $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Anonymize IP updated successfully'));
         }
+
+        if (null !== $gaTrackBackOffice) {
+            Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for Enable Back Office tracking updated successfully'));
+        }
+
+        if ($gaCancelledStates === false) {
+            Configuration::updateValue('GA_CANCELLED_STATES', '');
+        } else {
+            Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
+        }
+        $treatmentResult .= $this->module->displayConfirmation($this->module->l('Settings for cancelled order states updated successfully'));
 
         return $treatmentResult;
     }

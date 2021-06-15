@@ -28,11 +28,3 @@
     </script>
     {/literal}
 {/if}
-
-{if ($jsState != 1 && $isBackoffice === true)}
-    {literal}
-    <script type="text/javascript">
-        ga('send', 'pageview');
-    </script>
-    {/literal}
-{/if}

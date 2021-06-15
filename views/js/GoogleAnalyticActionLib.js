@@ -76,22 +76,19 @@ var GoogleAnalyticEnhancedECommerce = {
 	addToCart: function(Product) {
 		this.add(Product);
 		ga('ec:setAction', 'add');
-		ga('send', 'event', 'UX', 'click', 'Add to Cart'); // Send data using an event.
+		ga('send', 'event', 'UX', 'click', 'Add to Cart');
 	},
 
 	removeFromCart: function(Product) {
 		this.add(Product);
 		ga('ec:setAction', 'remove');
-		ga('send', 'event', 'UX', 'click', 'Remove From cart'); // Send data using an event.
+		ga('send', 'event', 'UX', 'click', 'Remove From cart');
 	},
 
 	addProductImpression: function(Product) {
-		//ga('send', 'pageview');
 	},
 
-	/**
-	id, type, affiliation, revenue, tax, shipping and coupon.
-	**/
+
 	refundByOrderId: function(Order) {
 		/**
 		 * Refund an entire transaction.
@@ -103,11 +100,6 @@ var GoogleAnalyticEnhancedECommerce = {
 	},
 
 	refundByProduct: function(Order) {
-		/**
-		 * Refund a single product.
-		 **/
-		//this.add(Product);
-
 		ga('ec:setAction', 'refund', {
 			'id': Order.id, // Transaction ID is required for partial refund.
 		});
@@ -148,8 +140,6 @@ var GoogleAnalyticEnhancedECommerce = {
 	},
 
 	addTransaction: function(Order) {
-
-		//this.add(Product);
 		ga('ec:setAction', 'purchase', Order);
 		ga('send', 'event','Transaction','purchase', {
 			'hitCallback': function() {
