@@ -103,12 +103,12 @@ class ConfigurationForm
                         [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled'),
+                            'label' => $this->module->l('Yes'),
                         ],
                         [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled'),
+                            'label' => $this->module->l('No'),
                         ], ],
                 ],
                 [
@@ -120,12 +120,12 @@ class ConfigurationForm
                         [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled'),
+                            'label' => $this->module->l('Yes'),
                         ],
                         [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled'),
+                            'label' => $this->module->l('No'),
                         ],
                     ],
                 ],
@@ -138,12 +138,12 @@ class ConfigurationForm
                         [
                             'id' => 'ga_track_backoffice',
                             'value' => 1,
-                            'label' => $this->module->l('Enabled'),
+                            'label' => $this->module->l('Yes'),
                         ],
                         [
                             'id' => 'ga_do_not_track_backoffice',
                             'value' => 0,
-                            'label' => $this->module->l('Disabled'),
+                            'label' => $this->module->l('No'),
                         ],
                     ],
                 ],
@@ -175,12 +175,12 @@ class ConfigurationForm
                     [
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->module->l('Enabled'),
+                        'label' => $this->module->l('Yes'),
                     ],
                     [
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->module->l('Disabled'),
+                         'label' => $this->module->l('No'),
                     ],
                 ],
             ];
