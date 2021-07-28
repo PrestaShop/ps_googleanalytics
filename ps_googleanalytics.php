@@ -51,7 +51,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '4.0.0';
+        $this->version = '4.1.0';
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -66,7 +66,7 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * back office module configuration page content
+     * Back office module configuration page content
      */
     public function getContent()
     {
@@ -91,7 +91,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * To track transactions
+     * Confirmation page hook.
+     * This function is run to track transactions.
      */
     public function hookDisplayOrderConfirmation($params)
     {
@@ -102,7 +103,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook footer to load JS script for standards actions such as product clicks
+     * Footer hook.
+     * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayFooter()
     {
@@ -112,7 +114,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook home to display generate the product list associated to home featured, news products and best sellers Modules
+     * Homepage hook.
+     * This function is run to manage analytics for product list associated to home featured, news products and best sellers Modules
      */
     public function hookDisplayHome()
     {
@@ -122,7 +125,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook product page footer to load JS for product details view
+     * Product page footer hook
+     * This function is run to load JS for product details view
      */
     public function hookDisplayFooterProduct($params)
     {
@@ -133,21 +137,26 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Hook admin order to send transactions and refunds details
+     * Hook admin order.
+     * This function is run to send transactions and refunds details
      */
     public function hookDisplayAdminOrder()
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        echo $gaTagHandler->generate(
+        $output = $gaTagHandler->generate(
             $this->context->cookie->__get('ga_admin_refund'),
             true
         );
         $this->context->cookie->__unset('ga_admin_refund');
+        $this->context->cookie->write();
+
+        return $output;
     }
 
     /**
-     *  admin office header to add google analytics js
+     * Admin office header hook.
+     * This function is run to add Google Analytics JavaScript
      */
     public function hookDisplayBackOfficeHeader()
     {
@@ -157,7 +166,8 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Hook admin office header to add google analytics js
+     * Product cancel action hook (in Back office).
+     * This function is run to add Google Analytics JavaScript
      */
     public function hookActionProductCancel($params)
     {
@@ -167,7 +177,18 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * hook save cart event to implement addtocart and remove from cart functionality
+     * Hook called after order status change, used to "refund" order after cancelling it
+     */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionOrderStatusPostUpdate($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
+     * Save cart event hook.
+     * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
     public function hookActionCartSave()
     {
@@ -196,9 +217,9 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * This method is trigger at the installation of the module
-     * - install all module tables
-     * - register hook used by the module.
+     * This method is triggered at the installation of the module
+     * - it installs all module tables
+     * - it registers the hooks used by this module
      *
      * @return bool
      */
@@ -211,12 +232,13 @@ class Ps_Googleanalytics extends Module
 
         return parent::install() &&
             $database->registerHooks() &&
+            $database->setDefaultConfiguration() &&
             $database->installTables();
     }
 
     /**
      * Triggered at the uninstall of the module
-     * - erase tables
+     * - erases this module SQL tables
      *
      * @return bool
      */

@@ -4,17 +4,24 @@
 
 Gain clear insights into important metrics about your customers, using Google Analytics.
 
-## Notes
+To use it, you will need to create a Google Analytics account and insert your Google Analytics Identifier into the Module configuration page.
 
-Enhanced Ecommerce must be enabled in Google Analytics settings for full functionality. Otherwise, some data (refunds etc.) will not be visible. Follow [instructions][4].
+### Notes
 
-Google Tag Assistant will report "No HTTP Response detected" error in Prestashop back-office. **This is not a bug.** This happens, because the module does not send page views in BO, not to influence statistics. Only events, like refunds, are sent from BO.
+Enhanced Ecommerce must be enabled in Google Analytics settings for full functionality. Otherwise, some data (refunds etc.) will not be visible. Follow [the related instructions][4].
+
+### Configure
+
+1. Install the module into your shop.
+2. Create an account on Google Analytics if you do not have one.
+3. Go on the "Configure" page of the module to insert your Google Analytics Identifier.
+4. The data will then be sent to Google Analytics and you can monitor/explore it.
 
 ## Contributing
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 1.7 and 1.6
+Google Analytics is compatible with all versions of PrestaShop 1.7 and 1.6.
 
 ### Requirements
 

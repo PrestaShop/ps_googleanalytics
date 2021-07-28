@@ -31,6 +31,10 @@ class HookDisplayHeader implements HookInterface
     private $module;
     private $context;
     private $params;
+
+    /**
+     * @var bool
+     */
     private $backOffice;
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
@@ -47,7 +51,7 @@ class HookDisplayHeader implements HookInterface
     public function run()
     {
         if (!Configuration::get('GA_ACCOUNT_ID')) {
-            return;
+            return '';
         }
 
         $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
@@ -73,6 +77,7 @@ class HookDisplayHeader implements HookInterface
         $this->context->smarty->assign(
             [
                 'backOffice' => $this->backOffice,
+                'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
                 'currentShopId' => $currentShopId,
                 'userId' => $userId,
                 'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
@@ -100,12 +105,18 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * setBackOffice
-     *
-     * @param array $backOffice
+     * @param bool $backOffice
      */
     public function setBackOffice($backOffice)
     {
-        $this->module->backOffice = $backOffice;
+        $this->acknowledgeBackOfficeContext($backOffice);
+    }
+
+    /**
+     * @param bool $isBackOffice
+     */
+    public function acknowledgeBackOfficeContext($isBackOffice)
+    {
+        $this->backOffice = $isBackOffice;
     }
 }

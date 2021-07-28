@@ -27,6 +27,8 @@ use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 use Tools;
 
 class HookDisplayFooter implements HookInterface
@@ -69,6 +71,11 @@ class HookDisplayFooter implements HookInterface
                     } elseif ($gacart['quantity'] < 0) {
                         $gacart['quantity'] = abs($gacart['quantity']);
                         $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
+                    }
+                } elseif (is_array($gacart)) {
+                    $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
+                    foreach ($it as $v) {
+                        $gaScripts .= $v;
                     }
                 } else {
                     $gaScripts .= $gacart;
