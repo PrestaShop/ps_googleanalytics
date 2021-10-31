@@ -35,3 +35,7 @@
 	margin: 1em;
 	width: 60px;
 }
+
+#google_analytics_content img {
+    max-width: 100%;
+}
