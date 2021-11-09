@@ -27,9 +27,15 @@
 
 #advantages_list .col-xs-6 {
 	height:5em;
+	display: flex;
+	align-items: center;
 }
 
 #advantages_list div > img {
 	margin: 1em;
 	width: 60px;
+}
+
+#google_analytics_content img {
+    max-width: 100%;
 }
