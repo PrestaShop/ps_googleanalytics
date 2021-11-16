@@ -1,0 +1,4 @@
+Salve, abbiamo un problema con google analytics non vediamo più gli aggiornamenti alle visite del nostro sito.
+Il problema e che abbiamo un ID "G-".
+Vorremmo che la piattaforma supportasse le proprietà Google Analytics 4 tramite il più recente tag globale del sito di Google. https://developers.google.com/analytics/devguides/migration/ua/analyticsjs-to-gtagjs
+Come possiamo risolvere il problema?
