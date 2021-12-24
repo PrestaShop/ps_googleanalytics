@@ -90,7 +90,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                             if (!empty($transaction)) {
                                 $ganalyticsRepository->updateData(
                                     [
-                                        'date_add' => 'NOW()',
+                                        'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
                                         'sent' => 1,
                                     ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
