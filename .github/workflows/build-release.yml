@@ -1,5 +1,4 @@
-name: Build & Release draft
-
+name: Build
 on: [push, pull_request]
 
 jobs:
@@ -9,19 +8,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
-
       - name: Install composer dependencies
         run: composer install --no-dev -o
-
       - name: Clean-up project
         uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
-
+      - name: Prepare auto-index tool
+        run: |
+          composer global require prestashop/autoindex
+      - name: Generate index.php
+        run: |
+          ~/.composer/vendor/bin/autoindex
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: ${{ github.event.repository.name }}
           path: ../
-
   update_release_draft:
     runs-on: ubuntu-latest
     needs: [deploy]
@@ -31,17 +32,14 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: ${{ github.event.repository.name }}
-
       - id: release_info
         uses: toolmantim/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Prepare for Release
         run: |
           cd ${{ github.event.repository.name }}
           zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
-
       - name: Clean existing assets
         shell: bash
         run: |
@@ -49,11 +47,10 @@ jobs:
           assets=`bin/hub api -t repos/${{ github.repository }}/releases/${{ steps.release_info.outputs.id }}/assets | awk '/\].url/ { print $2 }'`
           for asset in $assets
           do
-            bin/hub api -X DELETE $asset
+              bin/hub api -X DELETE $asset
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Publish to GitHub Release
         uses: actions/upload-release-asset@v1.0.1
         env:
