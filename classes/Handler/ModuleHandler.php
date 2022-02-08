@@ -33,7 +33,7 @@ class ModuleHandler
     {
         $module = Module::getInstanceByName($moduleName);
 
-        if (false === $module) {
+        if (!($module instanceof Module)) {
             return false;
         }
 
@@ -78,7 +78,7 @@ class ModuleHandler
 
         $oldModule = Module::getInstanceByName($moduleName);
 
-        if (false === $oldModule) {
+        if (!($oldModule instanceof Module)) {
             return false;
         }
 
