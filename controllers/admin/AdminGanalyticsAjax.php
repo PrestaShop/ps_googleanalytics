@@ -33,7 +33,7 @@ class AdminGanalyticsAjaxController extends ModuleAdminController
             (new GanalyticsRepository())->updateData(
                 [
                     'sent' => 1,
-                    'date_add' => 'NOW()',
+                    'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
                 ],
                 'id_order = ' . $orderId
             );

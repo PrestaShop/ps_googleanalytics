@@ -21,9 +21,11 @@
     {literal}
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            var MBG = GoogleAnalyticEnhancedECommerce;
-            MBG.setCurrency('{/literal}{$isoCode|escape:'htmlall':'UTF-8'}{literal}');
-            {/literal}{$jsCode nofilter}{literal}
+            if (typeof GoogleAnalyticEnhancedECommerce !== 'undefined') {
+                var MBG = GoogleAnalyticEnhancedECommerce;
+                MBG.setCurrency('{/literal}{$isoCode|escape:'htmlall':'UTF-8'}{literal}');
+                {/literal}{$jsCode nofilter}{literal}
+            }
         });
     </script>
     {/literal}

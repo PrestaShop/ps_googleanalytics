@@ -87,7 +87,7 @@ class HookDisplayFooter implements HookInterface
 
         $listing = $this->context->smarty->getTemplateVars('listing');
         $productWrapper = new ProductWrapper($this->context);
-        $products = $productWrapper->wrapProductList($listing['products'], [], true);
+        $products = $productWrapper->wrapProductList(isset($listing['products']) ? $listing['products'] : [], [], true);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
             $this->module->js_state = 1;
