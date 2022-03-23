@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Context;
 use OrderDetail;
 use Ps_Googleanalytics;
-use Tools;
 
 class HookActionProductCancel implements HookInterface
 {
@@ -44,19 +43,18 @@ class HookActionProductCancel implements HookInterface
      */
     public function run()
     {
-        $quantityRefunded = Tools::getValue('cancelQuantity');
-        $gaScripts = '';
-
-        foreach ($quantityRefunded as $orderDetailId => $quantity) {
-            // Display GA refund product
-            $orderDetail = new OrderDetail($orderDetailId);
-            $gaScripts .= 'MBG.add(' . json_encode(
-                [
-                    'id' => empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id,
-                    'quantity' => $quantity,
-                ])
-                . ');';
+        if (!isset($this->params['id_order_detail']) || !isset($this->params['cancel_quantity'])) {
+            return;
         }
+
+        // Display GA refund product
+        $orderDetail = new OrderDetail($this->params['id_order_detail']);
+        $gaScripts = 'MBG.add(' . json_encode(
+            [
+                'id' => empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id,
+                'quantity' => $this->params['cancel_quantity'],
+            ])
+            . ');';
 
         $this->context->cookie->__set(
             'ga_admin_refund',
