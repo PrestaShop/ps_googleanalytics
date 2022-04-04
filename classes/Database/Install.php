@@ -101,7 +101,6 @@ class Install
         return $this->module->registerHook('displayHeader') &&
             $this->module->registerHook('displayAdminOrder') &&
             $this->module->registerHook('displayFooter') &&
-            $this->module->registerHook('displayHome') &&
             $this->module->registerHook('displayFooterProduct') &&
             $this->module->registerHook('displayOrderConfirmation') &&
             $this->module->registerHook('actionProductCancel') &&

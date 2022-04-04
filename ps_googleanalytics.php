@@ -117,17 +117,6 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Homepage hook.
-     * This function is run to manage analytics for product list associated to home featured, news products and best sellers Modules
-     */
-    public function hookDisplayHome()
-    {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHome($this, $this->context);
-
-        return $hook->run();
-    }
-
-    /**
      * Product page footer hook
      * This function is run to load JS for product details view
      */

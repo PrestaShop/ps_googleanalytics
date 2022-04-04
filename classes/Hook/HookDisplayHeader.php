@@ -20,16 +20,31 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Category;
 use Configuration;
 use Context;
+use Customer;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use Shop;
 use Tools;
 
 class HookDisplayHeader implements HookInterface
 {
+    /**
+     * @var Ps_Googleanalytics
+     */
     private $module;
+    /**
+     * @var Context
+     */
     private $context;
+    /**
+     * @var mixed
+     */
     private $params;
 
     /**
@@ -44,9 +59,7 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * run
-     *
-     * @return void|string
+     * @return false|string
      */
     public function run()
     {
@@ -62,8 +75,9 @@ class HookDisplayHeader implements HookInterface
         $userId = null;
         $gaCrossdomainEnabled = false;
 
-        if (Configuration::get('GA_USERID_ENABLED') &&
-            $this->context->customer && $this->context->customer->isLogged()
+        if (Configuration::get('GA_USERID_ENABLED')
+            && $this->context->customer instanceof Customer
+            && $this->context->customer->isLogged()
         ) {
             $userId = (int) $this->context->customer->id;
         }
@@ -91,6 +105,38 @@ class HookDisplayHeader implements HookInterface
         return $this->module->display(
             $this->module->getLocalPath() . $this->module->name,
             'ps_googleanalytics.tpl'
+        ) . $this->displayGaTag();
+    }
+
+    private function displayGaTag()
+    {
+        $moduleHandler = new ModuleHandler();
+        $gaTools = new GoogleAnalyticsTools();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+        $gaScripts = '';
+
+        // Home featured products
+        if ($moduleHandler->isModuleEnabledAndHookedOn('ps_featuredproducts', 'displayHome')
+            && $this->context->customer instanceof Customer) {
+            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
+            $productWrapper = new ProductWrapper($this->context);
+            $homeFeaturedProducts = $productWrapper->wrapProductList(
+                $category->getProducts(
+                    (int) $this->context->language->id,
+                    1,
+                    (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
+                    'position'
+                ),
+                [],
+                true
+            );
+            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts) . $gaTools->addProductClick($homeFeaturedProducts);
+        }
+
+        $this->module->js_state = 1;
+
+        return $gaTagHandler->generate(
+            $gaTools->filter($gaScripts, $this->module->filterable)
         );
     }
 
@@ -101,7 +147,7 @@ class HookDisplayHeader implements HookInterface
      */
     public function setParams($params)
     {
-        $this->module->params = $params;
+        $this->params = $params;
     }
 
     /**
