@@ -61,14 +61,14 @@ class Install
             PRIMARY KEY (`id_google_analytics`),
             KEY `id_order` (`id_order`),
             KEY `sent` (`sent`)
-        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1';
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'ganalytics_data` (
             `id_cart` int(11) NOT NULL,
             `id_shop` int(11) NOT NULL,
             `data` TEXT DEFAULT NULL,
             PRIMARY KEY (`id_cart`)
-        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4';
 
         foreach ($sql as $query) {
             if (!Db::getInstance()->execute($query)) {
