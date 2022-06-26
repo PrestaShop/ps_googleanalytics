@@ -72,10 +72,10 @@ class ConfigurationForm
             'save' => [
                 'desc' => $this->module->l('Save'),
                 'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save=' . $this->module->name .
-                '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                '&token=' . $helper->token,
             ],
             'back' => [
-                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                'href' => AdminController::$currentIndex . '&token=' . $helper->token,
                 'desc' => $this->module->l('Back to list'),
             ],
         ];
