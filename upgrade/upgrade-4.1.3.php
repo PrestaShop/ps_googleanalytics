@@ -26,5 +26,6 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_4_1_3($object)
 {
-    return $object->unregisterHook('displayHome');
+    return $object->unregisterHook('displayHome') 
+        && Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'ganalytics` CHARACTER SET = utf8mb4 COLLATE utf8mb4_general_ci;');
 }
