@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
@@ -47,7 +48,8 @@ class HookDisplayFooterProduct implements HookInterface
      */
     public function run()
     {
-        $gaTools = new GoogleAnalyticsTools();
+        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+        $gaTools = new GoogleAnalyticsTools($isV4Enabled);
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $controllerName = Tools::getValue('controller');
 
@@ -59,12 +61,10 @@ class HookDisplayFooterProduct implements HookInterface
             $this->params['product'] = (array) $this->params['product'];
         }
         // Add product view
-        $productWrapper = new ProductWrapper($this->context);
-        $gaProduct = $productWrapper->wrapProduct($this->params['product'], null, 0, true);
-        $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
-
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct]);
+        if ($isV4Enabled) {
+            $js = $this->getGoogleAnalytics4($gaTools);
+        } else {
+            $js = $this->getUniversalAnalytics($gaTools);
         }
 
         $this->module->js_state = 1;
@@ -80,5 +80,54 @@ class HookDisplayFooterProduct implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
+    }
+
+    protected function getUniversalAnalytics(GoogleAnalyticsTools $gaTools)
+    {
+        $gaProduct = $this->getProduct();
+
+        $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
+            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+        }
+
+        return $js;
+    }
+
+    protected function getGoogleAnalytics4(GoogleAnalyticsTools $gaTools)
+    {
+        $gaProduct = $this->getProduct();
+
+        $js = 'gtag("event", "view_item", {
+            currency: "' . $this->context->currency->iso_code . '",
+            value: ' . $this->params['product']['price_amount'] . ',
+            items: [
+              {
+                item_id: "' . $gaProduct['id'] . '",
+                item_name: "' . $this->params['product']['name'] . '",
+                currency: "' . $this->context->currency->iso_code . '",
+                item_brand: "' . $this->params['product']['manufacturer_name'] . '",
+                item_category: "' . $this->params['product']['category_name'] . '",
+                price: ' . $this->params['product']['price_amount'] . ',
+                quantity: ' . $gaProduct['quantity'] . '
+              }
+            ]
+          });';
+
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
+            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+        }
+
+        return $js;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getProduct()
+    {
+        $productWrapper = new ProductWrapper($this->context);
+
+        return $productWrapper->wrapProduct($this->params['product'], null, 0, true);
     }
 }

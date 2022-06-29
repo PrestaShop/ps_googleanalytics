@@ -24,7 +24,8 @@ if (!defined('_PS_VERSION_')) {
 /**
  * @param Ps_Googleanalytics $object
  */
-function upgrade_module_4_1_3($object)
+function upgrade_module_4_2_0($object)
 {
-    return $object->unregisterHook('displayHome');
+    return Configuration::updateValue('GA_V4_ENABLED', false)
+        && $object->unregisterHook('displayHome');
 }

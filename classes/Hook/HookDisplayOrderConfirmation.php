@@ -73,7 +73,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                 if ($order->id_customer == $this->context->cookie->id_customer) {
                     $orderProducts = [];
                     $cart = new Cart($order->id_cart);
-                    $gaTools = new GoogleAnalyticsTools();
+                    $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+                    $gaTools = new GoogleAnalyticsTools($isV4Enabled);
                     $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                     $productWrapper = new ProductWrapper($this->context);
 
@@ -81,7 +82,14 @@ class HookDisplayOrderConfirmation implements HookInterface
                         $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
                     }
 
-                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
+                    if ($isV4Enabled) {
+                        $gaScripts = 'gtag("event", "add_payment_info", {
+                            currency: "' . $this->context->currency->iso_code . '",
+                            payment_type: "' . $order->payment . '"
+                          });';
+                    } else {
+                        $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
+                    }
                     $transaction = [
                         'id' => $order->id,
                         'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),

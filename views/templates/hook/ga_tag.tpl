@@ -17,9 +17,14 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
-{if (!empty($jsCode))}
-    {literal}
-    <script type="text/javascript">
+ {if (!empty($jsCode))}
+<script type="text/javascript">
+    {if $isV4Enabled}
+      {literal}document.addEventListener('DOMContentLoaded', function() {{/literal}
+        {$jsCode nofilter}
+      {literal}});{/literal}
+    {else}
+        {literal}
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof GoogleAnalyticEnhancedECommerce !== 'undefined') {
                 var MBG = GoogleAnalyticEnhancedECommerce;
@@ -27,6 +32,7 @@
                 {/literal}{$jsCode nofilter}{literal}
             }
         });
-    </script>
-    {/literal}
+        {/literal}
+    {/if}
+</script>
 {/if}

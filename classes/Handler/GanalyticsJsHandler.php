@@ -40,19 +40,17 @@ class GanalyticsJsHandler
      * Generate Google Analytics js
      *
      * @param string $jsCode
-     * @param bool $isBackoffice
      *
      * @return void|string
      */
-    public function generate($jsCode, $isBackoffice = false)
+    public function generate($jsCode)
     {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->smarty->assign(
                 [
+                    'isV4Enabled' => (bool) Configuration::get('GA_V4_ENABLED'),
                     'jsCode' => $jsCode,
                     'isoCode' => Tools::safeOutput($this->context->currency->iso_code),
-                    'jsState' => $this->module->js_state,
-                    'isBackoffice' => $isBackoffice,
                 ]
             );
 

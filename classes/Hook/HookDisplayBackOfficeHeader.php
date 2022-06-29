@@ -85,6 +85,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
                     if ($gaOrderRecords) {
                         $orderWrapper = new OrderWrapper($this->context);
+                        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
                         foreach ($gaOrderRecords as $row) {
                             $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
@@ -95,15 +96,25 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
                                 );
-                                $transaction = json_encode($transaction);
-                                $gaScripts .= 'MBG.addTransaction(' . $transaction . ');';
+                                if ($isV4Enabled) {
+                                    $gaScripts .= 'gtag("event", "purchase", {
+                                        transaction_id: "' . $transaction['id'] . '",
+                                        affiliation: "' . $transaction['affiliation'] . '",
+                                        value: ' . $transaction['revenue'] . ',
+                                        tax: ' . $transaction['tax'] . ',
+                                        shipping: ' . $transaction['shipping'] . ',
+                                        currency: "' . $this->context->currency->iso_code . '"
+                                    });';
+                                } else {
+                                    $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
+                                }
                             }
                         }
                     }
                 }
             }
 
-            return $js . $this->module->hookdisplayHeader(null, true) . $gaTagHandler->generate($gaScripts, true);
+            return $js . $this->module->hookDisplayHeader(null, true) . $gaTagHandler->generate($gaScripts);
         }
 
         return $js;
