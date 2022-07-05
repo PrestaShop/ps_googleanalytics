@@ -26,30 +26,6 @@ class ModuleHandler
 {
     /**
      * @param string $moduleName
-     *
-     * @return bool
-     */
-    public function isModuleEnabled($moduleName)
-    {
-        $module = Module::getInstanceByName($moduleName);
-
-        if (!($module instanceof Module)) {
-            return false;
-        }
-
-        if (false === Module::isInstalled($moduleName)) {
-            return false;
-        }
-
-        if (false === $module->active) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $moduleName
      * @param string $hookName
      *
      * @return bool
@@ -57,12 +33,7 @@ class ModuleHandler
     public function isModuleEnabledAndHookedOn($moduleName, $hookName)
     {
         $module = Module::getInstanceByName($moduleName);
-
-        if (false === $this->isModuleEnabled($moduleName)) {
-            return false;
-        }
-
-        return $module->isRegisteredInHook($hookName);
+        return Module::isEnabled($moduleName) && $module->isRegisteredInHook($hookName);
     }
 
     /**
