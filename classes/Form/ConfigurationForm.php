@@ -205,7 +205,7 @@ class ConfigurationForm
     public function treat()
     {
         // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();        
+        $is_multistore_active = Shop::isFeatureActive();
         
         $treatmentResult = '';
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
