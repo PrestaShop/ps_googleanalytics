@@ -206,7 +206,7 @@ class ConfigurationForm
     {
         // Check if multistore is active
         $is_multistore_active = Shop::isFeatureActive();
-        
+
         $treatmentResult = '';
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
