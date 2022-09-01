@@ -241,4 +241,21 @@ class Ps_Googleanalytics extends Module
         return parent::uninstall() &&
             $database->uninstallTables();
     }
+
+    /**
+     * Intermediate method added only to keep backward compatibility with PrestaShop 1.6
+     *
+     * @param string $id
+     * @param array $parameters
+     * @param string|null $domain
+     * @param string|null $locale
+     */
+    protected function trans($id, array $parameters = [], $domain = null, $locale = null)
+    {
+        if (method_exists('Module', 'trans')) {
+            return parent::trans($id, $parameters, $domain, $locale);
+        } else {
+            return $this->l($id);
+        }
+    }
 }
