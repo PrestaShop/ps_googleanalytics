@@ -62,9 +62,9 @@ class Ps_Googleanalytics extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Google Analytics');
-        $this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
+        $this->displayName = $this->trans('Google Analytics', [], 'Modules.GAnalytics.Admin');
+        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.GAnalytics.Admin');
+        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.GAnalytics.Admin');
         $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
     }
 
