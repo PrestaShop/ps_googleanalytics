@@ -62,9 +62,9 @@ class Ps_Googleanalytics extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Google Analytics');
-        $this->description = $this->l('Gain clear insights into important metrics about your customers, using Google Analytics');
-        $this->confirmUninstall = $this->l('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.');
+        $this->displayName = $this->trans('Google Analytics', [], 'Modules.GAnalytics.Admin');
+        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.GAnalytics.Admin');
+        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.GAnalytics.Admin');
         $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
     }
 
@@ -240,5 +240,22 @@ class Ps_Googleanalytics extends Module
 
         return parent::uninstall() &&
             $database->uninstallTables();
+    }
+
+    /**
+     * Intermediate method added only to keep backward compatibility with PrestaShop 1.6
+     *
+     * @param string $id
+     * @param array $parameters
+     * @param string|null $domain
+     * @param string|null $locale
+     */
+    protected function trans($id, array $parameters = [], $domain = null, $locale = null)
+    {
+        if (method_exists('Module', 'trans')) {
+            return parent::trans($id, $parameters, $domain, $locale);
+        } else {
+            return $this->l($id);
+        }
     }
 }
