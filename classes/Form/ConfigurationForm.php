@@ -228,7 +228,7 @@ class ConfigurationForm
 
         if ($is_multistore_active) {
             Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Cross-Domain updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaAnonymizeEnabled) {
