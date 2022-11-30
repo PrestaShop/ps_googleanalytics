@@ -204,6 +204,9 @@ class ConfigurationForm
      */
     public function treat()
     {
+        // Check if multistore is active
+        $is_multistore_active = Shop::isFeatureActive();
+
         $treatmentResult = '';
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
@@ -223,9 +226,9 @@ class ConfigurationForm
             $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
-        if (null !== $gaCrossdomainEnabled) {
+        if ($is_multistore_active) {
             Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Cross-Domain updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaAnonymizeEnabled) {
