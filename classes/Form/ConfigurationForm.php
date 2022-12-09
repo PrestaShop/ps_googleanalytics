@@ -149,9 +149,9 @@ class ConfigurationForm
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->module->getTranslator()->trans('Cancelled order states', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Canceled order states', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_CANCELLED_STATES',
-                    'desc' => $this->module->getTranslator()->trans('Choose order states, in which you consider the given order cancelled. This will be usually only the default "Cancelled" state, but some shops may have extra states like "Returned" etc.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Choose order states, in which you consider the given order canceled. This will usually be the default "Canceled" state, but some shops may have extra states like "Returned" etc.', [], 'Modules.GAnalytics.Admin'),
                     'class' => 'chosen',
                     'multiple' => true,
                     'options' => [
@@ -238,7 +238,7 @@ class ConfigurationForm
 
         if (null !== $gaTrackBackOffice) {
             Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Enable Back Office tracking updated successfully', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Enable Back Office tracking updated successfully.', [], 'Modules.GAnalytics.Admin'));
         }
 
         if ($gaCancelledStates === false) {
@@ -246,7 +246,7 @@ class ConfigurationForm
         } else {
             Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
         }
-        $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for cancelled order states updated successfully', [], 'Modules.GAnalytics.Admin'));
+        $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for canceled order states updated successfully.', [], 'Modules.GAnalytics.Admin'));
 
         return $treatmentResult;
     }
