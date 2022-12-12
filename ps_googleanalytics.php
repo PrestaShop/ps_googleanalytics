@@ -250,7 +250,7 @@ class Ps_Googleanalytics extends Module
      * @param string|null $domain
      * @param string|null $locale
      */
-    protected function trans($id, array $parameters = [], $domain = null, $locale = null)
+    public function trans($id, array $parameters = [], $domain = null, $locale = null)
     {
         if (method_exists('Module', 'trans')) {
             return parent::trans($id, $parameters, $domain, $locale);
