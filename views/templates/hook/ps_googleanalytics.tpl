@@ -17,6 +17,19 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
+{if preg_match('/^(G-)(.*)$/ixs', $gaAccountId)}
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={$gaAccountId|escape:'htmlall':'UTF-8'}"></script>
+{literal}
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+{/literal}
+
+  gtag('config', '{$gaAccountId|escape:"htmlall":"UTF-8"}');
+</script>
+{else}
 {literal}
 <script type="text/javascript">
 	(window.gaDevIds=window.gaDevIds||[]).push('d6YPbH');
@@ -53,3 +66,4 @@
     ga('require', 'ec');
 </script>
 {/literal}
+{/if}
