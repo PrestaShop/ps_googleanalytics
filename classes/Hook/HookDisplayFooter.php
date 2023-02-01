@@ -30,6 +30,7 @@ use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
+use Shop;
 use Tools;
 
 class HookDisplayFooter implements HookInterface
@@ -77,7 +78,7 @@ class HookDisplayFooter implements HookInterface
                                   {
                                     item_id: "' . $gacart['id'] . '",
                                     item_name: "' . $gacart['name'] . '",
-                                    affiliation: "Google Merchandise Store",
+                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
                                     currency: "' . $this->context->currency->iso_code . '",
                                     index: ' . $key . ',
                                     item_brand: "' . $gacart['brand'] . '",
@@ -101,7 +102,7 @@ class HookDisplayFooter implements HookInterface
                                   {
                                     item_id: "' . $gacart['id'] . '",
                                     item_name: "' . $gacart['name'] . '",
-                                    affiliation: "Google Merchandise Store",
+                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
                                     currency: "' . $this->context->currency->iso_code . '",
                                     index: ' . $key . ',
                                     item_brand: "' . $gacart['brand'] . '",
