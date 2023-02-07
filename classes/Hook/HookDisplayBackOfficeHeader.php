@@ -99,7 +99,6 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
                                 // Generate transaction event
                                 if ($isV4Enabled) {
-
                                     $callbackData = [
                                         'orderid' => $transaction['id'],
                                         'customer' => $transaction['customer'],
@@ -113,8 +112,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                         'shipping' => $transaction['shipping'],
                                         'currency' => $this->context->currency->iso_code,
                                         'event_callback' => "function() {
-                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ");
-                                        }",
+                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                                        }',
                                     ];
                                     $gaScripts .= 'gtag("event", "purchase", ' . $this->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
                                 } else {
@@ -132,7 +131,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
         return $js;
     }
 
-    public function jsonEncodeWithBlacklist($data, $ignoredKeys) {
+    public function jsonEncodeWithBlacklist($data, $ignoredKeys)
+    {
         $return = [];
 
         foreach ($data as $k => $v) {
@@ -143,6 +143,6 @@ class HookDisplayBackOfficeHeader implements HookInterface
             }
         }
 
-        return '{' . implode(",", $return) . '}';
+        return '{' . implode(', ', $return) . '}';
     }
 }

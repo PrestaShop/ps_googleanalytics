@@ -86,7 +86,7 @@ class HookDisplayFooter implements HookInterface
                                         'item_variant' => $gacart['variant'],
                                         'price' => $gacart['price'],
                                         'quantity' => $gacart['quantity'],
-                                    ]
+                                    ],
                                 ],
                             ];
                             $gaScripts .= 'gtag("event", "add_to_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
@@ -111,7 +111,7 @@ class HookDisplayFooter implements HookInterface
                                         'item_variant' => $gacart['variant'],
                                         'price' => $gacart['price'],
                                         'quantity' => $gacart['quantity'],
-                                    ]
+                                    ],
                                 ],
                             ];
                             $gaScripts .= 'gtag("event", "remove_from_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';

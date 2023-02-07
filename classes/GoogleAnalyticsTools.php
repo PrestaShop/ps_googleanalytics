@@ -142,7 +142,6 @@ class GoogleAnalyticsTools
         $js = '';
         if ($this->isV4Enabled) {
             foreach ($products as $key => $product) {
-                
                 $eventData = [
                     'items' => [
                         'item_id' => $product['id'],
@@ -155,7 +154,7 @@ class GoogleAnalyticsTools
                         'item_category' => $product['category'],
                         'item_list_id' => $product['list'],
                         'item_variant' => $product['variant'],
-                    ]
+                    ],
                 ];
 
                 $productId = explode('-', $product['id']);
@@ -190,7 +189,6 @@ class GoogleAnalyticsTools
         $js = '';
         if ($this->isV4Enabled) {
             foreach ($products as $key => $product) {
-
                 $eventData = [
                     'items' => [
                         'item_id' => $product['id'],
@@ -203,7 +201,7 @@ class GoogleAnalyticsTools
                         'item_category' => $product['category'],
                         'item_list_id' => $product['list'],
                         'item_variant' => $product['variant'],
-                    ]
+                    ],
                 ];
 
                 $js .= 'gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
@@ -240,7 +238,8 @@ class GoogleAnalyticsTools
         return $js;
     }
 
-    public function jsonEncodeWithBlacklist($data, $ignoredKeys) {
+    public function jsonEncodeWithBlacklist($data, $ignoredKeys)
+    {
         $return = [];
 
         foreach ($data as $k => $v) {
@@ -251,6 +250,6 @@ class GoogleAnalyticsTools
             }
         }
 
-        return '{' . implode(",", $return) . '}';
+        return '{' . implode(', ', $return) . '}';
     }
 }
