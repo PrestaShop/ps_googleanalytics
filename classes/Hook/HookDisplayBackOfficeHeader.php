@@ -96,21 +96,27 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
                                 );
+
+                                // Generate transaction event
                                 if ($isV4Enabled) {
-                                    $gaScripts .= 'gtag("event", "purchase", {
-                                        transaction_id: "' . $transaction['id'] . '",
-                                        affiliation: "' . $transaction['affiliation'] . '",
-                                        value: ' . $transaction['revenue'] . ',
-                                        tax: ' . $transaction['tax'] . ',
-                                        shipping: ' . $transaction['shipping'] . ',
-                                        currency: "' . $this->context->currency->iso_code . '"
-                                    },' . "
-                                    'event_callback': function() {
-                                        $.get('" . $transaction['url'] . "', {
-                                            orderid: " . $transaction['id'] . ',
-                                            customer: ' . $transaction['customer'] . '
-                                        });
-                                    });';
+
+                                    $callbackData = [
+                                        'orderid' => $transaction['id'],
+                                        'customer' => $transaction['customer'],
+                                    ];
+
+                                    $eventData = [
+                                        'transaction_id' => $transaction['id'],
+                                        'affiliation' => $transaction['affiliation'],
+                                        'value' => $transaction['revenue'],
+                                        'tax' => $transaction['tax'],
+                                        'shipping' => $transaction['shipping'],
+                                        'currency' => $this->context->currency->iso_code,
+                                        'event_callback' => "function() {
+                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ");
+                                        }",
+                                    ];
+                                    $gaScripts .= 'gtag("event", "purchase", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
                                 }

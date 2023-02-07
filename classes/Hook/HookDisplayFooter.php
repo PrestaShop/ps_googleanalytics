@@ -71,48 +71,50 @@ class HookDisplayFooter implements HookInterface
                 if (isset($gacart['quantity'])) {
                     if ($gacart['quantity'] > 0) {
                         if ($isV4Enabled) {
-                            $gaScripts .= 'gtag("event", "add_to_cart", {
-                                currency: "' . $this->context->currency->iso_code . '",
-                                value: ' . $gacart['price'] . ',
-                                items: [
-                                  {
-                                    item_id: "' . $gacart['id'] . '",
-                                    item_name: "' . $gacart['name'] . '",
-                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
-                                    currency: "' . $this->context->currency->iso_code . '",
-                                    index: ' . $key . ',
-                                    item_brand: "' . $gacart['brand'] . '",
-                                    item_category: "' . $gacart['category'] . '",
-                                    item_variant: "' . $gacart['variant'] . '",
-                                    price: ' . $gacart['price'] . ',
-                                    quantity: ' . $gacart['quantity'] . '
-                                  }
-                                ]
-                            });';
+                            $eventData = [
+                                'currency' => $this->context->currency->iso_code,
+                                'value' => $gacart['price'],
+                                'items' => [
+                                    [
+                                        'item_id' => $gacart['id'],
+                                        'item_name' => $gacart['name'],
+                                        'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
+                                        'currency' => $this->context->currency->iso_code,
+                                        'index' => $key,
+                                        'item_brand' => $gacart['brand'],
+                                        'item_category' => $gacart['category'],
+                                        'item_variant' => $gacart['variant'],
+                                        'price' => $gacart['price'],
+                                        'quantity' => $gacart['quantity'],
+                                    ]
+                                ],
+                            ];
+                            $gaScripts .= 'gtag("event", "add_to_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
                         } else {
                             $gaScripts .= 'MBG.addToCart(' . json_encode($gacart) . ');';
                         }
                     } elseif ($gacart['quantity'] < 0) {
                         $gacart['quantity'] = abs($gacart['quantity']);
                         if ($isV4Enabled) {
-                            $gaScripts .= 'gtag("event", "remove_from_cart", {
-                                currency: "' . $this->context->currency->iso_code . '",
-                                value: ' . $gacart['price'] . ',
-                                items: [
-                                  {
-                                    item_id: "' . $gacart['id'] . '",
-                                    item_name: "' . $gacart['name'] . '",
-                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
-                                    currency: "' . $this->context->currency->iso_code . '",
-                                    index: ' . $key . ',
-                                    item_brand: "' . $gacart['brand'] . '",
-                                    item_category: "' . $gacart['category'] . '",
-                                    item_variant: "' . $gacart['variant'] . '",
-                                    price: ' . $gacart['price'] . ',
-                                    quantity: ' . $gacart['quantity'] . '
-                                  }
-                                ]
-                            });';
+                            $eventData = [
+                                'currency' => $this->context->currency->iso_code,
+                                'value' => $gacart['price'],
+                                'items' => [
+                                    [
+                                        'item_id' => $gacart['id'],
+                                        'item_name' => $gacart['name'],
+                                        'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
+                                        'currency' => $this->context->currency->iso_code,
+                                        'index' => $key,
+                                        'item_brand' => $gacart['brand'],
+                                        'item_category' => $gacart['category'],
+                                        'item_variant' => $gacart['variant'],
+                                        'price' => $gacart['price'],
+                                        'quantity' => $gacart['quantity'],
+                                    ]
+                                ],
+                            ];
+                            $gaScripts .= 'gtag("event", "remove_from_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
                         } else {
                             $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
                         }
@@ -142,9 +144,10 @@ class HookDisplayFooter implements HookInterface
                 $step = 0;
             }
             if ($isV4Enabled) {
-                $gaScripts .= 'gtag("event", "begin_checkout", {
-                    currency: "' . $this->context->currency->iso_code . '"
-                });';
+                $eventData = [
+                    'currency' => $this->context->currency->iso_code,
+                ];
+                $gaScripts = 'gtag("event", "begin_checkout", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
             } else {
                 $gaScripts .= $gaTools->addProductFromCheckout($products);
                 $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';

@@ -78,10 +78,12 @@ class HookActionCarrierProcess implements HookInterface
 
     protected function getGoogleAnalytics4(string $carrierName)
     {
-        return 'gtag("event", "add_shipping_info", {
-            currency: "' . $this->context->currency->iso_code . '",
-            value: ' . $this->context->cart->getCartTotalPrice() . ',
-            shipping_tier: "' . $carrierName . '"
-          });';
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $this->context->cart->getCartTotalPrice(),
+            'shipping_tier' => $carrierName,
+        ];
+
+        return 'gtag("event", "add_shipping_info", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
     }
 }

@@ -64,35 +64,34 @@ class GoogleAnalyticsTools
         }
 
         if ($this->isV4Enabled) {
-            $js = 'gtag("event", "purchase", {
-                "transaction_id" : "' . $transaction['id'] . '",
-                "affiliation" : "' . $transaction['affiliation'] . '",
-                "value": ' . $transaction['revenue'] . ',
-                "tax": ' . $transaction['tax'] . ',
-                "shipping": ' . $transaction['shipping'] . ',
-                "items": [';
 
-            $isFirst = true;
+            $callbackData = [
+                'orderid' => $transaction['id'],
+                'customer' => $transaction['customer'],
+            ];
+
+            $eventData = [
+                'transaction_id' => $transaction['id'],
+                'affiliation' => $transaction['affiliation'],
+                'value' => $transaction['revenue'],
+                'tax' => $transaction['tax'],
+                'shipping' => $transaction['shipping'],
+                'items' => [],
+                'event_callback' => "function() {
+                    $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ");
+                }",
+            ];
+
             foreach ($products as $product) {
-                if (!$isFirst) {
-                    $js .= ',';
-                }
-                $js .= '{
-                    "item_id": "' . $product['id'] . '",
-                    "item_name": "' . $product['name'] . '",
-                    "quantity": "' . $product['quantity'] . '",
-                    "price": "' . $product['price'] . '"
-                  }';
-                $isFirst = false;
+                $eventData['items'][] = [
+                    'item_id' => $product['id'],
+                    'item_name' => $product['name'],
+                    'quantity' => $product['quantity'],
+                    'price' => $product['price'],
+                ];
             }
-            $js .= "],
-            'event_callback': function() {
-                $.get('" . $transaction['url'] . "', {
-                    orderid: " . $transaction['id'] . ',
-					customer: ' . $transaction['customer'] . '
-				});
-			}
-            });';
+
+            $js = 'gtag("event", "purchase", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
         } else {
             $js = '';
             foreach ($products as $product) {
@@ -144,26 +143,27 @@ class GoogleAnalyticsTools
         $js = '';
         if ($this->isV4Enabled) {
             foreach ($products as $key => $product) {
+                
+                $eventData = [
+                    'items' => [
+                        'item_id' => $product['id'],
+                        'item_name' => $product['name'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'currency' => $currencyIsoCode,
+                        'index' => $product['position'],
+                        'item_brand' => $product['brand'],
+                        'item_category' => $product['category'],
+                        'item_list_id' => $product['list'],
+                        'item_variant' => $product['variant'],
+                    ]
+                ];
+
                 $productId = explode('-', $product['id']);
                 $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
                 "click",
                 function() {
-                    gtag("event", "select_item", {
-                        items: [
-                            {
-                                item_id: "' . $product['id'] . '",
-                                item_name: "' . $product['name'] . '",
-                                quantity: "' . $product['quantity'] . '",
-                                price: "' . $product['price'] . '",
-                                currency: "' . $currencyIsoCode . '",
-                                index: ' . $product['position'] . ',
-                                item_brand: "' . $product['brand'] . '",
-                                item_category: "' . $product['category'] . '",
-                                item_list_id: "' . $product['list'] . '",
-                                item_variant: "' . $product['variant'] . '",
-                            }
-                        ]
-                    })
+                    gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
                 });';
             }
         } else {
@@ -191,22 +191,23 @@ class GoogleAnalyticsTools
         $js = '';
         if ($this->isV4Enabled) {
             foreach ($products as $key => $product) {
-                $js .= 'gtag("event", "select_item", {
-                    items: [
-                        {
-                            item_id: "' . $product['id'] . '",
-                            item_name: "' . $product['name'] . '",
-                            quantity: "' . $product['quantity'] . '",
-                            price: "' . $product['price'] . '",
-                            currency: "' . $currencyIsoCode . '",
-                            index: ' . $product['position'] . ',
-                            item_brand: "' . $product['brand'] . '",
-                            item_category: "' . $product['category'] . '",
-                            item_list_id: "' . $product['list'] . '",
-                            item_variant: "' . $product['variant'] . '",
-                        }
+
+                $eventData = [
+                    'items' => [
+                        'item_id' => $product['id'],
+                        'item_name' => $product['name'],
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'currency' => $currencyIsoCode,
+                        'index' => $product['position'],
+                        'item_brand' => $product['brand'],
+                        'item_category' => $product['category'],
+                        'item_list_id' => $product['list'],
+                        'item_variant' => $product['variant'],
                     ]
-                });';
+                ];
+
+                $js .= 'gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
             }
         } else {
             foreach ($products as $product) {

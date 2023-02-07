@@ -82,10 +82,11 @@ class HookDisplayOrderConfirmation implements HookInterface
                 }
 
                 if ($isV4Enabled) {
-                    $gaScripts = 'gtag("event", "add_payment_info", {
-                        currency: "' . $this->context->currency->iso_code . '",
-                        payment_type: "' . $order->payment . '"
-                        });';
+                    $eventData = [
+                        'currency' => $this->context->currency->iso_code,
+                        'payment_type' => $order->payment,
+                    ];
+                    $gaScripts = 'gtag("event", "add_payment_info", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
                 } else {
                     $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
                 }
@@ -96,7 +97,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                     'shipping' => $order->total_shipping,
                     'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                     'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
-                    'customer' => $order->id_customer, ];
+                    'customer' => $order->id_customer,
+                ];
                 $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
                 $this->module->js_state = 1;

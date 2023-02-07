@@ -97,22 +97,22 @@ class HookDisplayFooterProduct implements HookInterface
     protected function getGoogleAnalytics4(GoogleAnalyticsTools $gaTools)
     {
         $gaProduct = $this->getProduct();
-
-        $js = 'gtag("event", "view_item", {
-            currency: "' . $this->context->currency->iso_code . '",
-            value: ' . $this->params['product']['price_amount'] . ',
-            items: [
-              {
-                item_id: "' . $gaProduct['id'] . '",
-                item_name: "' . $this->params['product']['name'] . '",
-                currency: "' . $this->context->currency->iso_code . '",
-                item_brand: "' . $this->params['product']['manufacturer_name'] . '",
-                item_category: "' . $this->params['product']['category_name'] . '",
-                price: ' . $this->params['product']['price_amount'] . ',
-                quantity: ' . $gaProduct['quantity'] . '
-              }
-            ]
-          });';
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $this->params['product']['price_amount'],
+            'items' => [
+                [
+                    'item_id' => $gaProduct['id'],
+                    'item_name' => $this->params['product']['name'],
+                    'currency' => $this->context->currency->iso_code,
+                    'item_brand' => $this->params['product']['manufacturer_name'],
+                    'item_category' => $this->params['product']['category_name'],
+                    'price' => $this->params['product']['price_amount'],
+                    'quantity' => $gaProduct['quantity'],
+                ]
+            ],
+        ];
+        $js = 'gtag("event", "view_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
             $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
