@@ -65,7 +65,11 @@ class GoogleAnalyticsTools
 
         if ($this->isV4Enabled) {
             $js = 'gtag("event", "purchase", {
-                "transaction_id": "' . $transaction['id'] . '",
+                "transaction_id" : "' . $transaction['id'] . '",
+                "affiliation" : "' . $transaction['affiliation'] . '",
+                "value": ' . $transaction['revenue'] . ',
+                "tax": ' . $transaction['tax'] . ',
+                "shipping": ' . $transaction['shipping'] . ',
                 "items": [';
 
             $isFirst = true;
