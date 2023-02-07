@@ -106,9 +106,9 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                         currency: "' . $this->context->currency->iso_code . '"
                                     },' . "
                                     'event_callback': function() {
-                                        $.get('" . $transaction['url']  . "', {
-                                            orderid: " . $transaction['id']  . ',
-                                            customer: ' . $transaction['customer']  . '
+                                        $.get('" . $transaction['url'] . "', {
+                                            orderid: " . $transaction['id'] . ',
+                                            customer: ' . $transaction['customer'] . '
                                         });
                                     });';
                                 } else {

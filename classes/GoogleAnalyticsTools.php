@@ -83,9 +83,9 @@ class GoogleAnalyticsTools
             }
             $js .= "],
             'event_callback': function() {
-				$.get('" . $transaction['url']  . "', {
-					orderid: " . $transaction['id']  . ',
-					customer: ' . $transaction['customer']  . '
+                $.get('" . $transaction['url'] . "', {
+                    orderid: " . $transaction['id'] . ',
+					customer: ' . $transaction['customer'] . '
 				});
 			}
             });';
