@@ -102,7 +102,6 @@ class HookActionProductCancel implements HookInterface
     protected function getGoogleAnalytics4(int $idOrder, string $idProduct, float $quantity, string $nameProduct)
     {
         return 'gtag("event", "refund", {
-            currency: "' . $this->context->currency->iso_code . '",
             transaction_id: ' . $idOrder . ',
             items: [
                 {
