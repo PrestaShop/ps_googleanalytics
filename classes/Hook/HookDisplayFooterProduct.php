@@ -109,7 +109,7 @@ class HookDisplayFooterProduct implements HookInterface
                     'item_category' => $this->params['product']['category_name'],
                     'price' => $this->params['product']['price_amount'],
                     'quantity' => $gaProduct['quantity'],
-                ]
+                ],
             ],
         ];
         $js = 'gtag("event", "view_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';

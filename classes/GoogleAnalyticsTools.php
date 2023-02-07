@@ -77,8 +77,8 @@ class GoogleAnalyticsTools
                 'shipping' => $transaction['shipping'],
                 'items' => [],
                 'event_callback' => "function() {
-                    $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ");
-                }",
+                    $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                }',
             ];
 
             foreach ($products as $product) {
