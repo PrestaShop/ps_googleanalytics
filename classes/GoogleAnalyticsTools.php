@@ -64,7 +64,7 @@ class GoogleAnalyticsTools
         }
 
         if ($this->isV4Enabled) {
-            $js = 'gtag(\'event\', \'purchase\', {
+            $js = 'gtag("event", "purchase", {
                 "transaction_id": "' . $transaction['id'] . '",
                 "items": [';
 
