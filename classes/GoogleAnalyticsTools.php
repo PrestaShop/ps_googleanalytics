@@ -81,7 +81,14 @@ class GoogleAnalyticsTools
                   }';
                 $isFirst = false;
             }
-            $js .= ']});';
+            $js .= "],
+            'event_callback': function() {
+				$.get('" . $transaction['url']  . "', {
+					orderid: " . $transaction['id']  . ',
+					customer: ' . $transaction['customer']  . '
+				});
+			}
+            });';
         } else {
             $js = '';
             foreach ($products as $product) {

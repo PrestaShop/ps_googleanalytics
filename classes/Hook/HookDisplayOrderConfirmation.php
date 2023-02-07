@@ -70,40 +70,38 @@ class HookDisplayOrderConfirmation implements HookInterface
                     ]
                 );
 
-                if ($order->id_customer == $this->context->cookie->id_customer) {
-                    $orderProducts = [];
-                    $cart = new Cart($order->id_cart);
-                    $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-                    $gaTools = new GoogleAnalyticsTools($isV4Enabled);
-                    $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-                    $productWrapper = new ProductWrapper($this->context);
+                $orderProducts = [];
+                $cart = new Cart($order->id_cart);
+                $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+                $gaTools = new GoogleAnalyticsTools($isV4Enabled);
+                $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+                $productWrapper = new ProductWrapper($this->context);
 
-                    foreach ($cart->getProducts() as $order_product) {
-                        $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
-                    }
-
-                    if ($isV4Enabled) {
-                        $gaScripts = 'gtag("event", "add_payment_info", {
-                            currency: "' . $this->context->currency->iso_code . '",
-                            payment_type: "' . $order->payment . '"
-                          });';
-                    } else {
-                        $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
-                    }
-                    $transaction = [
-                        'id' => $order->id,
-                        'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                        'revenue' => $order->total_paid,
-                        'shipping' => $order->total_shipping,
-                        'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                        'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
-                        'customer' => $order->id_customer, ];
-                    $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
-
-                    $this->module->js_state = 1;
-
-                    return $gaTagHandler->generate($gaScripts);
+                foreach ($cart->getProducts() as $order_product) {
+                    $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
                 }
+
+                if ($isV4Enabled) {
+                    $gaScripts = 'gtag("event", "add_payment_info", {
+                        currency: "' . $this->context->currency->iso_code . '",
+                        payment_type: "' . $order->payment . '"
+                        });';
+                } else {
+                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
+                }
+                $transaction = [
+                    'id' => $order->id,
+                    'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+                    'revenue' => $order->total_paid,
+                    'shipping' => $order->total_shipping,
+                    'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+                    'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
+                    'customer' => $order->id_customer, ];
+                $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
+
+                $this->module->js_state = 1;
+
+                return $gaTagHandler->generate($gaScripts);
             }
         }
 

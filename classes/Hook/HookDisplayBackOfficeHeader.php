@@ -104,6 +104,12 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                         tax: ' . $transaction['tax'] . ',
                                         shipping: ' . $transaction['shipping'] . ',
                                         currency: "' . $this->context->currency->iso_code . '"
+                                    },' . "
+                                    'event_callback': function() {
+                                        $.get('" . $transaction['url']  . "', {
+                                            orderid: " . $transaction['id']  . ',
+                                            customer: ' . $transaction['customer']  . '
+                                        });
                                     });';
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
