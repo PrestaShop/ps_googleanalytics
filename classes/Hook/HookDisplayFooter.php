@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Configuration;
 use Context;
 use Hook;
 use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
@@ -29,6 +30,7 @@ use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
+use Shop;
 use Tools;
 
 class HookDisplayFooter implements HookInterface
@@ -49,7 +51,8 @@ class HookDisplayFooter implements HookInterface
      */
     public function run()
     {
-        $gaTools = new GoogleAnalyticsTools();
+        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+        $gaTools = new GoogleAnalyticsTools($isV4Enabled);
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $ganalyticsDataHandler = new GanalyticsDataHandler(
             $this->context->cart->id,
@@ -64,13 +67,55 @@ class HookDisplayFooter implements HookInterface
         if (count($gacarts) > 0 && $controller_name != 'product') {
             $this->module->filterable = 0;
 
-            foreach ($gacarts as $gacart) {
+            foreach ($gacarts as $key => $gacart) {
                 if (isset($gacart['quantity'])) {
                     if ($gacart['quantity'] > 0) {
-                        $gaScripts .= 'MBG.addToCart(' . json_encode($gacart) . ');';
+                        if ($isV4Enabled) {
+                            $gaScripts .= 'gtag("event", "add_to_cart", {
+                                currency: "' . $this->context->currency->iso_code . '",
+                                value: ' . $gacart['price'] . ',
+                                items: [
+                                  {
+                                    item_id: "' . $gacart['id'] . '",
+                                    item_name: "' . $gacart['name'] . '",
+                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
+                                    currency: "' . $this->context->currency->iso_code . '",
+                                    index: ' . $key . ',
+                                    item_brand: "' . $gacart['brand'] . '",
+                                    item_category: "' . $gacart['category'] . '",
+                                    item_variant: "' . $gacart['variant'] . '",
+                                    price: ' . $gacart['price'] . ',
+                                    quantity: ' . $gacart['quantity'] . '
+                                  }
+                                ]
+                            });';
+                        } else {
+                            $gaScripts .= 'MBG.addToCart(' . json_encode($gacart) . ');';
+                        }
                     } elseif ($gacart['quantity'] < 0) {
                         $gacart['quantity'] = abs($gacart['quantity']);
-                        $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
+                        if ($isV4Enabled) {
+                            $gaScripts .= 'gtag("event", "remove_from_cart", {
+                                currency: "' . $this->context->currency->iso_code . '",
+                                value: ' . $gacart['price'] . ',
+                                items: [
+                                  {
+                                    item_id: "' . $gacart['id'] . '",
+                                    item_name: "' . $gacart['name'] . '",
+                                    affiliation: "' . (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')) . '",
+                                    currency: "' . $this->context->currency->iso_code . '",
+                                    index: ' . $key . ',
+                                    item_brand: "' . $gacart['brand'] . '",
+                                    item_category: "' . $gacart['category'] . '",
+                                    item_variant: "' . $gacart['variant'] . '",
+                                    price: ' . $gacart['price'] . ',
+                                    quantity: ' . $gacart['quantity'] . '
+                                  }
+                                ]
+                            });';
+                        } else {
+                            $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
+                        }
                     }
                 } elseif (is_array($gacart)) {
                     $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
@@ -96,8 +141,14 @@ class HookDisplayFooter implements HookInterface
             if (empty($step)) {
                 $step = 0;
             }
-            $gaScripts .= $gaTools->addProductFromCheckout($products);
-            $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
+            if ($isV4Enabled) {
+                $gaScripts .= 'gtag("event", "begin_checkout", {
+                    currency: "' . $this->context->currency->iso_code . '"
+                });';
+            } else {
+                $gaScripts .= $gaTools->addProductFromCheckout($products);
+                $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
+            }
         }
 
         $confirmation_hook_id = (int) Hook::getIdByName('displayOrderConfirmation');
@@ -109,7 +160,7 @@ class HookDisplayFooter implements HookInterface
             if ($this->module->eligible == 0) {
                 $gaScripts .= $gaTools->addProductImpression($products);
             }
-            $gaScripts .= $gaTools->addProductClick($products);
+            $gaScripts .= $gaTools->addProductClick($products, $this->context->currency->iso_code);
         }
 
         return $gaTagHandler->generate($gaScripts);

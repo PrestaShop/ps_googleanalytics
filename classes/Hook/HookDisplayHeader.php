@@ -42,10 +42,6 @@ class HookDisplayHeader implements HookInterface
      * @var Context
      */
     private $context;
-    /**
-     * @var mixed
-     */
-    private $params;
 
     /**
      * @var bool
@@ -90,6 +86,7 @@ class HookDisplayHeader implements HookInterface
 
         $this->context->smarty->assign(
             [
+                'isV4Enabled' => (bool) Configuration::get('GA_V4_ENABLED'),
                 'backOffice' => $this->backOffice,
                 'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
                 'currentShopId' => $currentShopId,
@@ -111,7 +108,7 @@ class HookDisplayHeader implements HookInterface
     private function displayGaTag()
     {
         $moduleHandler = new ModuleHandler();
-        $gaTools = new GoogleAnalyticsTools();
+        $gaTools = new GoogleAnalyticsTools((bool) Configuration::get('GA_V4_ENABLED'));
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $gaScripts = '';
 
@@ -130,7 +127,8 @@ class HookDisplayHeader implements HookInterface
                 [],
                 true
             );
-            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts) . $gaTools->addProductClick($homeFeaturedProducts);
+            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts);
+            $gaScripts .= $gaTools->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
         }
 
         $this->module->js_state = 1;
@@ -138,16 +136,6 @@ class HookDisplayHeader implements HookInterface
         return $gaTagHandler->generate(
             $gaTools->filter($gaScripts, $this->module->filterable)
         );
-    }
-
-    /**
-     * setParams
-     *
-     * @param array $params
-     */
-    public function setParams($params)
-    {
-        $this->params = $params;
     }
 
     /**

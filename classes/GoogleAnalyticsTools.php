@@ -23,6 +23,16 @@ namespace PrestaShop\Module\Ps_Googleanalytics;
 class GoogleAnalyticsTools
 {
     /**
+     * @var bool
+     */
+    protected $isV4Enabled = false;
+
+    public function __construct($isV4Enabled = false)
+    {
+        $this->isV4Enabled = $isV4Enabled;
+    }
+
+    /**
      * filter
      *
      * @param string $gaScripts
@@ -43,22 +53,44 @@ class GoogleAnalyticsTools
      * add order transaction
      *
      * @param array $products
-     * @param array $order
+     * @param array $transaction
      *
      * @return string|void
      */
-    public function addTransaction($products, $order)
+    public function addTransaction($products, $transaction)
     {
         if (!is_array($products)) {
             return;
         }
 
-        $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add(' . json_encode($product) . ');';
+        if ($this->isV4Enabled) {
+            $js = 'gtag(\'event\', \'purchase\', {
+                "transaction_id": "' . $transaction['id'] . '",
+                "items": [';
+
+            $isFirst = true;
+            foreach ($products as $product) {
+                if (!$isFirst) {
+                    $js .= ',';
+                }
+                $js .= '{
+                    "item_id": "' . $product['id'] . '",
+                    "item_name": "' . $product['name'] . '",
+                    "quantity": "' . $product['quantity'] . '",
+                    "price": "' . $product['price'] . '"
+                  }';
+                $isFirst = false;
+            }
+            $js .= ']});';
+        } else {
+            $js = '';
+            foreach ($products as $product) {
+                $js .= 'MBG.add(' . json_encode($product) . ');';
+            }
+            $js .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
         }
 
-        return $js . 'MBG.addTransaction(' . json_encode($order) . ');';
+        return $js;
     }
 
     /**
@@ -75,8 +107,10 @@ class GoogleAnalyticsTools
         }
 
         $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add(' . json_encode($product) . ",'',true);";
+        if (!$this->isV4Enabled) {
+            foreach ($products as $product) {
+                $js .= 'MBG.add(' . json_encode($product) . ",'',true);";
+            }
         }
 
         return $js;
@@ -86,18 +120,45 @@ class GoogleAnalyticsTools
      * addProductClick
      *
      * @param array $products
+     * @param string $currencyIsoCode
      *
      * @return string|void
      */
-    public function addProductClick($products)
+    public function addProductClick($products, $currencyIsoCode)
     {
         if (!is_array($products)) {
             return;
         }
 
         $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.addProductClick(' . json_encode($product) . ');';
+        if ($this->isV4Enabled) {
+            foreach ($products as $key => $product) {
+                $productId = explode('-', $product['id']);
+                $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
+                "click",
+                function() {
+                    gtag("event", "select_item", {
+                        items: [
+                            {
+                                item_id: "' . $product['id'] . '",
+                                item_name: "' . $product['name'] . '",
+                                quantity: "' . $product['quantity'] . '",
+                                price: "' . $product['price'] . '",
+                                currency: "' . $currencyIsoCode . '",
+                                index: ' . $product['position'] . ',
+                                item_brand: "' . $product['brand'] . '",
+                                item_category: "' . $product['category'] . '",
+                                item_list_id: "' . $product['list'] . '",
+                                item_variant: "' . $product['variant'] . '",
+                            }
+                        ]
+                    })
+                });';
+            }
+        } else {
+            foreach ($products as $product) {
+                $js .= 'MBG.addProductClick(' . json_encode($product) . ');';
+            }
         }
 
         return $js;
@@ -110,15 +171,36 @@ class GoogleAnalyticsTools
      *
      * @return string|void
      */
-    public function addProductClickByHttpReferal($products)
+    public function addProductClickByHttpReferal($products, $currencyIsoCode)
     {
         if (!is_array($products)) {
             return;
         }
 
         $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.addProductClickByHttpReferal(' . json_encode($product) . ');';
+        if ($this->isV4Enabled) {
+            foreach ($products as $key => $product) {
+                $js .= 'gtag("event", "select_item", {
+                    items: [
+                        {
+                            item_id: "' . $product['id'] . '",
+                            item_name: "' . $product['name'] . '",
+                            quantity: "' . $product['quantity'] . '",
+                            price: "' . $product['price'] . '",
+                            currency: "' . $currencyIsoCode . '",
+                            index: ' . $product['position'] . ',
+                            item_brand: "' . $product['brand'] . '",
+                            item_category: "' . $product['category'] . '",
+                            item_list_id: "' . $product['list'] . '",
+                            item_variant: "' . $product['variant'] . '",
+                        }
+                    ]
+                });';
+            }
+        } else {
+            foreach ($products as $product) {
+                $js .= 'MBG.addProductClickByHttpReferal(' . json_encode($product) . ');';
+            }
         }
 
         return $js;
@@ -138,8 +220,10 @@ class GoogleAnalyticsTools
         }
 
         $js = '';
-        foreach ($products as $product) {
-            $js .= 'MBG.add(' . json_encode($product) . ');';
+        if (!$this->isV4Enabled) {
+            foreach ($products as $product) {
+                $js .= 'MBG.add(' . json_encode($product) . ');';
+            }
         }
 
         return $js;

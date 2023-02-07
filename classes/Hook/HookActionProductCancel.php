@@ -20,13 +20,20 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Configuration;
 use Context;
 use OrderDetail;
 use Ps_Googleanalytics;
 
 class HookActionProductCancel implements HookInterface
 {
+    /**
+     * @var Ps_Googleanalytics
+     */
     private $module;
+    /**
+     * @var Context
+     */
     private $context;
     private $params;
 
@@ -49,17 +56,23 @@ class HookActionProductCancel implements HookInterface
 
         // Display GA refund product
         $orderDetail = new OrderDetail($this->params['id_order_detail']);
-        $gaScripts = 'MBG.add(' . json_encode(
-            [
-                'id' => empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id,
-                'quantity' => $this->params['cancel_quantity'],
-            ])
-            . ');';
 
-        $this->context->cookie->__set(
-            'ga_admin_refund',
-            $gaScripts . 'MBG.refundByProduct(' . json_encode(['id' => $this->params['order']->id]) . ');'
-        );
+        $idProduct = empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id;
+        if ((bool) Configuration::get('GA_V4_ENABLED')) {
+            $js = $this->getGoogleAnalytics4(
+                (int) $this->params['order']->id,
+                $idProduct,
+                (float) $this->params['cancel_quantity'],
+                $orderDetail->product_name
+            );
+        } else {
+            $js = $this->getUniversalAnalytics(
+                (int) $this->params['order']->id,
+                $idProduct,
+                (float) $this->params['cancel_quantity']
+            );
+        }
+        $this->context->cookie->__set('ga_admin_refund', $js);
         $this->context->cookie->write();
     }
 
@@ -71,5 +84,33 @@ class HookActionProductCancel implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
+    }
+
+    protected function getUniversalAnalytics(int $idOrder, string $idProduct, float $quantity)
+    {
+        $js = 'MBG.add(' . json_encode(
+            [
+                'id' => $idProduct,
+                'quantity' => $quantity,
+            ])
+        . ');';
+        $js .= 'MBG.refundByProduct(' . json_encode(['id' => $idOrder]) . ');';
+
+        return $js;
+    }
+
+    protected function getGoogleAnalytics4(int $idOrder, string $idProduct, float $quantity, string $nameProduct)
+    {
+        return 'gtag("event", "refund", {
+            currency: "' . $this->context->currency->iso_code . '",
+            transaction_id: ' . $idOrder . ',
+            items: [
+                {
+                    item_id: ' . $idProduct . ',
+                    item_name: "' . $nameProduct . '",
+                    quantity: ' . $quantity . '
+                }
+            ]
+          });';
     }
 }

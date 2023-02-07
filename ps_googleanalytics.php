@@ -54,7 +54,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '4.1.2';
+        $this->version = '4.2.0';
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -136,10 +136,7 @@ class Ps_Googleanalytics extends Module
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        $output = $gaTagHandler->generate(
-            $this->context->cookie->__get('ga_admin_refund'),
-            true
-        );
+        $output = $gaTagHandler->generate($this->context->cookie->__get('ga_admin_refund'));
         $this->context->cookie->__unset('ga_admin_refund');
         $this->context->cookie->write();
 

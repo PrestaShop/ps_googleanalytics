@@ -97,6 +97,23 @@ class ConfigurationForm
                 ],
                 [
                     'type' => 'switch',
+                    'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.GAnalytics.Admin'),
+                    'name' => 'GA_V4_ENABLED',
+                    'values' => [
+                        [
+                            'id' => 'GA_V4_ENABLED',
+                            'value' => 1,
+                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                        ],
+                        [
+                            'id' => 'GA_V4_ENABLED',
+                            'value' => 0,
+                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'switch',
                     'label' => $this->module->trans('Enable User ID tracking', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
                     'values' => [
@@ -109,7 +126,8 @@ class ConfigurationForm
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
                             'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
-                        ], ],
+                        ],
+                    ],
                 ],
                 [
                     'type' => 'switch',
@@ -188,6 +206,7 @@ class ConfigurationForm
 
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
+        $helper->fields_value['GA_V4_ENABLED'] = Configuration::get('GA_V4_ENABLED');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
         $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
@@ -209,6 +228,7 @@ class ConfigurationForm
 
         $treatmentResult = '';
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
+        $gaV4Enabled = Tools::getValue('GA_V4_ENABLED');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
         $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
@@ -218,7 +238,12 @@ class ConfigurationForm
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
             Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Account ID updated successfully', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Account ID updated successfully', [], 'Modules.GAnalytics.Admin'));
+        }
+
+        if (null !== $gaV4Enabled) {
+            Configuration::updateValue('GA_V4_ENABLED', (bool) $gaV4Enabled);
+            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Google Analytics 4 updated successfully'));
         }
 
         if (null !== $gaUserIdEnabled) {
@@ -233,12 +258,12 @@ class ConfigurationForm
 
         if (null !== $gaAnonymizeEnabled) {
             Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Anonymize IP updated successfully', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Anonymize IP updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaTrackBackOffice) {
             Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for Enable Back Office tracking updated successfully.', [], 'Modules.GAnalytics.Admin'));
+            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Enable Back Office tracking updated successfully.', [], 'Modules.GAnalytics.Admin'));
         }
 
         if ($gaCancelledStates === false) {
@@ -246,7 +271,7 @@ class ConfigurationForm
         } else {
             Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
         }
-        $treatmentResult .= $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings for canceled order states updated successfully.', [], 'Modules.GAnalytics.Admin'));
+        $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for canceled order states updated successfully.', [], 'Modules.GAnalytics.Admin'));
 
         return $treatmentResult;
     }
