@@ -88,14 +88,6 @@ class ConfigurationForm
             ],
             'input' => [
                 [
-                    'type' => 'text',
-                    'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.GAnalytics.Admin'),
-                    'name' => 'GA_ACCOUNT_ID',
-                    'size' => 20,
-                    'required' => true,
-                    'hint' => $this->module->trans('This information is available in your Google Analytics account', [], 'Modules.GAnalytics.Admin'),
-                ],
-                [
                     'type' => 'switch',
                     'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_V4_ENABLED',
@@ -111,6 +103,15 @@ class ConfigurationForm
                             'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
                         ],
                     ],
+                    'desc' => $this->module->trans('Universal analytics will stop processing data on July 1, 2023. We recommend switching to Google Analytics 4 as soon as possible.', [], 'Modules.GAnalytics.Admin'),
+                ],
+                [
+                    'type' => 'text',
+                    'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.GAnalytics.Admin'),
+                    'name' => 'GA_ACCOUNT_ID',
+                    'size' => 20,
+                    'required' => true,
+                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with G-, Universal Analytics with UA-.', [], 'Modules.GAnalytics.Admin'),
                 ],
                 [
                     'type' => 'switch',
