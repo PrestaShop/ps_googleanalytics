@@ -116,7 +116,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                             $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ");
                                         }",
                                     ];
-                                    $gaScripts .= 'gtag("event", "purchase", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                                    $gaScripts .= 'gtag("event", "purchase", ' . $this->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
                                 }
@@ -130,5 +130,19 @@ class HookDisplayBackOfficeHeader implements HookInterface
         }
 
         return $js;
+    }
+
+    public function jsonEncodeWithBlacklist($data, $ignoredKeys) {
+        $return = [];
+
+        foreach ($data as $k => $v) {
+            if (in_array($k, $ignoredKeys)) {
+                $return[] = json_encode($k, JSON_UNESCAPED_UNICODE) . ': ' . $v;
+            } else {
+                $return[] = json_encode($k, JSON_UNESCAPED_UNICODE) . ': ' . json_encode($v, JSON_UNESCAPED_UNICODE);
+            }
+        }
+
+        return '{' . implode(",", $return) . '}';
     }
 }
