@@ -75,16 +75,16 @@ class HookDisplayFooter implements HookInterface
                                 'value' => $gacart['price'],
                                 'items' => [
                                     [
-                                        'item_id' => $gacart['id'],
+                                        'item_id' => (int) $gacart['id'],
                                         'item_name' => $gacart['name'],
                                         'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
                                         'currency' => $this->context->currency->iso_code,
-                                        'index' => $key,
+                                        'index' => (int) $key,
                                         'item_brand' => $gacart['brand'],
                                         'item_category' => $gacart['category'],
                                         'item_variant' => $gacart['variant'],
-                                        'price' => $gacart['price'],
-                                        'quantity' => $gacart['quantity'],
+                                        'price' => (float) $gacart['price'],
+                                        'quantity' => (int) $gacart['quantity'],
                                     ],
                                 ],
                             ];
@@ -100,16 +100,16 @@ class HookDisplayFooter implements HookInterface
                                 'value' => $gacart['price'],
                                 'items' => [
                                     [
-                                        'item_id' => $gacart['id'],
+                                        'item_id' => (int) $gacart['id'],
                                         'item_name' => $gacart['name'],
                                         'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
                                         'currency' => $this->context->currency->iso_code,
-                                        'index' => $key,
+                                        'index' => (int) $key,
                                         'item_brand' => $gacart['brand'],
                                         'item_category' => $gacart['category'],
                                         'item_variant' => $gacart['variant'],
-                                        'price' => $gacart['price'],
-                                        'quantity' => $gacart['quantity'],
+                                        'price' => (float) $gacart['price'],
+                                        'quantity' => (int) $gacart['quantity'],
                                     ],
                                 ],
                             ];

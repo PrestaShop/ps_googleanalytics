@@ -107,7 +107,7 @@ class HookActionOrderStatusPostUpdate implements HookInterface
     protected function getGoogleAnalytics4($idOrder)
     {
         $eventData = [
-            'transaction_id' => $idOrder,
+            'transaction_id' => (int) $idOrder,
         ];
 
         return 'gtag("event", "refund", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';

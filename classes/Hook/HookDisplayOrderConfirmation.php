@@ -89,13 +89,13 @@ class HookDisplayOrderConfirmation implements HookInterface
 
                 // Prepare transaction data
                 $transaction = [
-                    'id' => $order->id,
+                    'id' => (int) $order->id,
                     'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                    'revenue' => $order->total_paid,
-                    'shipping' => $order->total_shipping,
-                    'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+                    'revenue' => (float) $order->total_paid,
+                    'shipping' => (float) $order->total_shipping,
+                    'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                     'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
-                    'customer' => $order->id_customer,
+                    'customer' => (int) $order->id_customer,
                     'currency' => $this->context->currency->iso_code,
                 ];
 

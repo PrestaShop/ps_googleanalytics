@@ -70,11 +70,11 @@ class GoogleAnalyticsTools
             ];
 
             $eventData = [
-                'transaction_id' => $transaction['id'],
+                'transaction_id' => (int) $transaction['id'],
                 'affiliation' => $transaction['affiliation'],
-                'value' => $transaction['revenue'],
-                'tax' => $transaction['tax'],
-                'shipping' => $transaction['shipping'],
+                'value' => (float) $transaction['revenue'],
+                'tax' => (float) $transaction['tax'],
+                'shipping' => (float) $transaction['shipping'],
                 'currency' => $transaction['currency'],
                 'items' => [],
                 'event_callback' => "function() {
@@ -84,10 +84,10 @@ class GoogleAnalyticsTools
 
             foreach ($products as $product) {
                 $eventData['items'][] = [
-                    'item_id' => $product['id'],
+                    'item_id' => (int) $product['id'],
                     'item_name' => $product['name'],
-                    'quantity' => $product['quantity'],
-                    'price' => $product['price'],
+                    'quantity' => (int) $product['quantity'],
+                    'price' => (float) $product['price'],
                 ];
             }
 
@@ -146,12 +146,12 @@ class GoogleAnalyticsTools
             foreach ($products as $key => $product) {
                 $eventData = [
                     'items' => [
-                        'item_id' => $product['id'],
+                        'item_id' => (int) $product['id'],
                         'item_name' => $product['name'],
-                        'quantity' => $product['quantity'],
-                        'price' => $product['price'],
+                        'quantity' => (int) $product['quantity'],
+                        'price' => (float) $product['price'],
                         'currency' => $currencyIsoCode,
-                        'index' => $product['position'],
+                        'index' => (int) $product['position'],
                         'item_brand' => $product['brand'],
                         'item_category' => $product['category'],
                         'item_list_id' => $product['list'],
@@ -193,12 +193,12 @@ class GoogleAnalyticsTools
             foreach ($products as $key => $product) {
                 $eventData = [
                     'items' => [
-                        'item_id' => $product['id'],
+                        'item_id' => (int) $product['id'],
                         'item_name' => $product['name'],
-                        'quantity' => $product['quantity'],
-                        'price' => $product['price'],
+                        'quantity' => (int) $product['quantity'],
+                        'price' => (float) $product['price'],
                         'currency' => $currencyIsoCode,
-                        'index' => $product['position'],
+                        'index' => (int) $product['position'],
                         'item_brand' => $product['brand'],
                         'item_category' => $product['category'],
                         'item_list_id' => $product['list'],

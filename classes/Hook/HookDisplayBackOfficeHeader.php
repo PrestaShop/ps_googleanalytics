@@ -101,16 +101,16 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                 // Generate transaction event
                                 if ($isV4Enabled) {
                                     $callbackData = [
-                                        'orderid' => $transaction['id'],
-                                        'customer' => $transaction['customer'],
+                                        'orderid' => (int) $transaction['id'],
+                                        'customer' => (int) $transaction['customer'],
                                     ];
 
                                     $eventData = [
-                                        'transaction_id' => $transaction['id'],
+                                        'transaction_id' => (int) $transaction['id'],
                                         'affiliation' => $transaction['affiliation'],
-                                        'value' => $transaction['revenue'],
-                                        'tax' => $transaction['tax'],
-                                        'shipping' => $transaction['shipping'],
+                                        'value' => (float) $transaction['revenue'],
+                                        'tax' => (float) $transaction['tax'],
+                                        'shipping' => (float) $transaction['shipping'],
                                         'currency' => $this->context->currency->iso_code,
                                         'event_callback' => "function() {
                                             $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');

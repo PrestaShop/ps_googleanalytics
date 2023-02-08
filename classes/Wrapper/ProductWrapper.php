@@ -119,7 +119,7 @@ class ProductWrapper implements WrapperInterface
                 'quantity' => $product_qty,
                 'list' => Tools::getValue('controller'),
                 'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price'],
+                'price' => preg_replace('/[^0-9.]/', '', $product['price']),
             ];
         } else {
             $ga_product = [

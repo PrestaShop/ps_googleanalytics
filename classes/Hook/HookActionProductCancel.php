@@ -102,12 +102,12 @@ class HookActionProductCancel implements HookInterface
     protected function getGoogleAnalytics4(int $idOrder, string $idProduct, float $quantity, string $nameProduct)
     {
         $eventData = [
-            'transaction_id' => $idOrder,
+            'transaction_id' => (int) $idOrder,
             'items' => [
                 [
-                    'item_id' => $idProduct,
+                    'item_id' => (int) $idProduct,
                     'item_name' => $nameProduct,
-                    'quantity' => $quantity,
+                    'quantity' => (int) $quantity,
                 ],
             ],
         ];

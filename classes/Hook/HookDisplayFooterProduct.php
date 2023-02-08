@@ -100,13 +100,13 @@ class HookDisplayFooterProduct implements HookInterface
             'value' => $this->params['product']['price_amount'],
             'items' => [
                 [
-                    'item_id' => $gaProduct['id'],
+                    'item_id' => (int) $gaProduct['id'],
                     'item_name' => $this->params['product']['name'],
                     'currency' => $this->context->currency->iso_code,
                     'item_brand' => $this->params['product']['manufacturer_name'],
                     'item_category' => $this->params['product']['category_name'],
-                    'price' => $this->params['product']['price_amount'],
-                    'quantity' => $gaProduct['quantity'],
+                    'price' => (float) $this->params['product']['price_amount'],
+                    'quantity' => (int) $gaProduct['quantity'],
                 ],
             ],
         ];

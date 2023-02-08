@@ -80,7 +80,7 @@ class HookActionCarrierProcess implements HookInterface
     {
         $eventData = [
             'currency' => $this->context->currency->iso_code,
-            'value' => $this->context->cart->getCartTotalPrice(),
+            'value' => (float) $this->context->cart->getCartTotalPrice(),
             'shipping_tier' => $carrierName,
         ];
 
