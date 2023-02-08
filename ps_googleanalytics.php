@@ -105,11 +105,28 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Footer hook.
+     * Footer hook for 1.6
      * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayFooter()
     {
+        if ($this->psVersionIs17) {
+            return;
+        }
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+
+        return $hook->run();
+    }
+
+    /**
+     * Footer hook for 1.7
+     * This function is run to load JS script for standards actions such as product clicks
+     */
+    public function hookDisplayBeforeBodyClosingTag()
+    {
+        if (!$this->psVersionIs17) {
+            return;
+        }
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
 
         return $hook->run();

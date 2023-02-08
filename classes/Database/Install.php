@@ -100,6 +100,7 @@ class Install
     {
         return $this->module->registerHook('displayHeader') &&
             $this->module->registerHook('displayAdminOrder') &&
+            $this->module->registerHook('displayBeforeBodyClosingTag') &&
             $this->module->registerHook('displayFooter') &&
             $this->module->registerHook('displayFooterProduct') &&
             $this->module->registerHook('displayOrderConfirmation') &&

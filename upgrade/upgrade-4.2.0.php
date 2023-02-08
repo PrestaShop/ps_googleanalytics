@@ -27,5 +27,6 @@ if (!defined('_PS_VERSION_')) {
 function upgrade_module_4_2_0($object)
 {
     return Configuration::updateValue('GA_V4_ENABLED', false)
-        && $object->unregisterHook('displayHome');
+        && $object->unregisterHook('displayHome')
+        && $object->registerHook('displayBeforeBodyClosingTag');
 }
