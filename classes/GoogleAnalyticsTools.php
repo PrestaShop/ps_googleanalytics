@@ -75,6 +75,7 @@ class GoogleAnalyticsTools
                 'value' => $transaction['revenue'],
                 'tax' => $transaction['tax'],
                 'shipping' => $transaction['shipping'],
+                'currency' => $transaction['currency'],
                 'items' => [],
                 'event_callback' => "function() {
                     $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
@@ -92,6 +93,7 @@ class GoogleAnalyticsTools
 
             $js = 'gtag("event", "purchase", ' . $this->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
         } else {
+            unset($transaction['currency']);
             $js = '';
             foreach ($products as $product) {
                 $js .= 'MBG.add(' . json_encode($product) . ');';

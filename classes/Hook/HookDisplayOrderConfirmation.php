@@ -96,6 +96,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                     'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                     'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
                     'customer' => $order->id_customer,
+                    'currency' => $this->context->currency->iso_code,
                 ];
 
                 // Prepare order products
