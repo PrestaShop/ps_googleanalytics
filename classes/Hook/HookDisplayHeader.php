@@ -131,8 +131,6 @@ class HookDisplayHeader implements HookInterface
             $gaScripts .= $gaTools->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
         }
 
-        $this->module->js_state = 1;
-
         return $gaTagHandler->generate(
             $gaTools->filter($gaScripts, $this->module->filterable)
         );

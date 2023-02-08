@@ -60,7 +60,6 @@ class HookDisplayFooter implements HookInterface
         );
 
         $gaScripts = '';
-        $this->module->js_state = 0;
         $gacarts = $ganalyticsDataHandler->manageData('', 'R');
         $controller_name = Tools::getValue('controller');
 
@@ -137,7 +136,6 @@ class HookDisplayFooter implements HookInterface
         $products = $productWrapper->wrapProductList(isset($listing['products']) ? $listing['products'] : [], [], true);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
-            $this->module->js_state = 1;
             $this->module->eligible = 1;
             $step = Tools::getValue('step');
             if (empty($step)) {

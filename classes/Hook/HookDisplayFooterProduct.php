@@ -67,8 +67,6 @@ class HookDisplayFooterProduct implements HookInterface
             $js = $this->getUniversalAnalytics($gaTools);
         }
 
-        $this->module->js_state = 1;
-
         return $gaTagHandler->generate($js);
     }
 

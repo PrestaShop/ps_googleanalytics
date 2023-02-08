@@ -70,17 +70,13 @@ class HookDisplayOrderConfirmation implements HookInterface
                     ]
                 );
 
-                $orderProducts = [];
                 $cart = new Cart($order->id_cart);
                 $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
                 $gaTools = new GoogleAnalyticsTools($isV4Enabled);
                 $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                 $productWrapper = new ProductWrapper($this->context);
 
-                foreach ($cart->getProducts() as $order_product) {
-                    $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
-                }
-
+                // Add payment data
                 if ($isV4Enabled) {
                     $eventData = [
                         'currency' => $this->context->currency->iso_code,
@@ -90,6 +86,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                 } else {
                     $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
                 }
+
+                // Prepare transaction data
                 $transaction = [
                     'id' => $order->id,
                     'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
@@ -99,9 +97,13 @@ class HookDisplayOrderConfirmation implements HookInterface
                     'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
                     'customer' => $order->id_customer,
                 ];
-                $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
-                $this->module->js_state = 1;
+                // Prepare order products
+                $orderProducts = [];
+                foreach ($cart->getProducts() as $order_product) {
+                    $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
+                }
+                $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
 
                 return $gaTagHandler->generate($gaScripts);
             }

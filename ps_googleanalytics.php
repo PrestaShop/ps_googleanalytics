@@ -43,7 +43,6 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $js_state = 0;
     public $eligible = 0;
     public $filterable = 1;
     public $products = [];
