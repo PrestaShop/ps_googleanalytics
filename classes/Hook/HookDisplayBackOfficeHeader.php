@@ -23,6 +23,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Configuration;
 use Context;
 use Order;
+use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
@@ -115,7 +116,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                             $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
                                         }',
                                     ];
-                                    $gaScripts .= 'gtag("event", "purchase", ' . $this->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
+                                    $gaTools = new GoogleAnalyticsTools($isV4Enabled);
+                                    $gaScripts .= 'gtag("event", "purchase", ' . $gaTools->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
                                 }
@@ -129,20 +131,5 @@ class HookDisplayBackOfficeHeader implements HookInterface
         }
 
         return $js;
-    }
-
-    public function jsonEncodeWithBlacklist($data, $ignoredKeys)
-    {
-        $return = [];
-
-        foreach ($data as $k => $v) {
-            if (in_array($k, $ignoredKeys)) {
-                $return[] = json_encode($k, JSON_UNESCAPED_UNICODE) . ': ' . $v;
-            } else {
-                $return[] = json_encode($k, JSON_UNESCAPED_UNICODE) . ': ' . json_encode($v, JSON_UNESCAPED_UNICODE);
-            }
-        }
-
-        return '{' . implode(', ', $return) . '}';
     }
 }

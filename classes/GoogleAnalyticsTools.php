@@ -238,7 +238,15 @@ class GoogleAnalyticsTools
         return $js;
     }
 
-    public function jsonEncodeWithBlacklist($data, $ignoredKeys)
+    /**
+     * Encodes array of data into JSON, optionally ignoring some of the values
+     *
+     * @param array $data Data pairs
+     * @param array $ignoredKeys Values of these keys won't be encoded, for literal output of functions
+     *
+     * @return string json encoded data
+     */
+    public function jsonEncodeWithBlacklist($data, $ignoredKeys = [])
     {
         $return = [];
 
