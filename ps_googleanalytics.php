@@ -276,13 +276,14 @@ class Ps_Googleanalytics extends Module
     /**
      * Returns instance of GoogleAnalyticsTools
      */
-    public function getTools() {
+    public function getTools()
+    {
         if ($this->tools === null) {
             $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools(
                 (bool) Configuration::get('GA_V4_ENABLED')
             );
         }
-        
+
         return $this->tools;
     }
 }

@@ -280,7 +280,8 @@ class GoogleAnalyticsTools
      *
      * @return string render gtag event for output
      */
-    public function renderEvent($eventName, $eventData, $ignoredKeys = []) {
+    public function renderEvent($eventName, $eventData, $ignoredKeys = [])
+    {
         return sprintf(
             'gtag("event", "%1$s", %2$s);',
             $eventName,

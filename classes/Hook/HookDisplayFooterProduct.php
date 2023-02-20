@@ -22,7 +22,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Product;
@@ -61,9 +60,9 @@ class HookDisplayFooterProduct implements HookInterface
         }
         // Add product view
         if ($isV4Enabled) {
-            $js = $this->getGoogleAnalytics4($this->module->getTools());
+            $js = $this->getGoogleAnalytics4();
         } else {
-            $js = $this->getUniversalAnalytics($this->module->getTools());
+            $js = $this->getUniversalAnalytics();
         }
 
         return $gaTagHandler->generate($js);
@@ -79,19 +78,19 @@ class HookDisplayFooterProduct implements HookInterface
         $this->params = $params;
     }
 
-    protected function getUniversalAnalytics(GoogleAnalyticsTools $gaTools)
+    protected function getUniversalAnalytics()
     {
         $gaProduct = $this->getProduct();
 
         $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
         }
 
         return $js;
     }
 
-    protected function getGoogleAnalytics4(GoogleAnalyticsTools $gaTools)
+    protected function getGoogleAnalytics4()
     {
         $gaProduct = $this->getProduct();
         $eventData = [
@@ -115,7 +114,7 @@ class HookDisplayFooterProduct implements HookInterface
         );
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
         }
 
         return $js;
