@@ -110,6 +110,9 @@ class HookActionOrderStatusPostUpdate implements HookInterface
             'transaction_id' => (int) $idOrder,
         ];
 
-        return 'gtag("event", "refund", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+        return $this->module->getTools()->renderEvent(
+            'refund',
+            $eventData
+        );
     }
 }

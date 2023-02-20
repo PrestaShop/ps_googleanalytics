@@ -84,6 +84,9 @@ class HookActionCarrierProcess implements HookInterface
             'shipping_tier' => $carrierName,
         ];
 
-        return 'gtag("event", "add_shipping_info", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+        return $this->module->getTools()->renderEvent(
+            'add_shipping_info',
+            $eventData
+        );
     }
 }

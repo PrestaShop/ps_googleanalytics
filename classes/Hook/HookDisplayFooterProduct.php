@@ -49,7 +49,6 @@ class HookDisplayFooterProduct implements HookInterface
     public function run()
     {
         $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-        $gaTools = new GoogleAnalyticsTools($isV4Enabled);
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $controllerName = Tools::getValue('controller');
 
@@ -62,9 +61,9 @@ class HookDisplayFooterProduct implements HookInterface
         }
         // Add product view
         if ($isV4Enabled) {
-            $js = $this->getGoogleAnalytics4($gaTools);
+            $js = $this->getGoogleAnalytics4($this->module->getTools());
         } else {
-            $js = $this->getUniversalAnalytics($gaTools);
+            $js = $this->getUniversalAnalytics($this->module->getTools());
         }
 
         return $gaTagHandler->generate($js);
@@ -110,7 +109,10 @@ class HookDisplayFooterProduct implements HookInterface
                 ],
             ],
         ];
-        $js = 'gtag("event", "view_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+        $js = $this->module->getTools()->renderEvent(
+            'view_item',
+            $eventData
+        );
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
             $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);

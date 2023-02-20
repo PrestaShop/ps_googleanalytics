@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Configuration;
 use Context;
 use Order;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
@@ -116,8 +115,11 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                             $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
                                         }',
                                     ];
-                                    $gaTools = new GoogleAnalyticsTools($isV4Enabled);
-                                    $gaScripts .= 'gtag("event", "purchase", ' . $gaTools->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
+                                    $gaScripts .= $this->module->getTools()->renderEvent(
+                                        'purchase',
+                                        $eventData,
+                                        ['event_callback']
+                                    );
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
                                 }

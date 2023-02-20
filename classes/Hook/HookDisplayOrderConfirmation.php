@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Cart;
 use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
@@ -72,7 +71,6 @@ class HookDisplayOrderConfirmation implements HookInterface
 
                 $cart = new Cart($order->id_cart);
                 $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-                $gaTools = new GoogleAnalyticsTools($isV4Enabled);
                 $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                 $productWrapper = new ProductWrapper($this->context);
 
@@ -82,7 +80,10 @@ class HookDisplayOrderConfirmation implements HookInterface
                         'currency' => $this->context->currency->iso_code,
                         'payment_type' => $order->payment,
                     ];
-                    $gaScripts = 'gtag("event", "add_payment_info", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                    $gaScripts = $this->module->getTools()->renderEvent(
+                        'add_payment_info',
+                        $eventData
+                    );
                 } else {
                     $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
                 }
@@ -104,7 +105,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                 foreach ($cart->getProducts() as $order_product) {
                     $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
                 }
-                $gaScripts .= $gaTools->addTransaction($orderProducts, $transaction);
+                $gaScripts .= $this->module->getTools()->addTransaction($orderProducts, $transaction);
 
                 return $gaTagHandler->generate($gaScripts);
             }

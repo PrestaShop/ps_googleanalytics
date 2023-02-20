@@ -24,7 +24,6 @@ use Category;
 use Configuration;
 use Context;
 use Customer;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
@@ -108,7 +107,6 @@ class HookDisplayHeader implements HookInterface
     private function displayGaTag()
     {
         $moduleHandler = new ModuleHandler();
-        $gaTools = new GoogleAnalyticsTools((bool) Configuration::get('GA_V4_ENABLED'));
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $gaScripts = '';
 
@@ -127,12 +125,12 @@ class HookDisplayHeader implements HookInterface
                 [],
                 true
             );
-            $gaScripts .= $gaTools->addProductImpression($homeFeaturedProducts);
-            $gaScripts .= $gaTools->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
+            $gaScripts .= $this->module->getTools()->addProductImpression($homeFeaturedProducts);
+            $gaScripts .= $this->module->getTools()->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
         }
 
         return $gaTagHandler->generate(
-            $gaTools->filter($gaScripts, $this->module->filterable)
+            $this->module->getTools()->filter($gaScripts, $this->module->filterable)
         );
     }
 

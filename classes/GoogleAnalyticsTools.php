@@ -91,7 +91,11 @@ class GoogleAnalyticsTools
                 ];
             }
 
-            $js = 'gtag("event", "purchase", ' . $this->jsonEncodeWithBlacklist($eventData, ['event_callback']) . ');';
+            $js = $this->renderEvent(
+                'purchase',
+                $eventData,
+                ['event_callback']
+            );
         } else {
             unset($transaction['currency']);
             $js = '';
@@ -206,7 +210,10 @@ class GoogleAnalyticsTools
                     ],
                 ];
 
-                $js .= 'gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                $js .= $this->renderEvent(
+                    'select_item',
+                    $eventData
+                );
             }
         } else {
             foreach ($products as $product) {
@@ -261,5 +268,23 @@ class GoogleAnalyticsTools
         }
 
         return '{' . implode(', ', $return) . '}';
+    }
+
+    /**
+     * Renders gtag event and encodes the data. You can optionally pass which data keys you want to
+     * output in a raw way - callbacks for example.
+     *
+     * @param string $eventName
+     * @param array $eventData
+     * @param array $ignoredKeys Values of these keys won't be encoded, for literal output of functions
+     *
+     * @return string render gtag event for output
+     */
+    public function renderEvent($eventName, $eventData, $ignoredKeys = []) {
+        return sprintf(
+            'gtag("event", "%1$s", %2$s);',
+            $eventName,
+            $this->jsonEncodeWithBlacklist($eventData, $ignoredKeys)
+        );
     }
 }

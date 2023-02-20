@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Configuration;
 use Context;
 use Hook;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
@@ -52,7 +51,6 @@ class HookDisplayFooter implements HookInterface
     public function run()
     {
         $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-        $gaTools = new GoogleAnalyticsTools($isV4Enabled);
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $ganalyticsDataHandler = new GanalyticsDataHandler(
             $this->context->cart->id,
@@ -88,7 +86,10 @@ class HookDisplayFooter implements HookInterface
                                     ],
                                 ],
                             ];
-                            $gaScripts .= 'gtag("event", "add_to_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                            $gaScripts .= $this->module->getTools()->renderEvent(
+                                'add_to_cart',
+                                $eventData
+                            );
                         } else {
                             $gaScripts .= 'MBG.addToCart(' . json_encode($gacart) . ');';
                         }
@@ -113,7 +114,10 @@ class HookDisplayFooter implements HookInterface
                                     ],
                                 ],
                             ];
-                            $gaScripts .= 'gtag("event", "remove_from_cart", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                            $gaScripts .= $this->module->getTools()->renderEvent(
+                                'remove_from_cart',
+                                $eventData
+                            );
                         } else {
                             $gaScripts .= 'MBG.removeFromCart(' . json_encode($gacart) . ');';
                         }
@@ -145,9 +149,12 @@ class HookDisplayFooter implements HookInterface
                 $eventData = [
                     'currency' => $this->context->currency->iso_code,
                 ];
-                $gaScripts = 'gtag("event", "begin_checkout", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ');';
+                $gaScripts = $this->module->getTools()->renderEvent(
+                    'begin_checkout',
+                    $eventData
+                );
             } else {
-                $gaScripts .= $gaTools->addProductFromCheckout($products);
+                $gaScripts .= $this->module->getTools()->addProductFromCheckout($products);
                 $gaScripts .= 'MBG.addCheckout(\'' . (int) $step . '\');';
             }
         }
@@ -159,9 +166,9 @@ class HookDisplayFooter implements HookInterface
 
         if (isset($products) && count($products) && $controller_name != 'index') {
             if ($this->module->eligible == 0) {
-                $gaScripts .= $gaTools->addProductImpression($products);
+                $gaScripts .= $this->module->getTools()->addProductImpression($products);
             }
-            $gaScripts .= $gaTools->addProductClick($products, $this->context->currency->iso_code);
+            $gaScripts .= $this->module->getTools()->addProductClick($products, $this->context->currency->iso_code);
         }
 
         return $gaTagHandler->generate($gaScripts);
