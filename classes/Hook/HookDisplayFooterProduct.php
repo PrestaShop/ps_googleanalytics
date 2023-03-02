@@ -22,7 +22,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Product;
@@ -49,7 +48,6 @@ class HookDisplayFooterProduct implements HookInterface
     public function run()
     {
         $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-        $gaTools = new GoogleAnalyticsTools($isV4Enabled);
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $controllerName = Tools::getValue('controller');
 
@@ -62,12 +60,10 @@ class HookDisplayFooterProduct implements HookInterface
         }
         // Add product view
         if ($isV4Enabled) {
-            $js = $this->getGoogleAnalytics4($gaTools);
+            $js = $this->getGoogleAnalytics4();
         } else {
-            $js = $this->getUniversalAnalytics($gaTools);
+            $js = $this->getUniversalAnalytics();
         }
-
-        $this->module->js_state = 1;
 
         return $gaTagHandler->generate($js);
     }
@@ -82,40 +78,43 @@ class HookDisplayFooterProduct implements HookInterface
         $this->params = $params;
     }
 
-    protected function getUniversalAnalytics(GoogleAnalyticsTools $gaTools)
+    protected function getUniversalAnalytics()
     {
         $gaProduct = $this->getProduct();
 
         $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
         }
 
         return $js;
     }
 
-    protected function getGoogleAnalytics4(GoogleAnalyticsTools $gaTools)
+    protected function getGoogleAnalytics4()
     {
         $gaProduct = $this->getProduct();
-
-        $js = 'gtag("event", "view_item", {
-            currency: "' . $this->context->currency->iso_code . '",
-            value: ' . $this->params['product']['price_amount'] . ',
-            items: [
-              {
-                item_id: "' . $gaProduct['id'] . '",
-                item_name: "' . $this->params['product']['name'] . '",
-                currency: "' . $this->context->currency->iso_code . '",
-                item_brand: "' . $this->params['product']['manufacturer_name'] . '",
-                item_category: "' . $this->params['product']['category_name'] . '",
-                price: ' . $this->params['product']['price_amount'] . ',
-                quantity: ' . $gaProduct['quantity'] . '
-              }
-            ]
-          });';
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $this->params['product']['price_amount'],
+            'items' => [
+                [
+                    'item_id' => (int) $gaProduct['id'],
+                    'item_name' => $this->params['product']['name'],
+                    'currency' => $this->context->currency->iso_code,
+                    'item_brand' => $this->params['product']['manufacturer_name'],
+                    'item_category' => $this->params['product']['category_name'],
+                    'price' => (float) $this->params['product']['price_amount'],
+                    'quantity' => (int) $gaProduct['quantity'],
+                ],
+            ],
+        ];
+        $js = $this->module->getTools()->renderEvent(
+            'view_item',
+            $eventData
+        );
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $gaTools->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
         }
 
         return $js;

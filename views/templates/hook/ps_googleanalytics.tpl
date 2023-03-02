@@ -30,7 +30,7 @@
         'debug_mode':true
         {if $gaAnonymizeEnabled}, 'anonymize_ip': true{/if}
         {if $userId && !$backOffice}, 'user_id': '{$userId|escape:'htmlall':'UTF-8'}'{/if}
-        {if $backOffice && !$trackBackOffice}, 'non_interaction': true{/if}
+        {if $backOffice && !$trackBackOffice}, 'non_interaction': true, 'send_page_view': false{/if}
       {rdelim}
     );
   </script>

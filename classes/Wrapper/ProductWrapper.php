@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
+use Configuration;
 use Context;
 use Currency;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
@@ -109,23 +110,32 @@ class ProductWrapper implements WrapperInterface
 
         if ($full) {
             $ga_product = [
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name']),
-                'category' => Tools::str2url($product['category']),
-                'brand' => isset($product['manufacturer_name']) ? Tools::str2url($product['manufacturer_name']) : '',
-                'variant' => Tools::str2url($variant),
-                'type' => $product_type,
-                'position' => $index ? $index : '0',
-                'quantity' => $product_qty,
-                'list' => Tools::getValue('controller'),
-                'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price'],
+                'id' => (int) $product_id,
+                'name' => (string) $product['name'],
+                'category' => (string) $product['category'],
+                'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
+                'variant' => (string) $variant,
+                'type' => (string) $product_type,
+                'position' => (int) $index ? $index : '0',
+                'quantity' => (int) $product_qty,
+                'list' => (string) Tools::getValue('controller'),
+                'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
+                'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
             ];
         } else {
             $ga_product = [
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name']),
+                'id' => (int) $product_id,
+                'name' => (string) $product['name'],
             ];
+        }
+
+        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+        if (!$isV4Enabled) {
+            foreach ($ga_product as $k => $v) {
+                if (in_array($k, ['name', 'category', 'brand', 'variant', 'brand'])) {
+                    $ga_product[$k] = Tools::str2url($v);
+                }
+            }
         }
 
         return $ga_product;

@@ -96,15 +96,30 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
                                 );
+
+                                // Generate transaction event
                                 if ($isV4Enabled) {
-                                    $gaScripts .= 'gtag("event", "purchase", {
-                                        transaction_id: "' . $transaction['id'] . '",
-                                        affiliation: "' . $transaction['affiliation'] . '",
-                                        value: ' . $transaction['revenue'] . ',
-                                        tax: ' . $transaction['tax'] . ',
-                                        shipping: ' . $transaction['shipping'] . ',
-                                        currency: "' . $this->context->currency->iso_code . '"
-                                    });';
+                                    $callbackData = [
+                                        'orderid' => (int) $transaction['id'],
+                                        'customer' => (int) $transaction['customer'],
+                                    ];
+
+                                    $eventData = [
+                                        'transaction_id' => (int) $transaction['id'],
+                                        'affiliation' => $transaction['affiliation'],
+                                        'value' => (float) $transaction['revenue'],
+                                        'tax' => (float) $transaction['tax'],
+                                        'shipping' => (float) $transaction['shipping'],
+                                        'currency' => $this->context->currency->iso_code,
+                                        'event_callback' => "function() {
+                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                                        }',
+                                    ];
+                                    $gaScripts .= $this->module->getTools()->renderEvent(
+                                        'purchase',
+                                        $eventData,
+                                        ['event_callback']
+                                    );
                                 } else {
                                     $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
                                 }

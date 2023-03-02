@@ -21,21 +21,21 @@
 	max-width: 1300px;
 }
 
-#content .panel p {
-	margin-bottom:2em;
+.google-analytics-advantages-list, .google-analytics-create {
+	margin-bottom: 1rem;
 }
 
-#advantages_list .col-xs-6 {
-	height:5em;
+.google-analytics-advantages-list .col-sm-6 {
+	height: 5em;
 	display: flex;
 	align-items: center;
 }
 
-#advantages_list div > img {
+.google-analytics-advantages-list div > img {
 	margin: 1em;
 	width: 60px;
 }
 
-#google_analytics_content img {
-    max-width: 100%;
+.google-analytics-stats {
+	margin: 0 auto;
 }

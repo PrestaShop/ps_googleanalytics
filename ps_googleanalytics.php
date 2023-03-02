@@ -43,12 +43,12 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $js_state = 0;
     public $eligible = 0;
     public $filterable = 1;
     public $products = [];
     public $_debug = 0;
     public $psVersionIs17;
+    private $tools = null;
 
     public function __construct()
     {
@@ -106,11 +106,28 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Footer hook.
+     * Footer hook for 1.6
      * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayFooter()
     {
+        if ($this->psVersionIs17) {
+            return;
+        }
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+
+        return $hook->run();
+    }
+
+    /**
+     * Footer hook for 1.7
+     * This function is run to load JS script for standards actions such as product clicks
+     */
+    public function hookDisplayBeforeBodyClosingTag()
+    {
+        if (!$this->psVersionIs17) {
+            return;
+        }
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
 
         return $hook->run();
@@ -254,5 +271,19 @@ class Ps_Googleanalytics extends Module
         } else {
             return $this->l($id);
         }
+    }
+
+    /**
+     * Returns instance of GoogleAnalyticsTools
+     */
+    public function getTools()
+    {
+        if ($this->tools === null) {
+            $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools(
+                (bool) Configuration::get('GA_V4_ENABLED')
+            );
+        }
+
+        return $this->tools;
     }
 }
