@@ -74,15 +74,16 @@ class Ps_Googleanalytics extends Module
     public function getContent()
     {
         $configurationForm = new PrestaShop\Module\Ps_Googleanalytics\Form\ConfigurationForm($this);
-        $formOutput = '';
+        $output = '';
 
         if (Tools::isSubmit('submit' . $this->name)) {
-            $formOutput = $configurationForm->treat();
+            $output .= $configurationForm->treat();
         }
 
-        $formOutput .= $configurationForm->generate();
+        $output .= $this->display(__FILE__, './views/templates/admin/configuration.tpl');
+        $output .= $configurationForm->generate();
 
-        return $this->display(__FILE__, './views/templates/admin/configuration.tpl') . $formOutput;
+        return $output;
     }
 
     public function hookDisplayHeader($params, $back_office = false)
