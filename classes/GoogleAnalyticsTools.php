@@ -165,11 +165,18 @@ class GoogleAnalyticsTools
                     ],
                 ];
 
+                // Add send_to parameter to avoid sending extra events
+                // to other gtag configs (Ads for example).
+                $eventData = array_merge(
+                    ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
+                    $eventData
+                );
+
                 $productId = explode('-', $product['id']);
                 $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
                 "click",
                 function() {
-                    ' . $this->renderEvent('select_item', $eventData) . '
+                    gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
                 });';
             }
         } else {
