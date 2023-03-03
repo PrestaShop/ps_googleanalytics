@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics;
 
+use Configuration;
+
 class GoogleAnalyticsTools
 {
     /**
@@ -167,7 +169,7 @@ class GoogleAnalyticsTools
                 $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
                 "click",
                 function() {
-                    gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
+                    ' . $this->renderEvent('select_item', $eventData) . '
                 });';
             }
         } else {
@@ -282,6 +284,13 @@ class GoogleAnalyticsTools
      */
     public function renderEvent($eventName, $eventData, $ignoredKeys = [])
     {
+        // Automatically add send_to parameter to all events to avoid sending extra events
+        // to other gtag configs (Ads for example).
+        $eventData = array_merge(
+            ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
+            $eventData
+        );
+
         return sprintf(
             'gtag("event", "%1$s", %2$s);',
             $eventName,

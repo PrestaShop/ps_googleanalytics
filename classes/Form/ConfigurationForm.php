@@ -227,7 +227,6 @@ class ConfigurationForm
         // Check if multistore is active
         $is_multistore_active = Shop::isFeatureActive();
 
-        $treatmentResult = '';
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
         $gaV4Enabled = Tools::getValue('GA_V4_ENABLED');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
@@ -239,32 +238,26 @@ class ConfigurationForm
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
             Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Account ID updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaV4Enabled) {
             Configuration::updateValue('GA_V4_ENABLED', (bool) $gaV4Enabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Google Analytics 4 updated successfully'));
         }
 
         if (null !== $gaUserIdEnabled) {
             Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for User ID updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if ($is_multistore_active) {
             Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Cross-Domain updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaAnonymizeEnabled) {
             Configuration::updateValue('GA_ANONYMIZE_ENABLED', (bool) $gaAnonymizeEnabled);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Anonymize IP updated successfully', [], 'Modules.GAnalytics.Admin'));
         }
 
         if (null !== $gaTrackBackOffice) {
             Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
-            $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for Enable Back Office tracking updated successfully.', [], 'Modules.GAnalytics.Admin'));
         }
 
         if ($gaCancelledStates === false) {
@@ -272,8 +265,7 @@ class ConfigurationForm
         } else {
             Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
         }
-        $treatmentResult .= $this->module->displayConfirmation($this->module->trans('Settings for canceled order states updated successfully.', [], 'Modules.GAnalytics.Admin'));
 
-        return $treatmentResult;
+        return $this->module->displayConfirmation($this->module->trans('Settings updated successfully.', [], 'Modules.GAnalytics.Admin'));
     }
 }

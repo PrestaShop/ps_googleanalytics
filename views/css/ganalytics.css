@@ -16,11 +16,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-#content .panel {
-	margin: 0 auto;
-	max-width: 1300px;
-}
-
 .google-analytics-advantages-list, .google-analytics-create {
 	margin-bottom: 1rem;
 }
