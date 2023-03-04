@@ -21,7 +21,7 @@ Enhanced Ecommerce must be enabled in Google Analytics settings for full functio
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 1.7 and 1.6.
+Google Analytics is compatible with all versions of PrestaShop 8, 1.7 and 1.6.
 
 ### Requirements
 
@@ -42,12 +42,11 @@ Contributors wishing to edit a module's files should follow the following proces
 5. Change the files in your branch. Be sure to follow [the coding standards][1]!
 6. Push your changed branch to your fork in your GitHub account.
 7. Create a pull request for your changes **on the _'dev'_ branch** of the module's project. Be sure to follow [the commit message norm][2] in your pull request. If you need help to make a pull request, read the [Github help page about creating pull requests][3].
-8. Wait for one of the core developers either to include your change in the codebase, or to comment on possible improvements you should make to your code.
+8. Wait for the maintainer team either to include your change in the codebase, or to comment on possible improvements you should make to your code.
 
-That's it: you have contributed to this open-source project! Congratulations!
+That's it: you have contributed to this open source project! Congratulations!
 
-[1]: http://doc.prestashop.com/display/PS16/Coding+Standards
-[2]: http://doc.prestashop.com/display/PS16/How+to+write+a+commit+message
+[1]: https://devdocs.prestashop.com/1.7/development/coding-standards/
+[2]: https://devdocs.prestashop.com/1.7/contribute/contribution-guidelines/
 [3]: https://help.github.com/articles/using-pull-requests
 [4]: https://support.google.com/analytics/answer/6032539
-
