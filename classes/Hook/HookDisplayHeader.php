@@ -1,11 +1,11 @@
 <?php
 /**
- * 2007-2020 PrestaShop and Contributors
+ * Copyright since 2007 PrestaShop SA and Contributors
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
- * that is bundled with this package in the file LICENSE.txt.
+ * that is bundled with this package in the file LICENSE.md.
  * It is also available through the world-wide-web at this URL:
  * https://opensource.org/licenses/AFL-3.0
  * If you did not receive a copy of the license and are unable to
@@ -13,24 +13,34 @@
  * to license@prestashop.com so we can send you a copy immediately.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2020 PrestaShop SA and Contributors
+ * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Category;
 use Configuration;
 use Context;
+use Customer;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use Shop;
 use Tools;
 
 class HookDisplayHeader implements HookInterface
 {
+    /**
+     * @var Ps_Googleanalytics
+     */
     private $module;
+    /**
+     * @var Context
+     */
     private $context;
-    private $params;
 
     /**
      * @var bool
@@ -44,9 +54,7 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * run
-     *
-     * @return void|string
+     * @return false|string
      */
     public function run()
     {
@@ -62,8 +70,9 @@ class HookDisplayHeader implements HookInterface
         $userId = null;
         $gaCrossdomainEnabled = false;
 
-        if (Configuration::get('GA_USERID_ENABLED') &&
-            $this->context->customer && $this->context->customer->isLogged()
+        if (Configuration::get('GA_USERID_ENABLED')
+            && $this->context->customer instanceof Customer
+            && $this->context->customer->isLogged()
         ) {
             $userId = (int) $this->context->customer->id;
         }
@@ -76,6 +85,7 @@ class HookDisplayHeader implements HookInterface
 
         $this->context->smarty->assign(
             [
+                'isV4Enabled' => (bool) Configuration::get('GA_V4_ENABLED'),
                 'backOffice' => $this->backOffice,
                 'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
                 'currentShopId' => $currentShopId,
@@ -91,17 +101,37 @@ class HookDisplayHeader implements HookInterface
         return $this->module->display(
             $this->module->getLocalPath() . $this->module->name,
             'ps_googleanalytics.tpl'
-        );
+        ) . $this->displayGaTag();
     }
 
-    /**
-     * setParams
-     *
-     * @param array $params
-     */
-    public function setParams($params)
+    private function displayGaTag()
     {
-        $this->module->params = $params;
+        $moduleHandler = new ModuleHandler();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+        $gaScripts = '';
+
+        // Home featured products
+        if ($moduleHandler->isModuleEnabledAndHookedOn('ps_featuredproducts', 'displayHome')
+            && $this->context->customer instanceof Customer) {
+            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
+            $productWrapper = new ProductWrapper($this->context);
+            $homeFeaturedProducts = $productWrapper->wrapProductList(
+                $category->getProducts(
+                    (int) $this->context->language->id,
+                    1,
+                    (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
+                    'position'
+                ),
+                [],
+                true
+            );
+            $gaScripts .= $this->module->getTools()->addProductImpression($homeFeaturedProducts);
+            $gaScripts .= $this->module->getTools()->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
+        }
+
+        return $gaTagHandler->generate(
+            $this->module->getTools()->filter($gaScripts, $this->module->filterable)
+        );
     }
 
     /**

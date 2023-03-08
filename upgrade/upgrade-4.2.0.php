@@ -1,4 +1,5 @@
-{**
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  *
  * NOTICE OF LICENSE
@@ -15,24 +16,17 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
- *}
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
- {if (!empty($jsCode))}
-<script type="text/javascript">
-    {if $isV4Enabled}
-      {literal}document.addEventListener('DOMContentLoaded', function() {{/literal}
-        {$jsCode nofilter}
-      {literal}});{/literal}
-    {else}
-        {literal}
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof GoogleAnalyticEnhancedECommerce !== 'undefined') {
-                var MBG = GoogleAnalyticEnhancedECommerce;
-                MBG.setCurrency('{/literal}{$isoCode|escape:'htmlall':'UTF-8'}{literal}');
-                {/literal}{$jsCode nofilter}{literal}
-            }
-        });
-        {/literal}
-    {/if}
-</script>
-{/if}
+/**
+ * @param Ps_Googleanalytics $object
+ */
+function upgrade_module_4_2_0($object)
+{
+    return Configuration::updateValue('GA_V4_ENABLED', false)
+        && $object->unregisterHook('displayHome')
+        && $object->registerHook('displayBeforeBodyClosingTag');
+}

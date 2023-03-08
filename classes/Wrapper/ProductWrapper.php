@@ -1,11 +1,11 @@
 <?php
 /**
- * 2007-2020 PrestaShop and Contributors
+ * Copyright since 2007 PrestaShop SA and Contributors
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
- * that is bundled with this package in the file LICENSE.txt.
+ * that is bundled with this package in the file LICENSE.md.
  * It is also available through the world-wide-web at this URL:
  * https://opensource.org/licenses/AFL-3.0
  * If you did not receive a copy of the license and are unable to
@@ -13,13 +13,14 @@
  * to license@prestashop.com so we can send you a copy immediately.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2020 PrestaShop SA and Contributors
+ * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
+use Configuration;
 use Context;
 use Currency;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
@@ -109,23 +110,32 @@ class ProductWrapper implements WrapperInterface
 
         if ($full) {
             $ga_product = [
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name']),
-                'category' => Tools::str2url($product['category']),
-                'brand' => isset($product['manufacturer_name']) ? Tools::str2url($product['manufacturer_name']) : '',
-                'variant' => Tools::str2url($variant),
-                'type' => $product_type,
-                'position' => $index ? $index : '0',
-                'quantity' => $product_qty,
-                'list' => Tools::getValue('controller'),
-                'url' => isset($product['link']) ? urlencode($product['link']) : '',
-                'price' => $product['price'],
+                'id' => (int) $product_id,
+                'name' => (string) $product['name'],
+                'category' => (string) $product['category'],
+                'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
+                'variant' => (string) $variant,
+                'type' => (string) $product_type,
+                'position' => (int) $index ? $index : '0',
+                'quantity' => (int) $product_qty,
+                'list' => (string) Tools::getValue('controller'),
+                'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
+                'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
             ];
         } else {
             $ga_product = [
-                'id' => $product_id,
-                'name' => Tools::str2url($product['name']),
+                'id' => (int) $product_id,
+                'name' => (string) $product['name'],
             ];
+        }
+
+        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+        if (!$isV4Enabled) {
+            foreach ($ga_product as $k => $v) {
+                if (in_array($k, ['name', 'category', 'brand', 'variant', 'brand'])) {
+                    $ga_product[$k] = Tools::str2url($v);
+                }
+            }
         }
 
         return $ga_product;

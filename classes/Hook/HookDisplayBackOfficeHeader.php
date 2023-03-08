@@ -1,11 +1,11 @@
 <?php
 /**
- * 2007-2020 PrestaShop and Contributors
+ * Copyright since 2007 PrestaShop SA and Contributors
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
- * that is bundled with this package in the file LICENSE.txt.
+ * that is bundled with this package in the file LICENSE.md.
  * It is also available through the world-wide-web at this URL:
  * https://opensource.org/licenses/AFL-3.0
  * If you did not receive a copy of the license and are unable to
@@ -13,7 +13,7 @@
  * to license@prestashop.com so we can send you a copy immediately.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2020 PrestaShop SA and Contributors
+ * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -85,6 +85,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
                     if ($gaOrderRecords) {
                         $orderWrapper = new OrderWrapper($this->context);
+                        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
                         foreach ($gaOrderRecords as $row) {
                             $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
@@ -95,15 +96,40 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     ],
                                     'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
                                 );
-                                $transaction = json_encode($transaction);
-                                $gaScripts .= 'MBG.addTransaction(' . $transaction . ');';
+
+                                // Generate transaction event
+                                if ($isV4Enabled) {
+                                    $callbackData = [
+                                        'orderid' => (int) $transaction['id'],
+                                        'customer' => (int) $transaction['customer'],
+                                    ];
+
+                                    $eventData = [
+                                        'transaction_id' => (int) $transaction['id'],
+                                        'affiliation' => $transaction['affiliation'],
+                                        'value' => (float) $transaction['revenue'],
+                                        'tax' => (float) $transaction['tax'],
+                                        'shipping' => (float) $transaction['shipping'],
+                                        'currency' => $this->context->currency->iso_code,
+                                        'event_callback' => "function() {
+                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                                        }',
+                                    ];
+                                    $gaScripts .= $this->module->getTools()->renderEvent(
+                                        'purchase',
+                                        $eventData,
+                                        ['event_callback']
+                                    );
+                                } else {
+                                    $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
+                                }
                             }
                         }
                     }
                 }
             }
 
-            return $js . $this->module->hookdisplayHeader(null, true) . $gaTagHandler->generate($gaScripts, true);
+            return $js . $this->module->hookDisplayHeader(null, true) . $gaTagHandler->generate($gaScripts);
         }
 
         return $js;
