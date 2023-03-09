@@ -24,6 +24,7 @@ use Configuration;
 use Context;
 use OrderDetail;
 use Ps_Googleanalytics;
+use Validate;
 
 class HookActionProductCancel implements HookInterface
 {
