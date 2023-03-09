@@ -57,6 +57,12 @@ class HookActionProductCancel implements HookInterface
         // Display GA refund product
         $orderDetail = new OrderDetail($this->params['id_order_detail']);
 
+        // Check if the hook provided us with a valid existing ID of order detail.
+        // An example are automatic tests, which do not provide it unfortunately.
+        if (!Validate::isLoadedObject($orderDetail)) {
+            return;
+        }
+
         $idProduct = empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id;
         if ((bool) Configuration::get('GA_V4_ENABLED')) {
             $js = $this->getGoogleAnalytics4(
