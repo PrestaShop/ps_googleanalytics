@@ -71,12 +71,18 @@ class HookActionCarrierProcess implements HookInterface
         $this->params = $params;
     }
 
-    protected function getUniversalAnalytics(string $carrierName)
+    /**
+     * @param string $carrierName
+     */
+    protected function getUniversalAnalytics($carrierName)
     {
         return 'MBG.addCheckoutOption(2,\'' . $carrierName . '\');';
     }
 
-    protected function getGoogleAnalytics4(string $carrierName)
+    /**
+     * @param string $carrierName
+     */
+    protected function getGoogleAnalytics4($carrierName)
     {
         $eventData = [
             'currency' => $this->context->currency->iso_code,
