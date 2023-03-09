@@ -99,11 +99,17 @@ class HookActionOrderStatusPostUpdate implements HookInterface
         $this->params = $params;
     }
 
+    /**
+     * @param int $idOrder
+     */
     protected function getUniversalAnalytics($idOrder)
     {
         return 'MBG.refundByOrderId(' . json_encode(['id' => $idOrder]) . ');';
     }
 
+    /**
+     * @param int $idOrder
+     */
     protected function getGoogleAnalytics4($idOrder)
     {
         $eventData = [

@@ -86,7 +86,12 @@ class HookActionProductCancel implements HookInterface
         $this->params = $params;
     }
 
-    protected function getUniversalAnalytics(int $idOrder, string $idProduct, float $quantity)
+    /**
+     * @param int $idOrder
+     * @param string $idProduct
+     * @param float $quantity
+     */
+    protected function getUniversalAnalytics($idOrder, $idProduct, $quantity)
     {
         $js = 'MBG.add(' . json_encode(
             [
@@ -99,7 +104,13 @@ class HookActionProductCancel implements HookInterface
         return $js;
     }
 
-    protected function getGoogleAnalytics4(int $idOrder, string $idProduct, float $quantity, string $nameProduct)
+    /**
+     * @param int $idOrder
+     * @param string $idProduct
+     * @param float $quantity
+     * @param string $nameProduct
+     */
+    protected function getGoogleAnalytics4($idOrder, $idProduct, $quantity, $nameProduct)
     {
         $eventData = [
             'transaction_id' => (int) $idOrder,
