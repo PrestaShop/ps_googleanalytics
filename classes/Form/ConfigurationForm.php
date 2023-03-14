@@ -170,7 +170,7 @@ class ConfigurationForm
                     'type' => 'select',
                     'label' => $this->module->trans('Canceled order states', [], 'Modules.GAnalytics.Admin'),
                     'name' => 'GA_CANCELLED_STATES',
-                    'desc' => $this->module->trans('Choose order states, in which you consider the given order canceled. This will usually be the default "Canceled" state, but some shops may have extra states like "Returned" etc.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->trans('Choose order states in which you consider the given order canceled. This will usually be the default "Canceled" state, but some stores may have extra states like "Returned", etc.', [], 'Modules.GAnalytics.Admin'),
                     'class' => 'chosen',
                     'multiple' => true,
                     'options' => [
