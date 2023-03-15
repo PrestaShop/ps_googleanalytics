@@ -24,6 +24,7 @@ use Configuration;
 use Context;
 use OrderDetail;
 use Ps_Googleanalytics;
+use Validate;
 
 class HookActionProductCancel implements HookInterface
 {
@@ -57,6 +58,12 @@ class HookActionProductCancel implements HookInterface
         // Display GA refund product
         $orderDetail = new OrderDetail($this->params['id_order_detail']);
 
+        // Check if the hook provided us with a valid existing ID of order detail.
+        // An example are automatic tests, which do not provide it unfortunately.
+        if (!Validate::isLoadedObject($orderDetail)) {
+            return;
+        }
+
         $idProduct = empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id;
         if ((bool) Configuration::get('GA_V4_ENABLED')) {
             $js = $this->getGoogleAnalytics4(
@@ -86,7 +93,12 @@ class HookActionProductCancel implements HookInterface
         $this->params = $params;
     }
 
-    protected function getUniversalAnalytics(int $idOrder, string $idProduct, float $quantity)
+    /**
+     * @param int $idOrder
+     * @param string $idProduct
+     * @param float $quantity
+     */
+    protected function getUniversalAnalytics($idOrder, $idProduct, $quantity)
     {
         $js = 'MBG.add(' . json_encode(
             [
@@ -99,7 +111,13 @@ class HookActionProductCancel implements HookInterface
         return $js;
     }
 
-    protected function getGoogleAnalytics4(int $idOrder, string $idProduct, float $quantity, string $nameProduct)
+    /**
+     * @param int $idOrder
+     * @param string $idProduct
+     * @param float $quantity
+     * @param string $nameProduct
+     */
+    protected function getGoogleAnalytics4($idOrder, $idProduct, $quantity, $nameProduct)
     {
         $eventData = [
             'transaction_id' => (int) $idOrder,
