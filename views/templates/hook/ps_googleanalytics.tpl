@@ -27,7 +27,7 @@
       'config',
       '{$gaAccountId|escape:'htmlall':'UTF-8'}',
       {ldelim}
-        'debug_mode':true
+        'debug_mode':false
         {if $gaAnonymizeEnabled}, 'anonymize_ip': true{/if}
         {if $userId && !$backOffice}, 'user_id': '{$userId|escape:'htmlall':'UTF-8'}'{/if}
         {if $backOffice && !$trackBackOffice}, 'non_interaction': true, 'send_page_view': false{/if}
