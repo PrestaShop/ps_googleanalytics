@@ -54,7 +54,7 @@ class HookActionCarrierProcess implements HookInterface
 
             $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
 
-            if($carrierName == null) {
+            if($carrierName === null) {
                 return;
             }
             
