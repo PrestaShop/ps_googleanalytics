@@ -178,9 +178,12 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionProductCancel($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        if (Configuration::get('GA_TRACK_BACKOFFICE_ENABLED')) {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        }
+        return '';
     }
 
     /**
