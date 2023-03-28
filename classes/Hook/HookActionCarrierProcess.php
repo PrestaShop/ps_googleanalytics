@@ -53,17 +53,14 @@ class HookActionCarrierProcess implements HookInterface
             );
 
             $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-
-            if ($carrierName === null) {
-                return;
+            if (!empty($carrierName)) {
+                if ((bool) Configuration::get('GA_V4_ENABLED')) {
+                    $js = $this->getGoogleAnalytics4($carrierName);
+                } else {
+                    $js = $this->getUniversalAnalytics($carrierName);
+                }
+                $ganalyticsDataHandler->manageData($js, 'A');
             }
-            
-            if ((bool) Configuration::get('GA_V4_ENABLED')) {
-                $js = $this->getGoogleAnalytics4($carrierName);
-            } else {
-                $js = $this->getUniversalAnalytics($carrierName);
-            }
-            $ganalyticsDataHandler->manageData($js, 'A');
         }
     }
 
