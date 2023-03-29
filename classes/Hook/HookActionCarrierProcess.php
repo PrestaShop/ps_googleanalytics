@@ -62,9 +62,7 @@ class HookActionCarrierProcess implements HookInterface
             } else {
                 $js = $this->getUniversalAnalytics($carrierName);
             }
-
             $ganalyticsDataHandler->manageData($js, 'A');
-            }
         }
     }
 
