@@ -85,12 +85,7 @@ class GoogleAnalyticsTools
             ];
 
             foreach ($products as $product) {
-                $eventData['items'][] = [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                ];
+                $eventData['items'][] = $this->getProductData($product, $transaction['currency']);
             }
 
             $js = $this->renderEvent(
@@ -149,21 +144,8 @@ class GoogleAnalyticsTools
 
         $js = '';
         if ($this->isV4Enabled) {
-            foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
+            foreach ($products as $product) {
+                $eventData['items'][] = $this->getProductData($product, $currencyIsoCode);
 
                 // Add send_to parameter to avoid sending extra events
                 // to other gtag configs (Ads for example).
@@ -204,20 +186,7 @@ class GoogleAnalyticsTools
         $js = '';
         if ($this->isV4Enabled) {
             foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
+                $eventData['items'][] = $this->getProductData($product, $currencyIsoCode);
 
                 $js .= $this->renderEvent(
                     'select_item',
@@ -303,5 +272,28 @@ class GoogleAnalyticsTools
             $eventName,
             $this->jsonEncodeWithBlacklist($eventData, $ignoredKeys)
         );
+    }
+
+    /**
+     * Returns an Array<item> for the items parameter of the event.
+     *
+     * @param $product
+     * @param string $currencyIsoCode
+     * @return array
+     */
+    protected function getProductData($product, $currencyIsoCode): array
+    {
+        return [
+            'item_id' => (int) $product['id'],
+            'item_name' => $product['name'],
+            'quantity' => (int) $product['quantity'],
+            'price' => (float) $product['price'],
+            'currency' => $currencyIsoCode,
+            'index' => (int) $product['position'],
+            'item_brand' => $product['brand'],
+            'item_category' => $product['category'],
+            'item_list_id' => $product['list'],
+            'item_variant' => $product['variant'],
+        ];
     }
 }
