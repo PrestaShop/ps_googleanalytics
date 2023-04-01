@@ -118,7 +118,7 @@ class ProductWrapper implements WrapperInterface
             $ga_product = [
                 'id' => (int) $product_id,
                 'name' => (string) $product['name'],
-                'category' => (string) $product['category'],
+                'category' => (string) $product['category_name'],
                 'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
                 'variant' => (string) $variant,
                 'type' => (string) $product_type,

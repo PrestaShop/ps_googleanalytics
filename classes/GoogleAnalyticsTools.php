@@ -275,7 +275,7 @@ class GoogleAnalyticsTools
     }
 
     /**
-     * Returns an Array<item> for the items parameter of the event.
+     * Returns an Array<item> for the items parameter of the event, representing one product.
      *
      * @param $product
      * @param string $currencyIsoCode
@@ -291,7 +291,7 @@ class GoogleAnalyticsTools
             'currency' => $currencyIsoCode,
             'index' => (int) $product['position'],
             'item_brand' => $product['brand'],
-            'item_category' => $product['category'],
+            'item_category' => $product['category_name'],
             'item_list_id' => $product['list'],
             'item_variant' => $product['variant'],
         ];
