@@ -23,6 +23,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 use Configuration;
 use Context;
 use Currency;
+use Manufacturer;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
 use Product;
 use Tools;
@@ -106,6 +107,11 @@ class ProductWrapper implements WrapperInterface
             $product_type = 'pack';
         } elseif (isset($product['virtual']) && $product['virtual'] == 1) {
             $product_type = 'virtual';
+        }
+
+        if (!isset($product['manufacturer_name']) && isset($product['id_manufacturer'])) {
+            $manufacturer = new Manufacturer($product['id_manufacturer'], $this->context->language->id);
+            $product['manufacturer_name'] = $manufacturer->name;
         }
 
         if ($full) {
