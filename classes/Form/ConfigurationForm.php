@@ -111,7 +111,7 @@ class ConfigurationForm
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with G-, Universal Analytics with UA-.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with "G-", Universal Analytics with "UA-".', [], 'Modules.GAnalytics.Admin'),
                 ],
                 [
                     'type' => 'switch',
