@@ -28,6 +28,16 @@ if (file_exists($autoloadPath)) {
 
 class Ps_Googleanalytics extends Module
 {
+    public $name;
+    public $tab;
+    public $version;
+    public $ps_versions_compliancy;
+    public $author;
+    public $module_key;
+    public $bootstrap;
+    public $displayName;
+    public $description;
+    public $confirmUninstall;
     public $eligible = 0;
     public $filterable = 1;
     public $products = [];
