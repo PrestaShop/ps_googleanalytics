@@ -1,7 +1,0 @@
-includes:
-	- %currentWorkingDirectory%/tests/phpstan/phpstan.neon
-
-parameters:
-	ignoreErrors:
-		- '#PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler::uninstallModule\(\) calls parent::uninstall\(\) but PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler does not extend any class.#'
-		- '#Parameter \#1 \$idCategory of class Category constructor expects null, int given.#'
