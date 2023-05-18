@@ -70,13 +70,13 @@ class ConfigurationForm
         $helper->submit_action = 'submit' . $this->module->name;
         $helper->toolbar_btn = [
             'save' => [
-                'desc' => $this->module->trans('Save', [], 'Modules.GAnalytics.Admin'),
+                'desc' => $this->module->trans('Save', [], 'Modules.Googleanalytics.Admin'),
                 'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save=' . $this->module->name .
                 '&token=' . $helper->token,
             ],
             'back' => [
                 'href' => AdminController::$currentIndex . '&token=' . $helper->token,
-                'desc' => $this->module->trans('Back to list', [], 'Modules.GAnalytics.Admin'),
+                'desc' => $this->module->trans('Back to list', [], 'Modules.Googleanalytics.Admin'),
             ],
         ];
 
@@ -84,93 +84,93 @@ class ConfigurationForm
         // Init Fields form array
         $fields_form[0]['form'] = [
             'legend' => [
-                'title' => $this->module->trans('Settings', [], 'Modules.GAnalytics.Admin'),
+                'title' => $this->module->trans('Settings', [], 'Modules.Googleanalytics.Admin'),
             ],
             'input' => [
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_V4_ENABLED',
                     'values' => [
                         [
                             'id' => 'GA_V4_ENABLED',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'GA_V4_ENABLED',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
-                    'desc' => $this->module->trans('Universal analytics will stop processing data on July 1, 2023. We recommend switching to Google Analytics 4 as soon as possible.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->trans('Universal analytics will stop processing data on July 1, 2023. We recommend switching to Google Analytics 4 as soon as possible.', [], 'Modules.Googleanalytics.Admin'),
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with "G-", Universal Analytics with "UA-".', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with "G-", Universal Analytics with "UA-".', [], 'Modules.Googleanalytics.Admin'),
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Enable User ID tracking', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Enable User ID tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
                     'values' => [
                         [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Anonymize IP', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Anonymize IP', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
-                    'hint' => $this->module->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.GAnalytics.Admin'),
+                    'hint' => $this->module->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Enable Back Office Tracking', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Enable Back Office Tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_TRACK_BACKOFFICE_ENABLED',
-                    'hint' => $this->module->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.GAnalytics.Admin'),
+                    'hint' => $this->module->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_track_backoffice',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_do_not_track_backoffice',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->module->trans('Canceled order states', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->trans('Canceled order states', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_CANCELLED_STATES',
-                    'desc' => $this->module->trans('Choose order states in which you consider the given order canceled. This will usually be the default "Canceled" state, but some stores may have extra states like "Returned", etc.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->trans('Choose order states in which you consider the given order canceled. This will usually be the default "Canceled" state, but some stores may have extra states like "Returned", etc.', [], 'Modules.Googleanalytics.Admin'),
                     'class' => 'chosen',
                     'multiple' => true,
                     'options' => [
@@ -181,25 +181,25 @@ class ConfigurationForm
                 ],
             ],
             'submit' => [
-                'title' => $this->module->trans('Save', [], 'Modules.GAnalytics.Admin'),
+                'title' => $this->module->trans('Save', [], 'Modules.Googleanalytics.Admin'),
             ],
         ];
 
         if ($is_multistore_active) {
             $fields_form[0]['form']['input'][] = [
                 'type' => 'switch',
-                'label' => $this->module->trans('Enable Cross-Domain tracking', [], 'Modules.GAnalytics.Admin'),
+                'label' => $this->module->trans('Enable Cross-Domain tracking', [], 'Modules.Googleanalytics.Admin'),
                 'name' => 'GA_CROSSDOMAIN_ENABLED',
                 'values' => [
                     [
                         'id' => 'ga_crossdomain_enabled',
                         'value' => 1,
-                        'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                        'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                     ],
                     [
                         'id' => 'ga_crossdomain_disabled',
                         'value' => 0,
-                         'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                         'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
                     ],
                 ],
             ];
@@ -266,6 +266,6 @@ class ConfigurationForm
             Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
         }
 
-        return $this->module->displayConfirmation($this->module->trans('Settings updated successfully.', [], 'Modules.GAnalytics.Admin'));
+        return $this->module->displayConfirmation($this->module->trans('Settings updated successfully.', [], 'Modules.Googleanalytics.Admin'));
     }
 }

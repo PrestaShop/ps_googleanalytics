@@ -28,26 +28,10 @@ if (file_exists($autoloadPath)) {
 
 class Ps_Googleanalytics extends Module
 {
-    /**
-     * @var string Name of the module running on PS 1.6.x. Used for data migration.
-     */
-    const PS_16_EQUIVALENT_MODULE = 'ganalytics';
-
-    public $name;
-    public $tab;
-    public $version;
-    public $ps_versions_compliancy;
-    public $author;
-    public $module_key;
-    public $bootstrap;
-    public $displayName;
-    public $description;
-    public $confirmUninstall;
     public $eligible = 0;
     public $filterable = 1;
     public $products = [];
     public $_debug = 0;
-    public $psVersionIs17;
     private $tools = null;
 
     public function __construct()
@@ -55,17 +39,16 @@ class Ps_Googleanalytics extends Module
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
         $this->version = '4.2.2';
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1.7.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
         $this->bootstrap = true;
 
         parent::__construct();
 
-        $this->displayName = $this->trans('Google Analytics', [], 'Modules.GAnalytics.Admin');
-        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.GAnalytics.Admin');
-        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.GAnalytics.Admin');
-        $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
+        $this->displayName = $this->trans('Google Analytics', [], 'Modules.Googleanalytics.Admin');
+        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.Googleanalytics.Admin');
+        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.Googleanalytics.Admin');
     }
 
     /**
@@ -107,28 +90,11 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Footer hook for 1.6
-     * This function is run to load JS script for standards actions such as product clicks
-     */
-    public function hookDisplayFooter()
-    {
-        if ($this->psVersionIs17) {
-            return;
-        }
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
-
-        return $hook->run();
-    }
-
-    /**
-     * Footer hook for 1.7
+     * Footer hook
      * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayBeforeBodyClosingTag()
     {
-        if (!$this->psVersionIs17) {
-            return;
-        }
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
 
         return $hook->run();
@@ -232,10 +198,7 @@ class Ps_Googleanalytics extends Module
      */
     public function install()
     {
-        $moduleHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler();
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($this);
-
-        $moduleHandler->uninstallModule(self::PS_16_EQUIVALENT_MODULE);
 
         return parent::install() &&
             $database->registerHooks() &&
@@ -255,23 +218,6 @@ class Ps_Googleanalytics extends Module
 
         return parent::uninstall() &&
             $database->uninstallTables();
-    }
-
-    /**
-     * Intermediate method added only to keep backward compatibility with PrestaShop 1.6
-     *
-     * @param string $id
-     * @param array $parameters
-     * @param string|null $domain
-     * @param string|null $locale
-     */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
-    {
-        if (method_exists('Module', 'trans')) {
-            return parent::trans($id, $parameters, $domain, $locale);
-        } else {
-            return $this->l($id);
-        }
     }
 
     /**

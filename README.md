@@ -21,7 +21,7 @@ Enhanced Ecommerce must be enabled in Google Analytics settings for full functio
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with all versions of PrestaShop 8, 1.7 and 1.6.
+Google Analytics is compatible with PrestaShop 1.7.6 and newer.
 
 ### Requirements
 
