@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
@@ -47,7 +46,6 @@ class HookDisplayFooterProduct implements HookInterface
      */
     public function run()
     {
-        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
         $controllerName = Tools::getValue('controller');
 
@@ -59,11 +57,7 @@ class HookDisplayFooterProduct implements HookInterface
             $this->params['product'] = (array) $this->params['product'];
         }
         // Add product view
-        if ($isV4Enabled) {
-            $js = $this->getGoogleAnalytics4();
-        } else {
-            $js = $this->getUniversalAnalytics();
-        }
+        $js = $this->getGoogleAnalytics4();
 
         return $gaTagHandler->generate($js);
     }
@@ -76,18 +70,6 @@ class HookDisplayFooterProduct implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
-    }
-
-    protected function getUniversalAnalytics()
-    {
-        $gaProduct = $this->getProduct();
-
-        $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
-        }
-
-        return $js;
     }
 
     protected function getGoogleAnalytics4()
@@ -127,6 +109,6 @@ class HookDisplayFooterProduct implements HookInterface
     {
         $productWrapper = new ProductWrapper($this->context);
 
-        return $productWrapper->wrapProduct($this->params['product'], null, 0, true);
+        return $productWrapper->wrapProduct($this->params['product']);
     }
 }

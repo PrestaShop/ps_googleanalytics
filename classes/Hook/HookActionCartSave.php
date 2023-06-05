@@ -105,7 +105,7 @@ class HookActionCartSave implements HookInterface
 
             $this->module->products[] = (int) Tools::getValue('id_product');
             $productWrapper = new ProductWrapper($this->context);
-            $gaProducts = $productWrapper->wrapProduct($addProduct, $cart, 0, true);
+            $gaProducts = $productWrapper->wrapProduct($addProduct, $cart);
 
             if (array_key_exists('id_product_attribute', $gaProducts) && $gaProducts['id_product_attribute'] != '' && $gaProducts['id_product_attribute'] != 0) {
                 $productId = $gaProducts['id_product_attribute'];

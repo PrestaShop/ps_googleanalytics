@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
-use Configuration;
 use Context;
 use Currency;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
@@ -39,7 +38,7 @@ class ProductWrapper implements WrapperInterface
     /**
      * wrap products to provide a standard products information for google analytics script
      */
-    public function wrapProductList($products, $extras = [], $full = false)
+    public function wrapProductList($products)
     {
         $result_products = [];
         if (!is_array($products)) {
@@ -49,12 +48,6 @@ class ProductWrapper implements WrapperInterface
         $currency = new Currency($this->context->currency->id);
         $usetax = (Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
 
-        if (count($products) > 20) {
-            $full = false;
-        } else {
-            $full = true;
-        }
-
         foreach ($products as $index => $product) {
             if ($product instanceof Product) {
                 $product = (array) $product;
@@ -63,7 +56,7 @@ class ProductWrapper implements WrapperInterface
             if (!isset($product['price'])) {
                 $product['price'] = (float) Tools::displayPrice(Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
             }
-            $result_products[] = $this->wrapProduct($product, $extras, $index, $full);
+            $result_products[] = $this->wrapProduct($product, [], $index);
         }
 
         return $result_products;
@@ -72,10 +65,8 @@ class ProductWrapper implements WrapperInterface
     /**
      * wrap product to provide a standard product information for google analytics script
      */
-    public function wrapProduct($product, $extras, $index = 0, $full = false)
+    public function wrapProduct($product, $extras = [], $index = 0)
     {
-        $ga_product = '';
-
         $variant = null;
         if (isset($product['attributes_small'])) {
             $variant = $product['attributes_small'];
@@ -108,36 +99,18 @@ class ProductWrapper implements WrapperInterface
             $product_type = 'virtual';
         }
 
-        if ($full) {
-            $ga_product = [
-                'id' => (int) $product_id,
-                'name' => (string) $product['name'],
-                'category' => (string) $product['category'],
-                'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
-                'variant' => (string) $variant,
-                'type' => (string) $product_type,
-                'position' => (int) $index ? $index : '0',
-                'quantity' => (int) $product_qty,
-                'list' => (string) Tools::getValue('controller'),
-                'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
-                'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
-            ];
-        } else {
-            $ga_product = [
-                'id' => (int) $product_id,
-                'name' => (string) $product['name'],
-            ];
-        }
-
-        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-        if (!$isV4Enabled) {
-            foreach ($ga_product as $k => $v) {
-                if (in_array($k, ['name', 'category', 'brand', 'variant', 'brand'])) {
-                    $ga_product[$k] = Tools::str2url($v);
-                }
-            }
-        }
-
-        return $ga_product;
+        return [
+            'id' => (int) $product_id,
+            'name' => (string) $product['name'],
+            'category' => (string) $product['category'],
+            'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
+            'variant' => (string) $variant,
+            'type' => (string) $product_type,
+            'position' => (int) $index ? $index : '0',
+            'quantity' => (int) $product_qty,
+            'list' => (string) Tools::getValue('controller'),
+            'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
+            'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
+        ];
     }
 }

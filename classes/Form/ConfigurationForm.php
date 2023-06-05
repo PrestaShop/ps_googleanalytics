@@ -26,7 +26,6 @@ use Context;
 use HelperForm;
 use OrderState;
 use Ps_Googleanalytics;
-use Shop;
 use Tools;
 
 class ConfigurationForm
@@ -45,9 +44,6 @@ class ConfigurationForm
      */
     public function generate()
     {
-        // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();
-
         // Get default language
         $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
@@ -88,30 +84,12 @@ class ConfigurationForm
             ],
             'input' => [
                 [
-                    'type' => 'switch',
-                    'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.Googleanalytics.Admin'),
-                    'name' => 'GA_V4_ENABLED',
-                    'values' => [
-                        [
-                            'id' => 'GA_V4_ENABLED',
-                            'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
-                        ],
-                        [
-                            'id' => 'GA_V4_ENABLED',
-                            'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
-                        ],
-                    ],
-                    'desc' => $this->module->trans('Universal analytics will stop processing data on July 1, 2023. We recommend switching to Google Analytics 4 as soon as possible.', [], 'Modules.Googleanalytics.Admin'),
-                ],
-                [
                     'type' => 'text',
                     'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with "G-", Universal Analytics with "UA-".', [], 'Modules.Googleanalytics.Admin'),
+                    'desc' => $this->module->trans('This information is available in your Google Analytics account. Google Analytics 4 tracking ID starts with "G-".', [], 'Modules.Googleanalytics.Admin'),
                 ],
                 [
                     'type' => 'switch',
@@ -185,31 +163,9 @@ class ConfigurationForm
             ],
         ];
 
-        if ($is_multistore_active) {
-            $fields_form[0]['form']['input'][] = [
-                'type' => 'switch',
-                'label' => $this->module->trans('Enable Cross-Domain tracking', [], 'Modules.Googleanalytics.Admin'),
-                'name' => 'GA_CROSSDOMAIN_ENABLED',
-                'values' => [
-                    [
-                        'id' => 'ga_crossdomain_enabled',
-                        'value' => 1,
-                        'label' => $this->module->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
-                    ],
-                    [
-                        'id' => 'ga_crossdomain_disabled',
-                        'value' => 0,
-                         'label' => $this->module->trans('No', [], 'Modules.Googleanalytics.Admin'),
-                    ],
-                ],
-            ];
-        }
-
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
-        $helper->fields_value['GA_V4_ENABLED'] = Configuration::get('GA_V4_ENABLED');
         $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
-        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
         $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
         $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
         $helper->fields_value['GA_CANCELLED_STATES[]'] = json_decode(Configuration::get('GA_CANCELLED_STATES'), true);
@@ -224,13 +180,8 @@ class ConfigurationForm
      */
     public function treat()
     {
-        // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();
-
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
-        $gaV4Enabled = Tools::getValue('GA_V4_ENABLED');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
-        $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
         $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_ENABLED');
         $gaCancelledStates = Tools::getValue('GA_CANCELLED_STATES');
@@ -240,16 +191,8 @@ class ConfigurationForm
             Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
         }
 
-        if (null !== $gaV4Enabled) {
-            Configuration::updateValue('GA_V4_ENABLED', (bool) $gaV4Enabled);
-        }
-
         if (null !== $gaUserIdEnabled) {
             Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
-        }
-
-        if ($is_multistore_active) {
-            Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
         }
 
         if (null !== $gaAnonymizeEnabled) {

@@ -38,7 +38,6 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $eligible = 0;
     public $filterable = 1;
     public $products = [];
     public $_debug = 0;
@@ -48,7 +47,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '4.3.0';
+        $this->version = '5.0.0';
         $this->ps_versions_compliancy = ['min' => '1.7.6', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -105,7 +104,7 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayBeforeBodyClosingTag()
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBeforeBodyClosingTag($this, $this->context);
 
         return $hook->run();
     }
@@ -236,9 +235,7 @@ class Ps_Googleanalytics extends Module
     public function getTools()
     {
         if ($this->tools === null) {
-            $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools(
-                (bool) Configuration::get('GA_V4_ENABLED')
-            );
+            $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools();
         }
 
         return $this->tools;

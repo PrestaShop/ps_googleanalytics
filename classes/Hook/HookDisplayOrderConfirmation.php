@@ -66,23 +66,18 @@ class HookDisplayOrderConfirmation implements HookInterface
                 );
 
                 $cart = new Cart($order->id_cart);
-                $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
                 $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                 $productWrapper = new ProductWrapper($this->context);
 
                 // Add payment data
-                if ($isV4Enabled) {
-                    $eventData = [
-                        'currency' => $this->context->currency->iso_code,
-                        'payment_type' => $order->payment,
-                    ];
-                    $gaScripts = $this->module->getTools()->renderEvent(
-                        'add_payment_info',
-                        $eventData
-                    );
-                } else {
-                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
-                }
+                $eventData = [
+                    'currency' => $this->context->currency->iso_code,
+                    'payment_type' => $order->payment,
+                ];
+                $gaScripts = $this->module->getTools()->renderEvent(
+                    'add_payment_info',
+                    $eventData
+                );
 
                 // Prepare transaction data
                 $transaction = [
@@ -99,7 +94,7 @@ class HookDisplayOrderConfirmation implements HookInterface
                 // Prepare order products
                 $orderProducts = [];
                 foreach ($cart->getProducts() as $order_product) {
-                    $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
+                    $orderProducts[] = $productWrapper->wrapProduct($order_product);
                 }
                 $gaScripts .= $this->module->getTools()->addTransaction($orderProducts, $transaction);
 
