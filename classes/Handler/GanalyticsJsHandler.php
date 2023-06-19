@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Handler;
 use Configuration;
 use Context;
 use Ps_Googleanalytics;
-use Tools;
 
 class GanalyticsJsHandler
 {
@@ -48,9 +47,7 @@ class GanalyticsJsHandler
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->smarty->assign(
                 [
-                    'isV4Enabled' => (bool) Configuration::get('GA_V4_ENABLED'),
                     'jsCode' => $jsCode,
-                    'isoCode' => Tools::safeOutput($this->context->currency->iso_code),
                 ]
             );
 

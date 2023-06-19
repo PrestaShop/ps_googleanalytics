@@ -57,7 +57,6 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
         if (!empty($ga_account_id) && $this->module->active) {
             $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-            $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
 
             $this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
@@ -85,7 +84,6 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
                     if ($gaOrderRecords) {
                         $orderWrapper = new OrderWrapper($this->context);
-                        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
                         foreach ($gaOrderRecords as $row) {
                             $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
@@ -98,31 +96,27 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                 );
 
                                 // Generate transaction event
-                                if ($isV4Enabled) {
-                                    $callbackData = [
-                                        'orderid' => (int) $transaction['id'],
-                                        'customer' => (int) $transaction['customer'],
-                                    ];
+                                $callbackData = [
+                                    'orderid' => (int) $transaction['id'],
+                                    'customer' => (int) $transaction['customer'],
+                                ];
 
-                                    $eventData = [
-                                        'transaction_id' => (int) $transaction['id'],
-                                        'affiliation' => $transaction['affiliation'],
-                                        'value' => (float) $transaction['revenue'],
-                                        'tax' => (float) $transaction['tax'],
-                                        'shipping' => (float) $transaction['shipping'],
-                                        'currency' => $this->context->currency->iso_code,
-                                        'event_callback' => "function() {
-                                            $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
-                                        }',
-                                    ];
-                                    $gaScripts .= $this->module->getTools()->renderEvent(
-                                        'purchase',
-                                        $eventData,
-                                        ['event_callback']
-                                    );
-                                } else {
-                                    $gaScripts .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
-                                }
+                                $eventData = [
+                                    'transaction_id' => (int) $transaction['id'],
+                                    'affiliation' => $transaction['affiliation'],
+                                    'value' => (float) $transaction['revenue'],
+                                    'tax' => (float) $transaction['tax'],
+                                    'shipping' => (float) $transaction['shipping'],
+                                    'currency' => $this->context->currency->iso_code,
+                                    'event_callback' => "function() {
+                                        $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                                    }',
+                                ];
+                                $gaScripts .= $this->module->getTools()->renderEvent(
+                                    'purchase',
+                                    $eventData,
+                                    ['event_callback']
+                                );
                             }
                         }
                     }

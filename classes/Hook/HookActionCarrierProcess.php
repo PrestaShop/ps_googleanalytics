@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
@@ -53,12 +52,8 @@ class HookActionCarrierProcess implements HookInterface
             );
 
             $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
+            $js = $this->getGoogleAnalytics4($carrierName);
 
-            if ((bool) Configuration::get('GA_V4_ENABLED')) {
-                $js = $this->getGoogleAnalytics4($carrierName);
-            } else {
-                $js = $this->getUniversalAnalytics($carrierName);
-            }
             $ganalyticsDataHandler->manageData($js, 'A');
         }
     }
@@ -69,14 +64,6 @@ class HookActionCarrierProcess implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
-    }
-
-    /**
-     * @param string $carrierName
-     */
-    protected function getUniversalAnalytics($carrierName)
-    {
-        return 'MBG.addCheckoutOption(2,\'' . $carrierName . '\');';
     }
 
     /**

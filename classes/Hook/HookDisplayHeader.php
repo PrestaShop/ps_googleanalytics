@@ -28,7 +28,6 @@ use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use Shop;
 use Tools;
 
 class HookDisplayHeader implements HookInterface
@@ -62,13 +61,7 @@ class HookDisplayHeader implements HookInterface
             return '';
         }
 
-        $this->context->controller->addJs($this->module->getPathUri() . 'views/js/GoogleAnalyticActionLib.js');
-
-        $shops = Shop::getShops();
-        $isMultistoreActive = Shop::isFeatureActive();
-        $currentShopId = (int) Context::getContext()->shop->id;
         $userId = null;
-        $gaCrossdomainEnabled = false;
 
         if (Configuration::get('GA_USERID_ENABLED')
             && $this->context->customer instanceof Customer
@@ -79,22 +72,13 @@ class HookDisplayHeader implements HookInterface
 
         $gaAnonymizeEnabled = Configuration::get('GA_ANONYMIZE_ENABLED');
 
-        if ((int) Configuration::get('GA_CROSSDOMAIN_ENABLED') && $isMultistoreActive && count($shops) > 1) {
-            $gaCrossdomainEnabled = true;
-        }
-
         $this->context->smarty->assign(
             [
-                'isV4Enabled' => (bool) Configuration::get('GA_V4_ENABLED'),
                 'backOffice' => $this->backOffice,
                 'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
-                'currentShopId' => $currentShopId,
                 'userId' => $userId,
                 'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                'shops' => $shops,
-                'gaCrossdomainEnabled' => $gaCrossdomainEnabled,
                 'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
-                'useSecureMode' => Configuration::get('PS_SSL_ENABLED'),
             ]
         );
 
@@ -121,11 +105,8 @@ class HookDisplayHeader implements HookInterface
                     1,
                     (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
                     'position'
-                ),
-                [],
-                true
+                )
             );
-            $gaScripts .= $this->module->getTools()->addProductImpression($homeFeaturedProducts);
             $gaScripts .= $this->module->getTools()->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
         }
 

@@ -25,16 +25,6 @@ use Configuration;
 class GoogleAnalyticsTools
 {
     /**
-     * @var bool
-     */
-    protected $isV4Enabled = false;
-
-    public function __construct($isV4Enabled = false)
-    {
-        $this->isV4Enabled = $isV4Enabled;
-    }
-
-    /**
      * filter
      *
      * @param string $gaScripts
@@ -65,70 +55,38 @@ class GoogleAnalyticsTools
             return;
         }
 
-        if ($this->isV4Enabled) {
-            $callbackData = [
-                'orderid' => $transaction['id'],
-                'customer' => $transaction['customer'],
+        $callbackData = [
+            'orderid' => $transaction['id'],
+            'customer' => $transaction['customer'],
+        ];
+
+        $eventData = [
+            'transaction_id' => (int) $transaction['id'],
+            'affiliation' => $transaction['affiliation'],
+            'value' => (float) $transaction['revenue'],
+            'tax' => (float) $transaction['tax'],
+            'shipping' => (float) $transaction['shipping'],
+            'currency' => $transaction['currency'],
+            'items' => [],
+            'event_callback' => "function() {
+                $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+            }',
+        ];
+
+        foreach ($products as $product) {
+            $eventData['items'][] = [
+                'item_id' => (int) $product['id'],
+                'item_name' => $product['name'],
+                'quantity' => (int) $product['quantity'],
+                'price' => (float) $product['price'],
             ];
-
-            $eventData = [
-                'transaction_id' => (int) $transaction['id'],
-                'affiliation' => $transaction['affiliation'],
-                'value' => (float) $transaction['revenue'],
-                'tax' => (float) $transaction['tax'],
-                'shipping' => (float) $transaction['shipping'],
-                'currency' => $transaction['currency'],
-                'items' => [],
-                'event_callback' => "function() {
-                    $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
-                }',
-            ];
-
-            foreach ($products as $product) {
-                $eventData['items'][] = [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                ];
-            }
-
-            $js = $this->renderEvent(
-                'purchase',
-                $eventData,
-                ['event_callback']
-            );
-        } else {
-            unset($transaction['currency']);
-            $js = '';
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ');';
-            }
-            $js .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
         }
 
-        return $js;
-    }
-
-    /**
-     * add product impression js and product click js
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductImpression($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if (!$this->isV4Enabled) {
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ",'',true);";
-            }
-        }
+        $js = $this->renderEvent(
+            'purchase',
+            $eventData,
+            ['event_callback']
+        );
 
         return $js;
     }
@@ -148,41 +106,35 @@ class GoogleAnalyticsTools
         }
 
         $js = '';
-        if ($this->isV4Enabled) {
-            foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
+        foreach ($products as $key => $product) {
+            $eventData = [
+                'items' => [
+                    'item_id' => (int) $product['id'],
+                    'item_name' => $product['name'],
+                    'quantity' => (int) $product['quantity'],
+                    'price' => (float) $product['price'],
+                    'currency' => $currencyIsoCode,
+                    'index' => (int) $product['position'],
+                    'item_brand' => $product['brand'],
+                    'item_category' => $product['category'],
+                    'item_list_id' => $product['list'],
+                    'item_variant' => $product['variant'],
+                ],
+            ];
 
-                // Add send_to parameter to avoid sending extra events
-                // to other gtag configs (Ads for example).
-                $eventData = array_merge(
-                    ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
-                    $eventData
-                );
+            // Add send_to parameter to avoid sending extra events
+            // to other gtag configs (Ads for example).
+            $eventData = array_merge(
+                ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
+                $eventData
+            );
 
-                $productId = explode('-', $product['id']);
-                $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
-                "click",
-                function() {
-                    gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
-                });';
-            }
-        } else {
-            foreach ($products as $product) {
-                $js .= 'MBG.addProductClick(' . json_encode($product) . ');';
-            }
+            $productId = explode('-', $product['id']);
+            $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
+            "click",
+            function() {
+                gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
+            });';
         }
 
         return $js;
@@ -202,55 +154,26 @@ class GoogleAnalyticsTools
         }
 
         $js = '';
-        if ($this->isV4Enabled) {
-            foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
+        foreach ($products as $key => $product) {
+            $eventData = [
+                'items' => [
+                    'item_id' => (int) $product['id'],
+                    'item_name' => $product['name'],
+                    'quantity' => (int) $product['quantity'],
+                    'price' => (float) $product['price'],
+                    'currency' => $currencyIsoCode,
+                    'index' => (int) $product['position'],
+                    'item_brand' => $product['brand'],
+                    'item_category' => $product['category'],
+                    'item_list_id' => $product['list'],
+                    'item_variant' => $product['variant'],
+                ],
+            ];
 
-                $js .= $this->renderEvent(
-                    'select_item',
-                    $eventData
-                );
-            }
-        } else {
-            foreach ($products as $product) {
-                $js .= 'MBG.addProductClickByHttpReferal(' . json_encode($product) . ');';
-            }
-        }
-
-        return $js;
-    }
-
-    /**
-     * Add product checkout info
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductFromCheckout($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if (!$this->isV4Enabled) {
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ');';
-            }
+            $js .= $this->renderEvent(
+                'select_item',
+                $eventData
+            );
         }
 
         return $js;
