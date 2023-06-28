@@ -42,38 +42,39 @@ class GoogleAnalyticsTools
     }
 
     /**
-     * add order transaction
+     * Renders purchase event for order
      *
-     * @param array $products
+     * @param array $orderProducts
      * @param array $transaction
+     * @param string $callbackUrl
      *
      * @return string|void
      */
-    public function addTransaction($products, $transaction)
+    public function renderPurchaseEvent($orderProducts, $orderData, $callbackUrl)
     {
-        if (!is_array($products)) {
+        if (!is_array($orderProducts)) {
             return;
         }
 
         $callbackData = [
-            'orderid' => $transaction['id'],
-            'customer' => $transaction['customer'],
+            'orderid' => $orderData['id'],
+            'customer' => $orderData['customer'],
         ];
 
         $eventData = [
-            'transaction_id' => (int) $transaction['id'],
-            'affiliation' => $transaction['affiliation'],
-            'value' => (float) $transaction['revenue'],
-            'tax' => (float) $transaction['tax'],
-            'shipping' => (float) $transaction['shipping'],
-            'currency' => $transaction['currency'],
+            'transaction_id' => (int) $orderData['id'],
+            'affiliation' => $orderData['affiliation'],
+            'value' => (float) $orderData['revenue'],
+            'tax' => (float) $orderData['tax'],
+            'shipping' => (float) $orderData['shipping'],
+            'currency' => $orderData['currency'],
             'items' => [],
             'event_callback' => "function() {
-                $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+                $.get('" . $callbackUrl . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
             }',
         ];
 
-        foreach ($products as $product) {
+        foreach ($orderProducts as $product) {
             $eventData['items'][] = [
                 'item_id' => (int) $product['id'],
                 'item_name' => $product['name'],
@@ -82,13 +83,11 @@ class GoogleAnalyticsTools
             ];
         }
 
-        $js = $this->renderEvent(
+        return $this->renderEvent(
             'purchase',
             $eventData,
             ['event_callback']
         );
-
-        return $js;
     }
 
     /**

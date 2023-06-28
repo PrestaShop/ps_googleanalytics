@@ -42,6 +42,21 @@ class GanalyticsRepository
     }
 
     /**
+     * Checks if order is already sent to GA
+     *
+     * @param int $idOrder
+     *
+     * @return bool
+     */
+    public function orderAlreadySent($idOrder)
+    {
+        return (bool) Db::getInstance()->getValue(
+            'SELECT `sent`
+            FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
+            WHERE id_order = ' . (int) $idOrder);
+    }
+
+    /**
      * findAllByShopIdAndDateAdd
      *
      * @param int $shopId

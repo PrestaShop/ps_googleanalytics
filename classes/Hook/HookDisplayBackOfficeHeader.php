@@ -79,32 +79,25 @@ class HookDisplayBackOfficeHeader implements HookInterface
                     if ($gaOrderRecords) {
                         $orderWrapper = new OrderWrapper($this->context);
                         foreach ($gaOrderRecords as $row) {
-                            $transaction = $orderWrapper->wrapOrder($row['id_order']);
-                            if (!empty($transaction)) {
+                            $orderData = $orderWrapper->wrapOrder($row['id_order']);
+                            if (!empty($orderData)) {
                                 // Mark it as successfully sent
                                 $ganalyticsRepository->markOrderAsSent((int) $row['id_order']);
 
-                                // Generate transaction event
-                                $callbackData = [
-                                    'orderid' => (int) $transaction['id'],
-                                    'customer' => (int) $transaction['customer'],
-                                ];
-
-                                $eventData = [
-                                    'transaction_id' => (int) $transaction['id'],
-                                    'affiliation' => $transaction['affiliation'],
-                                    'value' => (float) $transaction['revenue'],
-                                    'tax' => (float) $transaction['tax'],
-                                    'shipping' => (float) $transaction['shipping'],
-                                    'currency' => $transaction['currency'],
-                                    'event_callback' => "function() {
-                                        $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
-                                    }',
-                                ];
+                                // Add payment data
                                 $gaScripts .= $this->module->getTools()->renderEvent(
-                                    'purchase',
-                                    $eventData,
-                                    ['event_callback']
+                                    'add_payment_info',
+                                    [
+                                        'currency' => $orderData['currency'],
+                                        'payment_type' => $orderData['payment_type'],
+                                    ]
+                                );
+
+                                // Render purchase
+                                $gaScripts .= $this->module->getTools()->renderPurchaseEvent(
+                                    [],
+                                    $orderData,
+                                    $this->context->link->getAdminLink('AdminGanalyticsAjax')
                                 );
                             }
                         }

@@ -26,6 +26,7 @@ use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 use Ps_Googleanalytics;
 use Shop;
 use Validate;
@@ -49,59 +50,57 @@ class HookDisplayOrderConfirmation implements HookInterface
      */
     public function run()
     {
+        $gaScripts = '';
         $order = $this->params['order'];
 
-        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int) Configuration::get('PS_OS_ERROR')) {
-            $ganalyticsRepository = new GanalyticsRepository();
-            $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
+        if (!Validate::isLoadedObject($order) || $order->getCurrentState() == (int) Configuration::get('PS_OS_ERROR')) {
+            return $gaScripts;
+        }
 
-            if (false === $gaOrderSent) {
-                // Add order to repository, so we can later mark it as sent
-                $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
+        // Load up the order repository and try to find the order
+        $ganalyticsRepository = new GanalyticsRepository();
+        if ($ganalyticsRepository->orderAlreadySent((int) $order->id)) {
+            return $gaScripts;
+        }
+        
+        // Add order to repository, so we can later mark it as sent
+        // Repository inserts ignore, so no worries
+        $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
 
-                $cart = new Cart($order->id_cart);
-                $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-                $productWrapper = new ProductWrapper($this->context);
+        // Load up our handlers
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+        $productWrapper = new ProductWrapper($this->context);
+        $orderWrapper = new OrderWrapper($this->context);
 
-                // Prepare currency information
-                $currency = new Currency((int) $order->id_currency);
+        // Prepare transaction data
+        $orderData = $orderWrapper->wrapOrder((int) $order->id);
+        
+        // Add payment event
+        $gaScripts .= $this->module->getTools()->renderEvent(
+            'add_payment_info',
+            [
+                'currency' => $orderData['currency'],
+                'payment_type' => $orderData['payment_type'],
+            ]
+        );
 
-                // Add payment data
-                $eventData = [
-                    'currency' => $currency->iso_code,
-                    'payment_type' => $order->payment,
-                ];
-                $gaScripts = $this->module->getTools()->renderEvent(
-                    'add_payment_info',
-                    $eventData
-                );
-
-                // Prepare transaction data
-                $transaction = [
-                    'id' => (int) $order->id,
-                    'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                    'revenue' => (float) $order->total_paid,
-                    'shipping' => (float) $order->total_shipping,
-                    'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                    'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
-                    'customer' => (int) $order->id_customer,
-                    'currency' => $currency->iso_code,
-                ];
-
-                // Prepare order products
-                $orderProducts = [];
-                foreach ($cart->getProducts() as $order_product) {
-                    $orderProducts[] = $productWrapper->wrapProduct($order_product);
-                }
-
-                // Render transaction code
-                $gaScripts .= $this->module->getTools()->addTransaction($orderProducts, $transaction);
-
-                return $gaTagHandler->generate($gaScripts);
+        // Prepare order products
+        $orderProducts = [];
+        $cart = new Cart($order->id_cart);
+        if (Validate::isLoadedObject($cart)) {
+            foreach ($cart->getProducts() as $order_product) {
+                $orderProducts[] = $productWrapper->wrapProduct($order_product);
             }
         }
 
-        return '';
+        // Render transaction code
+        $gaScripts .= $this->module->getTools()->renderPurchaseEvent(
+            $orderProducts,
+            $orderData,
+            $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true)
+        );
+
+        return $gaTagHandler->generate($gaScripts);
     }
 
     /**

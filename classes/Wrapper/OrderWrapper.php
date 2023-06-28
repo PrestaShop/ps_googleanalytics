@@ -57,9 +57,9 @@ class OrderWrapper implements WrapperInterface
             'revenue' => (float) $order->total_paid,
             'shipping' => (float) $order->total_shipping,
             'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-            'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
             'customer' => (int) $order->id_customer,
             'currency' => $currency->iso_code,
+            'payment_type' => (int) $order->payment,
         ];
     }
 }
