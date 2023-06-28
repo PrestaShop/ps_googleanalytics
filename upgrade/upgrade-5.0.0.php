@@ -26,5 +26,9 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_5_0_0($object)
 {
-    return Configuration::deleteByName('GA_V4_ENABLED') && $object->registerHook('actionValidateOrder');
+    return 
+        Configuration::deleteByName('GA_V4_ENABLED') &&
+        $object->registerHook('actionValidateOrder') &&
+        Configuration::updateValue('GA_BACKLOAD_ENABLED', false) &&
+        Configuration::updateValue('GA_BACKLOAD_DAYS', 30);
 }

@@ -87,6 +87,8 @@ class Install
     public function setDefaultConfiguration()
     {
         Configuration::updateValue('GA_CANCELLED_STATES', json_encode([Configuration::get('PS_OS_CANCELED')]));
+        Configuration::updateValue('GA_BACKLOAD_ENABLED', false);
+        Configuration::updateValue('GA_BACKLOAD_DAYS', 30);
 
         return true;
     }

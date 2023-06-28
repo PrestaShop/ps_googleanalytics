@@ -20,9 +20,11 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
+use Cart;
 use Configuration;
 use Context;
 use Currency;
+use Db;
 use Order;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
@@ -60,70 +62,13 @@ class HookDisplayBackOfficeHeader implements HookInterface
         // Render base tag using displayHeader hook with backoffice parameter
         $gaScripts .= $this->module->hookDisplayHeader(null, true);
 
-        // Load up our handlers and repositories
-        $ganalyticsRepository = new GanalyticsRepository();
-        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $productWrapper = new ProductWrapper($this->context);
-        $orderWrapper = new OrderWrapper($this->context);
-
         // Process manual orders instantly, we have their IDs in cookie
         $gaScripts .= $this->processManualOrders();
         
-        // TEMP RETURN
-        return $gaTagHandler->generate($gaScripts);
+        // Backload old orders that failed to load normally
+        $gaScripts .= $this->backloadFailedOrders();
 
-        return;
-        dump($this->context);
-        dump($_POST);
-        dump(Tools::getValue('id_order'));
-        dump($_GET);
-        die;
-
-        // TEMP RETURN
-
-        // Backload all unsuccessfully sent orders into our database
-        if ($this->context->controller->controller_name == 'AdminOrders') {
-            if (Tools::getValue('id_order')) {
-                $order = new Order((int) Tools::getValue('id_order'));
-                if (Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
-                    $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) Tools::getValue('id_order'));
-                    if ($gaOrderSent === false) {
-                        // Add order to repository, so we can later mark it as sent
-                        $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
-                    }
-                }
-            } else {
-                $gaOrderRecords = $ganalyticsRepository->findAllByShopIdAndDateAdd((int) $this->context->shop->id);
-
-                if ($gaOrderRecords) {
-                    foreach ($gaOrderRecords as $row) {
-                        $orderData = $orderWrapper->wrapOrder($row['id_order']);
-                        if (!empty($orderData)) {
-                            // Mark it as successfully sent
-                            $ganalyticsRepository->markOrderAsSent((int) $row['id_order']);
-
-                            // Add payment data
-                            $gaScripts .= $this->module->getTools()->renderEvent(
-                                'add_payment_info',
-                                [
-                                    'currency' => $orderData['currency'],
-                                    'payment_type' => $orderData['payment_type'],
-                                ]
-                            );
-
-                            // Render purchase
-                            $gaScripts .= $this->module->getTools()->renderPurchaseEvent(
-                                [],
-                                $orderData,
-                                $this->context->link->getAdminLink('AdminGanalyticsAjax')
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        return $gaTagHandler->generate($gaScripts);
+        return $gaScripts;
     }
 
     /**
@@ -135,18 +80,50 @@ class HookDisplayBackOfficeHeader implements HookInterface
     }
 
     /**
+     * Checks if there are any orders that failed to be sent normally through front office and processes them
+     */
+    protected function backloadFailedOrders()
+    {
+        $gaScripts = '';
+        if (empty(Configuration::get('GA_BACKLOAD_ENABLED'))) {
+            return $gaScripts;
+        }
+
+        // Check for value on how long back we will get them
+        $backloadDays = (int) Configuration::get('GA_BACKLOAD_DAYS');
+        if ($backloadDays < 1) {
+            return $gaScripts;
+        }
+
+        // Get all failed orders (either not present in our table or not sent)
+        // We go GA_BACKLOAD_DAYS into the past and at least 30 minutes old
+        $failedOrders = Db::getInstance()->ExecuteS(
+            'SELECT DISTINCT o.id_order, g.sent FROM `' . _DB_PREFIX_ . 'orders` o
+            LEFT JOIN `' . _DB_PREFIX_ . GanalyticsRepository::TABLE_NAME . '` g ON o.id_order = g.id_order
+            WHERE (g.sent IS NULL OR g.sent = 0) AND o.date_add BETWEEN NOW() - INTERVAL ' . $backloadDays .' DAY AND NOW() - INTERVAL 30 MINUTE'
+        );
+
+        // Process each failed order
+        foreach ($failedOrders as $idOrder) {
+            $gaScripts .= $this->processOrder((int) $idOrder);
+        }
+
+        return $gaScripts;
+    }
+
+    /**
      * Checks if there are any manual orders in cookie and processes them
      */
     protected function processManualOrders()
     {
+        $gaScripts = '';
         $adminOrders = $this->context->cookie->__get('ga_admin_order');
         if (empty($adminOrders)) {
-            return;
+            return $gaScripts;
         }
 
         // Separate them by IDs and process one by one
         $adminOrders = explode(",", $adminOrders);
-        $gaScripts = '';
         foreach ($adminOrders as $idOrder) {
             $gaScripts .= $this->processOrder((int) $idOrder);
         }
