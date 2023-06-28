@@ -116,4 +116,23 @@ class GanalyticsRepository
             $limit
         );
     }
+
+    /**
+     * Marks order as successfully sent to GA via callback
+     *
+     * @param int $idOrder
+     *
+     * @return bool
+     */
+    public function markOrderAsSent($idOrder)
+    {
+        return Db::getInstance()->update(
+            self::TABLE_NAME,
+            [
+                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+                'sent' => 1,
+            ],
+            'id_order = ' . (int) $idOrder
+        );
+    }
 }

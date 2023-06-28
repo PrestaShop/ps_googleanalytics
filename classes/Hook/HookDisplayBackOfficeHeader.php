@@ -81,13 +81,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
                         foreach ($gaOrderRecords as $row) {
                             $transaction = $orderWrapper->wrapOrder($row['id_order']);
                             if (!empty($transaction)) {
-                                $ganalyticsRepository->updateData(
-                                    [
-                                        'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
-                                        'sent' => 1,
-                                    ],
-                                    'id_order = ' . (int) $row['id_order'] . ' AND id_shop = ' . (int) $this->context->shop->id
-                                );
+                                // Mark it as successfully sent
+                                $ganalyticsRepository->markOrderAsSent((int) $row['id_order']);
 
                                 // Generate transaction event
                                 $callbackData = [
