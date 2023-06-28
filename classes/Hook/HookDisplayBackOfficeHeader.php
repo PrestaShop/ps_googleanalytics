@@ -101,7 +101,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
                                     'value' => (float) $transaction['revenue'],
                                     'tax' => (float) $transaction['tax'],
                                     'shipping' => (float) $transaction['shipping'],
-                                    'currency' => $this->context->currency->iso_code,
+                                    'currency' => $transaction['currency'],
                                     'event_callback' => "function() {
                                         $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
                                     }',

@@ -63,9 +63,12 @@ class HookDisplayOrderConfirmation implements HookInterface
                 $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
                 $productWrapper = new ProductWrapper($this->context);
 
+                // Prepare currency information
+                $currency = new Currency((int) $order->id_currency);
+
                 // Add payment data
                 $eventData = [
-                    'currency' => $this->context->currency->iso_code,
+                    'currency' => $currency->iso_code,
                     'payment_type' => $order->payment,
                 ];
                 $gaScripts = $this->module->getTools()->renderEvent(
@@ -76,13 +79,13 @@ class HookDisplayOrderConfirmation implements HookInterface
                 // Prepare transaction data
                 $transaction = [
                     'id' => (int) $order->id,
-                    'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+                    'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
                     'revenue' => (float) $order->total_paid,
                     'shipping' => (float) $order->total_shipping,
                     'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
                     'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
                     'customer' => (int) $order->id_customer,
-                    'currency' => $this->context->currency->iso_code,
+                    'currency' => $currency->iso_code,
                 ];
 
                 // Prepare order products
