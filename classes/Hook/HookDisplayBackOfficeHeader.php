@@ -23,7 +23,6 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Cart;
 use Configuration;
 use Context;
-use Currency;
 use Db;
 use Order;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
@@ -64,19 +63,11 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
         // Process manual orders instantly, we have their IDs in cookie
         $gaScripts .= $this->processManualOrders();
-        
+
         // Backload old orders that failed to load normally
         $gaScripts .= $this->backloadFailedOrders();
 
         return $gaScripts;
-    }
-
-    /**
-     * @param array $params
-     */
-    public function setParams($params)
-    {
-        $this->params = $params;
     }
 
     /**
@@ -100,7 +91,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
         $failedOrders = Db::getInstance()->ExecuteS(
             'SELECT DISTINCT o.id_order, g.sent FROM `' . _DB_PREFIX_ . 'orders` o
             LEFT JOIN `' . _DB_PREFIX_ . GanalyticsRepository::TABLE_NAME . '` g ON o.id_order = g.id_order
-            WHERE (g.sent IS NULL OR g.sent = 0) AND o.date_add BETWEEN NOW() - INTERVAL ' . $backloadDays .' DAY AND NOW() - INTERVAL 30 MINUTE'
+            WHERE (g.sent IS NULL OR g.sent = 0) AND o.date_add BETWEEN NOW() - INTERVAL ' . $backloadDays . ' DAY AND NOW() - INTERVAL 30 MINUTE'
         );
 
         // Process each failed order
@@ -123,7 +114,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
         }
 
         // Separate them by IDs and process one by one
-        $adminOrders = explode(",", $adminOrders);
+        $adminOrders = explode(',', $adminOrders);
         foreach ($adminOrders as $idOrder) {
             $gaScripts .= $this->processOrder((int) $idOrder);
         }
@@ -136,7 +127,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
     }
 
     /**
-     * Renders tracking code for given order 
+     * Renders tracking code for given order
      *
      * @param int $idOrder
      */
@@ -167,7 +158,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
         // Prepare transaction data
         $orderData = $orderWrapper->wrapOrder($order);
-        
+
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(
             'add_payment_info',

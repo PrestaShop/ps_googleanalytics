@@ -22,6 +22,7 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
 use Db;
 use Tab;
+use Validate;
 
 class Uninstall
 {

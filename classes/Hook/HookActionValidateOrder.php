@@ -53,19 +53,20 @@ class HookActionValidateOrder implements HookInterface
      */
     public function run()
     {
-      // Check if we are creating backoffice order
-      if ($this->context->controller->controller_name != 'AdminOrders' && $this->context->controller->controller_name != 'Admin') {
-        return;
-      }
+        // Check if we are creating backoffice order
+        if ($this->context->controller->controller_name != 'AdminOrders' && $this->context->controller->controller_name != 'Admin') {
+            return;
+        }
 
-      // Mark this ID to immediately display it on next page load
-      if (!empty($this->context->cookie->__get('ga_admin_order'))) {
-        $ga_admin_order = $this->context->cookie->__get('ga_admin_order') . "," . ($this->params['order'])->id;
-      } else {
-        $ga_admin_order = ($this->params['order'])->id;
-      }
-      $this->context->cookie->__set('ga_admin_order', $ga_admin_order);
-      $this->context->cookie->write();
+        // Mark this ID to immediately display it on next page load
+        $order = $this->params['order'];
+        if (!empty($this->context->cookie->__get('ga_admin_order'))) {
+            $ga_admin_order = $this->context->cookie->__get('ga_admin_order') . ',' . $order->id;
+        } else {
+            $ga_admin_order = $order->id;
+        }
+        $this->context->cookie->__set('ga_admin_order', $ga_admin_order);
+        $this->context->cookie->write();
     }
 
     /**

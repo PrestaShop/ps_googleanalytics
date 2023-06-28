@@ -25,10 +25,9 @@ use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use Shop;
 use Validate;
 
 class HookDisplayOrderConfirmation implements HookInterface
@@ -75,7 +74,7 @@ class HookDisplayOrderConfirmation implements HookInterface
 
         // Prepare transaction data
         $orderData = $orderWrapper->wrapOrder($order);
-        
+
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(
             'add_payment_info',

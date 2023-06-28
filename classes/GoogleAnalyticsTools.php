@@ -45,7 +45,7 @@ class GoogleAnalyticsTools
      * Renders purchase event for order
      *
      * @param array $orderProducts
-     * @param array $transaction
+     * @param array $orderData
      * @param string $callbackUrl
      *
      * @return string|void

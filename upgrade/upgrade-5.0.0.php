@@ -28,7 +28,7 @@ function upgrade_module_5_0_0($object)
 {
     $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($object);
 
-    return 
+    return
         Configuration::deleteByName('GA_V4_ENABLED') &&
         $object->registerHook('actionValidateOrder') &&
         $database->installTab() &&
