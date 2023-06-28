@@ -63,17 +63,18 @@ class HookDisplayOrderConfirmation implements HookInterface
         $productWrapper = new ProductWrapper($this->context);
         $orderWrapper = new OrderWrapper($this->context);
 
+        // If it's a completely new order, add order to repository, so we can later mark it as sent
+        if (empty($ganalyticsRepository->findGaOrderByOrderId((int) $order->id))) {
+            $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
+        }
+
         // If the customer is revisiting confirmation screen and the order was already sent, we don't do anything
         if ($ganalyticsRepository->orderAlreadySent((int) $order->id)) {
             return $gaScripts;
         }
-        
-        // Add order to repository, so we can later mark it as sent
-        // If revisiting this page, repository inserts ignore, so no worries
-        $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
 
         // Prepare transaction data
-        $orderData = $orderWrapper->wrapOrder((int) $order->id);
+        $orderData = $orderWrapper->wrapOrder($order);
         
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(

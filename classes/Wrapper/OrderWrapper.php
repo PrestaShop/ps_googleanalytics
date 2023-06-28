@@ -40,15 +40,8 @@ class OrderWrapper implements WrapperInterface
     /**
      * Return a detailed transaction for Google Analytics
      */
-    public function wrapOrder($id_order)
+    public function wrapOrder($order)
     {
-        $order = new Order((int) $id_order);
-
-        // Check order still exists
-        if (!Validate::isLoadedObject($order)) {
-            return;
-        }
-
         // Prepare currency information
         $currency = new Currency((int) $order->id_currency);
 

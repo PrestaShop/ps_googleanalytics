@@ -27,7 +27,7 @@ class GanalyticsRepository
     const TABLE_NAME = 'ganalytics';
 
     /**
-     * findGaOrderByOrderId
+     * Finds if we have a record for this order ID.
      *
      * @param int $orderId
      *
