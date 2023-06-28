@@ -69,14 +69,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
                     if (Validate::isLoadedObject($order) && strtotime('+1 day', strtotime($order->date_add)) > time()) {
                         $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) Tools::getValue('id_order'));
                         if ($gaOrderSent === false) {
-                            $ganalyticsRepository->addNewRow(
-                                [
-                                    'id_order' => (int) Tools::getValue('id_order'),
-                                    'id_shop' => (int) $this->context->shop->id,
-                                    'sent' => 0,
-                                    'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
-                                ]
-                            );
+                            // Add order to repository, so we can later mark it as sent
+                            $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
                         }
                     }
                 } else {

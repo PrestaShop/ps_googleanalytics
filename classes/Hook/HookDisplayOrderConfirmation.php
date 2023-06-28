@@ -56,14 +56,8 @@ class HookDisplayOrderConfirmation implements HookInterface
             $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
 
             if (false === $gaOrderSent) {
-                $ganalyticsRepository->addNewRow(
-                    [
-                        'id_order' => (int) $order->id,
-                        'id_shop' => (int) $this->context->shop->id,
-                        'sent' => 0,
-                        'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
-                    ]
-                );
+                // Add order to repository, so we can later mark it as sent
+                $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
 
                 $cart = new Cart($order->id_cart);
                 $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
@@ -96,6 +90,8 @@ class HookDisplayOrderConfirmation implements HookInterface
                 foreach ($cart->getProducts() as $order_product) {
                     $orderProducts[] = $productWrapper->wrapProduct($order_product);
                 }
+
+                // Render transaction code
                 $gaScripts .= $this->module->getTools()->addTransaction($orderProducts, $transaction);
 
                 return $gaTagHandler->generate($gaScripts);

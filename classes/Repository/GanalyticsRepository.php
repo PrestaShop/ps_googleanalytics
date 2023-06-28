@@ -79,6 +79,26 @@ class GanalyticsRepository
     }
 
     /**
+     * Adds new order into repository
+     *
+     * @param int $idOrder
+     * @param int $idShop
+     *
+     * @return bool
+     */
+    public function addOrder(int $idOrder, int $idShop)
+    {
+        return $this->addNewRow(
+            [
+                'id_order' => (int) $idOrder,
+                'id_shop' => (int) $idShop,
+                'sent' => 0,
+                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+            ]
+        );
+    }
+
+    /**
      * updateData
      *
      * @param array $data
