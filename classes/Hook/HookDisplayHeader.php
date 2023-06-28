@@ -61,8 +61,8 @@ class HookDisplayHeader implements HookInterface
             return '';
         }
 
+        // Resolve if we should add user ID into the code
         $userId = null;
-
         if (Configuration::get('GA_USERID_ENABLED')
             && $this->context->customer instanceof Customer
             && $this->context->customer->isLogged()
@@ -70,15 +70,13 @@ class HookDisplayHeader implements HookInterface
             $userId = (int) $this->context->customer->id;
         }
 
-        $gaAnonymizeEnabled = Configuration::get('GA_ANONYMIZE_ENABLED');
-
         $this->context->smarty->assign(
             [
                 'backOffice' => $this->backOffice,
                 'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
                 'userId' => $userId,
                 'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                'gaAnonymizeEnabled' => $gaAnonymizeEnabled,
+                'gaAnonymizeEnabled' => Configuration::get('GA_ANONYMIZE_ENABLED'),
             ]
         );
 

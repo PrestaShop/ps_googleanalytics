@@ -57,20 +57,20 @@ class HookDisplayOrderConfirmation implements HookInterface
             return $gaScripts;
         }
 
-        // Load up the order repository and try to find the order
+        // Load up our handlers and repositories
         $ganalyticsRepository = new GanalyticsRepository();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+        $productWrapper = new ProductWrapper($this->context);
+        $orderWrapper = new OrderWrapper($this->context);
+
+        // If the customer is revisiting confirmation screen and the order was already sent, we don't do anything
         if ($ganalyticsRepository->orderAlreadySent((int) $order->id)) {
             return $gaScripts;
         }
         
         // Add order to repository, so we can later mark it as sent
-        // Repository inserts ignore, so no worries
+        // If revisiting this page, repository inserts ignore, so no worries
         $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
-
-        // Load up our handlers
-        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $productWrapper = new ProductWrapper($this->context);
-        $orderWrapper = new OrderWrapper($this->context);
 
         // Prepare transaction data
         $orderData = $orderWrapper->wrapOrder((int) $order->id);
@@ -84,7 +84,7 @@ class HookDisplayOrderConfirmation implements HookInterface
             ]
         );
 
-        // Prepare order products
+        // Prepare order products, if the cart still exists
         $orderProducts = [];
         $cart = new Cart($order->id_cart);
         if (Validate::isLoadedObject($cart)) {
