@@ -22,8 +22,10 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
 use Configuration;
 use Db;
+use Language;
 use Ps_Googleanalytics;
 use Shop;
+use Tab;
 
 class Install
 {
@@ -111,5 +113,25 @@ class Install
             $this->module->registerHook('actionCartSave') &&
             $this->module->registerHook('displayBackOfficeHeader') &&
             $this->module->registerHook('actionCarrierProcess');
+    }
+
+    /**
+     * Installs hidden tab for our ajax controller
+     *
+     * @return bool
+     */
+    public function installTab()
+    {
+        $tab = new Tab();
+        $tab->class_name = 'AdminGanalyticsAjax';
+        $tab->module = $this->module->name;
+        $tab->active = true;
+        $tab->id_parent = -1;
+        $tab->name = array_fill_keys(
+            Language::getIDs(false),
+            $this->module->displayName
+        );
+
+        return $tab->add();
     }
 }

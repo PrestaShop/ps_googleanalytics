@@ -222,6 +222,7 @@ class Ps_Googleanalytics extends Module
         return parent::install() &&
             $database->registerHooks() &&
             $database->setDefaultConfiguration() &&
+            $database->installTab() &&
             $database->installTables();
     }
 
@@ -236,6 +237,7 @@ class Ps_Googleanalytics extends Module
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Uninstall();
 
         return parent::uninstall() &&
+            $database->uninstallTab() &&
             $database->uninstallTables();
     }
 

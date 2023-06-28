@@ -130,10 +130,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         $products = $productWrapper->wrapProductList(isset($listing['products']) ? $listing['products'] : []);
 
         if ($controller_name == 'order' || $controller_name == 'orderopc') {
-            $step = Tools::getValue('step');
-            if (empty($step)) {
-                $step = 0;
-            }
             $eventData = [
                 'currency' => $this->context->currency->iso_code,
             ];

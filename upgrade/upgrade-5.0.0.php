@@ -26,9 +26,12 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_5_0_0($object)
 {
+    $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($object);
+
     return 
         Configuration::deleteByName('GA_V4_ENABLED') &&
         $object->registerHook('actionValidateOrder') &&
+        $database->installTab() &&
         Configuration::updateValue('GA_BACKLOAD_ENABLED', false) &&
         Configuration::updateValue('GA_BACKLOAD_DAYS', 30);
 }
