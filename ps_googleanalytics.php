@@ -159,6 +159,16 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
+     * Hook used to detect backoffice orders and store their IDs into cookie.
+     */
+    public function hookActionValidateOrder($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionValidateOrder($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
      * Hook called after order status change, used to "refund" order after cancelling it
      */
     public function hookActionOrderStatusPostUpdate($params)

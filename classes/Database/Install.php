@@ -104,6 +104,7 @@ class Install
             $this->module->registerHook('displayFooterProduct') &&
             $this->module->registerHook('displayOrderConfirmation') &&
             $this->module->registerHook('actionProductCancel') &&
+            $this->module->registerHook('actionValidateOrder') &&
             $this->module->registerHook('actionOrderStatusPostUpdate') &&
             $this->module->registerHook('actionCartSave') &&
             $this->module->registerHook('displayBackOfficeHeader') &&

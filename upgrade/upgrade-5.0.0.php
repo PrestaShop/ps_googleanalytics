@@ -26,5 +26,5 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_5_0_0($object)
 {
-    return Configuration::deleteByName('GA_V4_ENABLED');
+    return Configuration::deleteByName('GA_V4_ENABLED') && $object->registerHook('actionValidateOrder');
 }
