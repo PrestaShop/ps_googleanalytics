@@ -6,6 +6,10 @@ Gain clear insights into important metrics about your customers, using Google An
 
 To use it, you will need to create a Google Analytics account and insert your Google Analytics Identifier into the Module configuration page.
 
+## Compatibility
+
+PrestaShop: `1.7.6.0` or later
+
 ### Notes
 
 Enhanced Ecommerce must be enabled in Google Analytics settings for full functionality. Otherwise, some data (refunds etc.) will not be visible. Follow [the related instructions][4].
