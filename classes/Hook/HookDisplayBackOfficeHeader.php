@@ -37,6 +37,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
 {
     private $module;
     private $context;
+    private $gaScripts = '';
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -56,34 +57,31 @@ class HookDisplayBackOfficeHeader implements HookInterface
             $this->context->controller->addCSS($this->module->getPathUri() . 'views/css/ganalytics.css');
         }
 
-        $gaScripts = '';
-
         // Render base tag using displayHeader hook with backoffice parameter
-        $gaScripts .= $this->module->hookDisplayHeader(null, true);
+        $this->gaScripts .= $this->module->hookDisplayHeader(null, true);
 
         // Process manual orders instantly, we have their IDs in cookie
-        $gaScripts .= $this->processManualOrders();
+        $this->processManualOrders();
 
         // Backload old orders that failed to load normally
-        $gaScripts .= $this->backloadFailedOrders();
+        $this->processFailedOrders();
 
-        return $gaScripts;
+        return $this->gaScripts;
     }
 
     /**
      * Checks if there are any orders that failed to be sent normally through front office and processes them
      */
-    protected function backloadFailedOrders()
+    protected function processFailedOrders()
     {
-        $gaScripts = '';
         if (empty(Configuration::get('GA_BACKLOAD_ENABLED'))) {
-            return $gaScripts;
+            return;
         }
 
         // Check for value on how long back we will get them
         $backloadDays = (int) Configuration::get('GA_BACKLOAD_DAYS');
         if ($backloadDays < 1) {
-            return $gaScripts;
+            return;
         }
 
         // Get all failed orders (either not present in our table or not sent)
@@ -96,10 +94,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
 
         // Process each failed order
         foreach ($failedOrders as $row) {
-            $gaScripts .= $this->processOrder((int) $row['id_order']);
+            $this->processOrder((int) $row['id_order']);
         }
-
-        return $gaScripts;
     }
 
     /**
@@ -107,23 +103,20 @@ class HookDisplayBackOfficeHeader implements HookInterface
      */
     protected function processManualOrders()
     {
-        $gaScripts = '';
         $adminOrders = $this->context->cookie->__get('ga_admin_order');
         if (empty($adminOrders)) {
-            return $gaScripts;
+            return;
         }
 
         // Separate them by IDs and process one by one
         $adminOrders = explode(',', $adminOrders);
         foreach ($adminOrders as $idOrder) {
-            $gaScripts .= $this->processOrder((int) $idOrder);
+            $this->processOrder((int) $idOrder);
         }
 
         // Clean up the cookie
         $this->context->cookie->__unset('ga_admin_order');
-        $this->context->cookie->write();
-
-        return $gaScripts;
+        $this->context->cookie->write();;
     }
 
     /**
@@ -133,11 +126,10 @@ class HookDisplayBackOfficeHeader implements HookInterface
      */
     public function processOrder($idOrder)
     {
-        $gaScripts = '';
         $order = new Order((int) $idOrder);
 
         if (!Validate::isLoadedObject($order) || $order->getCurrentState() == (int) Configuration::get('PS_OS_ERROR')) {
-            return $gaScripts;
+            return;
         }
 
         // Load up our handlers and repositories
@@ -152,12 +144,15 @@ class HookDisplayBackOfficeHeader implements HookInterface
         }
 
         // If the order was already sent for some reason, don't do anything
-        if ($ganalyticsRepository->orderAlreadySent((int) $order->id)) {
-            return $gaScripts;
+        if ($ganalyticsRepository->hasOrderBeenAlreadySent((int) $order->id)) {
+            return;
         }
 
         // Prepare transaction data
         $orderData = $orderWrapper->wrapOrder($order);
+
+        // Empty script for the current order
+        $gaScripts = '';
 
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(
@@ -184,6 +179,6 @@ class HookDisplayBackOfficeHeader implements HookInterface
             $this->context->link->getAdminLink('AdminGanalyticsAjax')
         );
 
-        return $gaTagHandler->generate($gaScripts);
+        $this->gaScripts .= $gaTagHandler->generate($gaScripts);
     }
 }

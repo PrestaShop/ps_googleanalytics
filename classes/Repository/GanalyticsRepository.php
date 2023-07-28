@@ -48,7 +48,7 @@ class GanalyticsRepository
      *
      * @return bool
      */
-    public function orderAlreadySent($idOrder)
+    public function hasOrderBeenAlreadySent($idOrder)
     {
         return (bool) Db::getInstance()->getValue(
             'SELECT `sent`
