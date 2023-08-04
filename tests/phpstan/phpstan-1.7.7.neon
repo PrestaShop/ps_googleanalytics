@@ -5,3 +5,5 @@ parameters:
 	ignoreErrors:
 		- '#PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler::uninstallModule\(\) calls parent::uninstall\(\) but PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler does not extend any class.#'
 		- '#Property TabCore\:\:\$name \(string\) does not accept array.#'
+		- '#Access to an undefined property Cookie\:\:\$ga_admin_order.#'
+		- '#Access to an undefined property Cookie\:\:\$ga_admin_refund.#'

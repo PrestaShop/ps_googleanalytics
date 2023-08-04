@@ -62,16 +62,16 @@ class HookActionValidateOrder implements HookInterface
         $order = $this->params['order'];
 
         // We are checking this, because in case of multishipping, there could be multiple orders
-        if (!empty($this->context->cookie->__get('ga_admin_order'))) {
+        if (!empty($this->context->cookie->ga_admin_order)) {
             $ga_admin_order = sprintf(
                 '%1$s,%2$s',
-                $this->context->cookie->__get('ga_admin_order'),
+                $this->context->cookie->ga_admin_order,
                 $order->id
             );
         } else {
             $ga_admin_order = $order->id;
         }
-        $this->context->cookie->__set('ga_admin_order', $ga_admin_order);
+        $this->context->cookie->ga_admin_order = $ga_admin_order;
         $this->context->cookie->write();
     }
 

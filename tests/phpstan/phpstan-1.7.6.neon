@@ -7,3 +7,5 @@ parameters:
 		- '#Parameter \#1 \$idCategory of class Category constructor expects null, int given.#'
 		- '#Property TabCore\:\:\$name \(string\) does not accept array.#'
 		- '#Parameter \#1 \$id of class Currency constructor expects null, int given.#'
+		- '#Access to an undefined property Cookie\:\:\$ga_admin_order.#'
+		- '#Access to an undefined property Cookie\:\:\$ga_admin_refund.#'

@@ -71,7 +71,7 @@ class HookActionProductCancel implements HookInterface
             $orderDetail->product_name
         );
 
-        $this->context->cookie->__set('ga_admin_refund', $js);
+        $this->context->cookie->ga_admin_refund = $js;
         $this->context->cookie->write();
     }
 

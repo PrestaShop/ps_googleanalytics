@@ -118,14 +118,6 @@ class HookDisplayHeader implements HookInterface
      */
     public function setBackOffice($backOffice)
     {
-        $this->acknowledgeBackOfficeContext($backOffice);
-    }
-
-    /**
-     * @param bool $isBackOffice
-     */
-    public function acknowledgeBackOfficeContext($isBackOffice)
-    {
-        $this->backOffice = $isBackOffice;
+        $this->backOffice = $backOffice;
     }
 }

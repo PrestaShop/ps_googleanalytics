@@ -103,7 +103,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
      */
     protected function processManualOrders()
     {
-        $adminOrders = $this->context->cookie->__get('ga_admin_order');
+        $adminOrders = $this->context->cookie->ga_admin_order;
         if (empty($adminOrders)) {
             return;
         }
@@ -115,8 +115,8 @@ class HookDisplayBackOfficeHeader implements HookInterface
         }
 
         // Clean up the cookie
-        $this->context->cookie->__unset('ga_admin_order');
-        $this->context->cookie->write();;
+        unset($this->context->cookie->ga_admin_order);
+        $this->context->cookie->write();
     }
 
     /**
