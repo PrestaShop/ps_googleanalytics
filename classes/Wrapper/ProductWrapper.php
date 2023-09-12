@@ -49,11 +49,12 @@ class ProductWrapper implements WrapperInterface
         $currency = new Currency($this->context->currency->id);
         $usetax = (Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
 
-        if (count($products) > 20) {
+        // HOTFIX - Avoid PHP notices if there is more than 20 products
+        /*if (count($products) > 20) {
             $full = false;
         } else {
             $full = true;
-        }
+        }*/
 
         foreach ($products as $index => $product) {
             if ($product instanceof Product) {
