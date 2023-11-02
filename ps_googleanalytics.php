@@ -129,8 +129,8 @@ class Ps_Googleanalytics extends Module
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        $output = $gaTagHandler->generate($this->context->cookie->__get('ga_admin_refund'));
-        $this->context->cookie->__unset('ga_admin_refund');
+        $output = $gaTagHandler->generate($this->context->cookie->ga_admin_refund);
+        unset($this->context->cookie->ga_admin_refund);
         $this->context->cookie->write();
 
         return $output;
@@ -154,6 +154,16 @@ class Ps_Googleanalytics extends Module
     public function hookActionProductCancel($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
+     * Hook used to detect backoffice orders and store their IDs into cookie.
+     */
+    public function hookActionValidateOrder($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionValidateOrder($this, $this->context);
         $hook->setParams($params);
         $hook->run();
     }
@@ -212,6 +222,7 @@ class Ps_Googleanalytics extends Module
         return parent::install() &&
             $database->registerHooks() &&
             $database->setDefaultConfiguration() &&
+            $database->installTab() &&
             $database->installTables();
     }
 
@@ -226,6 +237,7 @@ class Ps_Googleanalytics extends Module
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Uninstall();
 
         return parent::uninstall() &&
+            $database->uninstallTab() &&
             $database->uninstallTables();
     }
 

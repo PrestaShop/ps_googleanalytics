@@ -75,7 +75,7 @@ class HookActionOrderStatusPostUpdate implements HookInterface
         if ($gaRefundSent === false) {
             // We refund it and set the "sent" flag to true
             $js = $this->getGoogleAnalytics4($this->params['id_order']);
-            $this->context->cookie->__set('ga_admin_refund', $js);
+            $this->context->cookie->ga_admin_refund = $js;
             $this->context->cookie->write();
 
             // We save this information to database

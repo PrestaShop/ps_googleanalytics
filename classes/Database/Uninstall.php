@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Database;
 
 use Db;
+use Tab;
+use Validate;
 
 class Uninstall
 {
@@ -41,5 +43,22 @@ class Uninstall
         }
 
         return true;
+    }
+
+    /**
+     * uninstall tab
+     *
+     * @return bool
+     */
+    public function uninstallTab()
+    {
+        $result = true;
+        $id_tab = (int) Tab::getIdFromClassName('AdminGanalyticsAjax');
+        $tab = new Tab($id_tab);
+        if (Validate::isLoadedObject($tab)) {
+            $result = $tab->delete();
+        }
+
+        return $result;
     }
 }

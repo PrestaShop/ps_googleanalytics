@@ -27,7 +27,7 @@ class GanalyticsRepository
     const TABLE_NAME = 'ganalytics';
 
     /**
-     * findGaOrderByOrderId
+     * Finds if we have a record for this order ID.
      *
      * @param int $orderId
      *
@@ -39,6 +39,21 @@ class GanalyticsRepository
             'SELECT id_order
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE id_order = ' . (int) $orderId);
+    }
+
+    /**
+     * Checks if order is already sent to GA
+     *
+     * @param int $idOrder
+     *
+     * @return bool
+     */
+    public function hasOrderBeenAlreadySent($idOrder)
+    {
+        return (bool) Db::getInstance()->getValue(
+            'SELECT `sent`
+            FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
+            WHERE id_order = ' . (int) $idOrder);
     }
 
     /**
@@ -79,6 +94,26 @@ class GanalyticsRepository
     }
 
     /**
+     * Adds new order into repository
+     *
+     * @param int $idOrder
+     * @param int $idShop
+     *
+     * @return bool
+     */
+    public function addOrder(int $idOrder, int $idShop)
+    {
+        return $this->addNewRow(
+            [
+                'id_order' => (int) $idOrder,
+                'id_shop' => (int) $idShop,
+                'sent' => 0,
+                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+            ]
+        );
+    }
+
+    /**
      * updateData
      *
      * @param array $data
@@ -94,6 +129,25 @@ class GanalyticsRepository
             $data,
             $where,
             $limit
+        );
+    }
+
+    /**
+     * Marks order as successfully sent to GA via callback
+     *
+     * @param int $idOrder
+     *
+     * @return bool
+     */
+    public function markOrderAsSent($idOrder)
+    {
+        return Db::getInstance()->update(
+            self::TABLE_NAME,
+            [
+                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+                'sent' => 1,
+            ],
+            'id_order = ' . (int) $idOrder
         );
     }
 }

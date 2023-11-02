@@ -38,14 +38,7 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
             $this->ajaxDie('KO');
         }
 
-        (new GanalyticsRepository())->updateData(
-            [
-                'sent' => 1,
-                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
-            ],
-            'id_order = ' . $orderId,
-            1
-        );
+        (new GanalyticsRepository())->markOrderAsSent((int) $orderId);
 
         $this->ajaxDie('OK');
     }

@@ -95,6 +95,7 @@ class ConfigurationForm
                     'type' => 'switch',
                     'label' => $this->module->getTranslator()->trans('Enable User ID tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
+                    'desc' => $this->module->getTranslator()->trans('This option adds unique user ID to the tag to better track the customer. Use this option only if it complies with laws in your country.', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_userid_enabled',
@@ -112,7 +113,7 @@ class ConfigurationForm
                     'type' => 'switch',
                     'label' => $this->module->getTranslator()->trans('Anonymize IP', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
-                    'hint' => $this->module->getTranslator()->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.Googleanalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_anonymize_enabled',
@@ -130,7 +131,7 @@ class ConfigurationForm
                     'type' => 'switch',
                     'label' => $this->module->getTranslator()->trans('Enable Back Office Tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_TRACK_BACKOFFICE_ENABLED',
-                    'hint' => $this->module->getTranslator()->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.Googleanalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_track_backoffice',
@@ -157,6 +158,32 @@ class ConfigurationForm
                         'name' => 'name',
                     ],
                 ],
+                [
+                    'type' => 'switch',
+                    'label' => $this->module->getTranslator()->trans('Re-send failed orders', [], 'Modules.Googleanalytics.Admin'),
+                    'name' => 'GA_BACKLOAD_ENABLED',
+                    'desc' => $this->module->getTranslator()->trans('This option will resend all orders that failed to be sent normally in front-office, due to failures or ad-blockers.', [], 'Modules.Googleanalytics.Admin'),
+                    'values' => [
+                        [
+                            'id' => 'ga_backload_enabled',
+                            'value' => 1,
+                            'label' => $this->module->getTranslator()->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
+                        ],
+                        [
+                            'id' => 'ga_backload_enabled',
+                            'value' => 0,
+                            'label' => $this->module->getTranslator()->trans('No', [], 'Modules.Googleanalytics.Admin'),
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'text',
+                    'label' => $this->module->getTranslator()->trans('Failed orders period', [], 'Modules.Googleanalytics.Admin'),
+                    'name' => 'GA_BACKLOAD_DAYS',
+                    'class' => 'input fixed-width-md',
+                    'suffix' => 'days',
+                    'desc' => $this->module->getTranslator()->trans('If you want to resend failed orders, specify how many days back the module should look for them. Default: 30.', [], 'Modules.Googleanalytics.Admin'),
+                ],
             ],
             'submit' => [
                 'title' => $this->module->getTranslator()->trans('Save', [], 'Modules.Googleanalytics.Admin'),
@@ -165,10 +192,12 @@ class ConfigurationForm
 
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
-        $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
-        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
-        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
+        $helper->fields_value['GA_USERID_ENABLED'] = (bool) Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = (bool) Configuration::get('GA_ANONYMIZE_ENABLED');
+        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = (bool) Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
         $helper->fields_value['GA_CANCELLED_STATES[]'] = json_decode(Configuration::get('GA_CANCELLED_STATES'), true);
+        $helper->fields_value['GA_BACKLOAD_ENABLED'] = (bool) Configuration::get('GA_BACKLOAD_ENABLED');
+        $helper->fields_value['GA_BACKLOAD_DAYS'] = (int) Configuration::get('GA_BACKLOAD_DAYS');
 
         return $helper->generateForm($fields_form);
     }
@@ -185,6 +214,8 @@ class ConfigurationForm
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
         $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_ENABLED');
         $gaCancelledStates = Tools::getValue('GA_CANCELLED_STATES');
+        $gaBackloadEnabled = Tools::getValue('GA_BACKLOAD_ENABLED');
+        $gaBackloadDays = Tools::getValue('GA_BACKLOAD_DAYS');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
@@ -201,6 +232,14 @@ class ConfigurationForm
 
         if (null !== $gaTrackBackOffice) {
             Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
+        }
+
+        if (null !== $gaBackloadEnabled) {
+            Configuration::updateValue('GA_BACKLOAD_ENABLED', (bool) $gaBackloadEnabled);
+        }
+
+        if (null !== $gaBackloadDays) {
+            Configuration::updateValue('GA_BACKLOAD_DAYS', (int) $gaBackloadDays);
         }
 
         if ($gaCancelledStates === false) {
