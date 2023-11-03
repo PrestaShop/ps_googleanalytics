@@ -23,15 +23,12 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
-use Product;
 use Ps_Googleanalytics;
-use Tools;
 
 class HookDisplayFooterProduct implements HookInterface
 {
     private $module;
     private $context;
-    private $params;
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -46,69 +43,59 @@ class HookDisplayFooterProduct implements HookInterface
      */
     public function run()
     {
+        // Check we are really on product page
+        if ($this->context->controller->php_self !== 'product') {
+            return;
+        }
+
+        // Get lazy array from context
+        $product = $this->context->smarty->getTemplateVars('product');
+        if (empty($product)) {
+            return;
+        }
+
+        // Initialize tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $controllerName = Tools::getValue('controller');
 
-        if ('product' !== $controllerName) {
-            return '';
-        }
+        // Prepare it and format it for our purpose
+        $productWrapper = new ProductWrapper($this->context);
+        $item = $productWrapper->prepareItemFromProductLazyArray($product);
 
-        if ($this->params['product'] instanceof Product) {
-            $this->params['product'] = (array) $this->params['product'];
-        }
-        // Add product view
-        $js = $this->getGoogleAnalytics4();
+        $js = '';
 
-        return $gaTagHandler->generate($js);
-    }
-
-    /**
-     * setParams
-     *
-     * @param array $params
-     */
-    public function setParams($params)
-    {
-        $this->params = $params;
-    }
-
-    protected function getGoogleAnalytics4()
-    {
-        $gaProduct = $this->getProduct();
+        // Prepare and render view_item event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
-            'value' => $this->params['product']['price_amount'],
-            'items' => [
-                [
-                    'item_id' => (int) $gaProduct['id'],
-                    'item_name' => $this->params['product']['name'],
-                    'currency' => $this->context->currency->iso_code,
-                    'item_brand' => $this->params['product']['manufacturer_name'],
-                    'item_category' => $this->params['product']['category_name'],
-                    'price' => (float) $this->params['product']['price_amount'],
-                    'quantity' => (int) $gaProduct['quantity'],
-                ],
-            ],
+            'value' => $product['price_amount'],
+            'items' => [$item],
         ];
-        $js = $this->module->getTools()->renderEvent(
+        $js .= $this->module->getTools()->renderEvent(
             'view_item',
             $eventData
         );
 
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+        // If the user got to the product page from previous page on our shop,
+        // we will also send select_item event
+        if ($this->wasPreviousPageOurShop()) {
+            $eventData = [
+                'currency' => $this->context->currency->iso_code,
+                'value' => $product['price_amount'],
+                'items' => [$item],
+            ];
+            $js .= $this->module->getTools()->renderEvent(
+                'select_item',
+                $eventData
+            );
         }
 
-        return $js;
+        return $gaTagHandler->generate($js);
     }
 
-    /**
-     * @return array
-     */
-    protected function getProduct()
-    {
-        $productWrapper = new ProductWrapper($this->context);
+    private function wasPreviousPageOurShop() {
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
+            return true;
+        }
 
-        return $productWrapper->wrapProduct($this->params['product']);
+        return false;
     }
 }

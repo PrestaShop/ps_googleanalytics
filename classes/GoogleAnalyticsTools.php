@@ -140,45 +140,6 @@ class GoogleAnalyticsTools
     }
 
     /**
-     * addProductClickByHttpReferal
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductClickByHttpReferal($products, $currencyIsoCode)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $key => $product) {
-            $eventData = [
-                'items' => [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                    'currency' => $currencyIsoCode,
-                    'index' => (int) $product['position'],
-                    'item_brand' => $product['brand'],
-                    'item_category' => $product['category'],
-                    'item_list_id' => $product['list'],
-                    'item_variant' => $product['variant'],
-                ],
-            ];
-
-            $js .= $this->renderEvent(
-                'select_item',
-                $eventData
-            );
-        }
-
-        return $js;
-    }
-
-    /**
      * Encodes array of data into JSON, optionally ignoring some of the values
      *
      * @param array $data Data pairs

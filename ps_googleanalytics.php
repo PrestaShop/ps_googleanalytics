@@ -113,10 +113,9 @@ class Ps_Googleanalytics extends Module
      * Product page footer hook
      * This function is run to load JS for product details view
      */
-    public function hookDisplayFooterProduct($params)
+    public function hookDisplayFooterProduct()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
-        $hook->setParams($params);
 
         return $hook->run();
     }

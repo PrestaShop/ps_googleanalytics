@@ -35,6 +35,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 {
     private $module;
     private $context;
+    private $gaScripts = '';
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -49,13 +50,35 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
      */
     public function run()
     {
+        // Prepare our tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+
+        // Add events for item listing
+        $this->renderProductListing();
+
+        // Add events for search
+        $this->renderSearch();
+        
+        // Add events for search
+        $this->renderCartPage();
+
+        // Render begin checkout
+        $this->renderBeginCheckout();
+
+        // TODO
+        // Sign_up event after registration, we need to check if the register was submitted
+        // Login event, we need to check if the login was done in this request
+        // Cart actions adding/removing
+
+        return $gaTagHandler->generate($this->gaScripts);
+        die;
+
+
         $ganalyticsDataHandler = new GanalyticsDataHandler(
             $this->context->cart->id,
             $this->context->shop->id
         );
 
-        $gaScripts = '';
         $gacarts = $ganalyticsDataHandler->manageData('', 'R');
         $controller_name = Tools::getValue('controller');
 
@@ -125,24 +148,160 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             $ganalyticsDataHandler->manageData('', 'D');
         }
 
-        $listing = $this->context->smarty->getTemplateVars('listing');
-        $productWrapper = new ProductWrapper($this->context);
-        $products = $productWrapper->wrapProductList(isset($listing['products']) ? $listing['products'] : []);
-
-        if ($controller_name == 'order' || $controller_name == 'orderopc') {
-            $eventData = [
-                'currency' => $this->context->currency->iso_code,
-            ];
-            $gaScripts = $this->module->getTools()->renderEvent(
-                'begin_checkout',
-                $eventData
-            );
-        }
-
-        if (isset($products) && count($products) && $controller_name != 'index') {
-            $gaScripts .= $this->module->getTools()->addProductClick($products, $this->context->currency->iso_code);
-        }
-
         return $gaTagHandler->generate($gaScripts);
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     *
+     * @return string
+     */
+    private function renderProductListing()
+    {
+        // Try to get product list variable
+        $listing = $this->context->smarty->getTemplateVars('listing');
+        if (empty($listing['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = [];
+        $counter = 0;
+        foreach ($listing['products'] as $product) {
+            $product = $productWrapper->prepareItemFromProductLazyArray($product);
+            $product['index'] = $counter;
+            $items[] = $product;
+            $counter++;
+        }
+
+        // Prepare info about the list
+        $item_list_id = $this->context->controller->php_self;
+        $item_list_name = $listing['label'];
+
+        // Render the listing event
+        $eventData = [
+            'item_list_id' => $item_list_id,
+            'item_list_name' => $item_list_name,
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'view_item_list',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code when user searches on the shop.
+     */
+    private function renderSearch()
+    {
+        // Check if we are on search page and we have a search string
+        if ($this->context->controller->php_self != 'search' || empty($_GET['s'])) {
+            return;
+        }
+
+        // Render the listing event
+        $eventData = [
+            'search_term' => (string) $_GET['s'],
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'search',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     *
+     * @return string
+     */
+    private function renderCartpage()
+    {
+        // Check if we are on cart page
+        if ($this->context->controller->php_self != 'cart') {
+            return;
+        }
+
+        // Try to get product list variable and check if it's not empty
+        $cart = $this->context->smarty->getTemplateVars('cart');
+        if (empty($cart['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = [];
+        $counter = 0;
+        foreach ($cart['products'] as $product) {
+            $product = $productWrapper->prepareItemFromProductLazyArray($product);
+            $product['index'] = $counter;
+            $items[] = $product;
+            $counter++;
+        }
+
+        // Render the listing event
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $cart['totals']['total']['amount'],
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'view_cart',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     *
+     * @return string
+     */
+    private function renderBeginCheckout()
+    {
+        // Check if we are on some supported order controller
+        $allowed_controllers = ['order', 'orderopc', 'checkout'];
+        if (!in_array($this->context->controller->php_self, $allowed_controllers)) {
+            return;
+        }
+
+        // If using default OrderController that comes with prestashop, we will check if we are
+        // on step 1 of the checkout. Otherwise, we will flush the output anyway. It's probably OPC
+        // handling everything with javascript, so our code will load only once.
+        if (get_class($this->context->controller) == "OrderController") {
+            // If we are not in the first step of checkout, we don't do anything
+            // TODO test how it behaves with logged in customer
+            if (!$this->context->controller->getCheckoutProcess()->getSteps()[0]->isCurrent()) {
+                return;
+            }
+        }
+
+        // Try to get product list variable and check if it's not empty
+        $cart = $this->context->smarty->getTemplateVars('cart');
+        if (empty($cart['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = [];
+        $counter = 0;
+        foreach ($cart['products'] as $product) {
+            $product = $productWrapper->prepareItemFromProductLazyArray($product);
+            $product['index'] = $counter;
+            $items[] = $product;
+            $counter++;
+        }
+
+        // Render the listing event
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $cart['totals']['total']['amount'],
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'begin_checkout',
+            $eventData
+        );
     }
 }

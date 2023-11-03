@@ -20,11 +20,14 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
+use Configuration;
 use Context;
 use Currency;
 use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
 use Product;
 use Tools;
+use Shop;
+use Validate;
 
 class ProductWrapper implements WrapperInterface
 {
@@ -33,33 +36,6 @@ class ProductWrapper implements WrapperInterface
     public function __construct(Context $context)
     {
         $this->context = $context;
-    }
-
-    /**
-     * wrap products to provide a standard products information for google analytics script
-     */
-    public function wrapProductList($products)
-    {
-        $result_products = [];
-        if (!is_array($products)) {
-            return;
-        }
-
-        $currency = new Currency($this->context->currency->id);
-        $usetax = (Product::getTaxCalculationMethod((int) $this->context->customer->id) != PS_TAX_EXC);
-
-        foreach ($products as $index => $product) {
-            if ($product instanceof Product) {
-                $product = (array) $product;
-            }
-
-            if (!isset($product['price'])) {
-                $product['price'] = (float) Tools::displayPrice(Product::getPriceStatic((int) $product['id_product'], $usetax), $currency);
-            }
-            $result_products[] = $this->wrapProduct($product, [], $index);
-        }
-
-        return $result_products;
     }
 
     /**
@@ -112,5 +88,43 @@ class ProductWrapper implements WrapperInterface
             'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
             'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
         ];
+    }
+
+    public function prepareItemFromProductLazyArray($product) {
+
+        $item = [
+            'item_id' => (int) $product['id'],
+            'item_name' => (string) $product['name'],
+            'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+            'index' => 0,
+            'price' => $product['price_amount'],
+            'quantity' => 1
+        ];
+
+        // Add manufacturer info if we have it
+        if (!empty($product['manufacturer_name'])) {
+            $item['item_brand'] = $product['manufacturer_name'];
+        }
+
+        // Prepare category information, put default category as the main one
+        $productCategories1 = [];
+        $productCategories2 = [];
+        foreach (Product::getProductCategoriesFull((int) $product['id']) as $productCategory) {
+            if ($productCategory['id_category'] == $product['id_category_default']) {
+                $productCategories1[] = $productCategory;
+            } else {
+                $productCategories2[] = $productCategory;
+            }
+        }
+        $productCategories = array_merge($productCategories1, $productCategories2);
+
+        // Add it to our item
+        $counter = 1;
+        foreach ($productCategories as $productCategory) {
+            $item[$counter == 1 ? 'item_category' : 'item_category' . $counter] = $productCategory['name'];
+            $counter++;
+        }
+
+        return $item;
     }
 }
