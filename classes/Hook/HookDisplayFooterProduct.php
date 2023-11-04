@@ -39,7 +39,7 @@ class HookDisplayFooterProduct implements HookInterface
     /**
      * run
      *
-     * @return string
+     * @return string|null
      */
     public function run()
     {
@@ -105,7 +105,8 @@ class HookDisplayFooterProduct implements HookInterface
      *
      * @return bool
      */
-    private function wasPreviousPageOurShop() {
+    private function wasPreviousPageOurShop()
+    {
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) !== false) {
             return true;
         }
@@ -135,6 +136,7 @@ class HookDisplayFooterProduct implements HookInterface
         // Check if the last listing is the page the user came from
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $last_listing['item_list_url']) !== false) {
             unset($last_listing['item_list_url']);
+
             return $last_listing;
         }
 

@@ -20,13 +20,9 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Category;
 use Configuration;
 use Context;
 use Customer;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use Tools;
 

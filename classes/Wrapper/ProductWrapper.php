@@ -22,11 +22,11 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
 use Configuration;
 use Context;
-use Product;
-use Tools;
-use Shop;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductLazyArray;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingLazyArray;
+use Product;
+use Shop;
+use Tools;
 
 class ProductWrapper
 {
@@ -83,9 +83,9 @@ class ProductWrapper
 
     /**
      * Takes provided list of product (lazy) arrays and converts it to a format that GA4 requires.
-     * 
+     *
      * @param array $productList
-     * 
+     *
      * @return array Item data standardized for GA
      */
     public function prepareItemListFromProductList($productList, $isCartList = false)
@@ -103,7 +103,7 @@ class ProductWrapper
             $product = $this->prepareItemFromProduct($product, $isCartList);
             $product['index'] = $counter;
             $items[] = $product;
-            $counter++;
+            ++$counter;
         }
 
         return $items;
@@ -115,9 +115,9 @@ class ProductWrapper
      * - ProductListingLazyArray from presented listings
      * - ProductListingLazyArray from presented cart
      * - Raw $cart->getProducts()
-     * 
+     *
      * @param ProductLazyArray|ProductListingLazyArray|array $product
-     * 
+     *
      * @return array Item data standardized for GA
      */
     public function prepareItemFromProduct($product, $isCartList = false)
@@ -139,7 +139,7 @@ class ProductWrapper
             'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
             'index' => 0,
             'price' => $product['price_amount'],
-            'quantity' => 1
+            'quantity' => 1,
         ];
 
         // Add manufacturer info if we have it
@@ -183,7 +183,7 @@ class ProductWrapper
         $counter = 1;
         foreach ($productCategories as $productCategory) {
             $item[$counter == 1 ? 'item_category' : 'item_category' . $counter] = $productCategory['name'];
-            $counter++;
+            ++$counter;
         }
 
         return $item;

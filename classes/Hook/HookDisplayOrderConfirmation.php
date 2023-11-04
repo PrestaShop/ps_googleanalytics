@@ -69,7 +69,7 @@ class HookDisplayOrderConfirmation implements HookInterface
 
         // If the customer is revisiting confirmation screen and the order was already sent, we don't do anything
         if ($ganalyticsRepository->hasOrderBeenAlreadySent((int) $order->id)) {
-            // return $gaScripts;
+            return $gaScripts;
         }
 
         // Prepare transaction data

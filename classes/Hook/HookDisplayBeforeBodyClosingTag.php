@@ -162,7 +162,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         // Prepare items to our format
         $productWrapper = new ProductWrapper($this->context);
         $items = $productWrapper->prepareItemListFromProductList($listing['products']);
-        
+
         // Prepare info about the list
         $item_list_id = $this->context->controller->php_self;
         $item_list_name = $listing['label'];
@@ -245,7 +245,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         // If using default OrderController that comes with prestashop, we will check if we are
         // on step 1 of the checkout. Otherwise, we will flush the output anyway. It's probably OPC
         // handling everything with javascript, so our code will load only once.
-        if (get_class($this->context->controller) == "OrderController") {
+        if (get_class($this->context->controller) == 'OrderController') {
             // If we are not in the first step of checkout, we don't do anything
             // TODO test how it behaves with logged in customer
             if (!$this->context->controller->getCheckoutProcess()->getSteps()[0]->isCurrent()) {
