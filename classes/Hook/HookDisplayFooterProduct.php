@@ -39,7 +39,7 @@ class HookDisplayFooterProduct implements HookInterface
     /**
      * run
      *
-     * @return string|null
+     * @return string|void
      */
     public function run()
     {

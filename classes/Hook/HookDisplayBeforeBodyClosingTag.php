@@ -72,7 +72,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         return $gaTagHandler->generate($this->gaScripts);
         die;
 
-
         $ganalyticsDataHandler = new GanalyticsDataHandler(
             $this->context->cart->id,
             $this->context->shop->id
@@ -103,7 +102,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
                                 ],
                             ],
                         ];
-                        $gaScripts .= $this->module->getTools()->renderEvent(
+                        $this->gaScripts .= $this->module->getTools()->renderEvent(
                             'add_to_cart',
                             $eventData
                         );
@@ -127,7 +126,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
                                 ],
                             ],
                         ];
-                        $gaScripts .= $this->module->getTools()->renderEvent(
+                        $this->gaScripts .= $this->module->getTools()->renderEvent(
                             'remove_from_cart',
                             $eventData
                         );
@@ -135,17 +134,17 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
                 } elseif (is_array($gacart)) {
                     $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
                     foreach ($it as $v) {
-                        $gaScripts .= $v;
+                        $this->gaScripts .= $v;
                     }
                 } else {
-                    $gaScripts .= $gacart;
+                    $this->gaScripts .= $gacart;
                 }
             }
 
             $ganalyticsDataHandler->manageData('', 'D');
         }
 
-        return $gaTagHandler->generate($gaScripts);
+        return $gaTagHandler->generate($this->gaScripts);
     }
 
     /**
@@ -218,7 +217,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         // Prepare items to our format
         $productWrapper = new ProductWrapper($this->context);
         $items = $productWrapper->prepareItemListFromProductList($cart['products'], true);
-        
+
         // Render the event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
