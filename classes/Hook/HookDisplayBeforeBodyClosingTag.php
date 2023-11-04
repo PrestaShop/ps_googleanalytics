@@ -53,22 +53,21 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         // Prepare our tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
 
-        // Add events for item listing
+        // Log information about product listing
+        $this->saveInformationAboutListing();
+
+        // Add events
         $this->renderProductListing();
-
-        // Add events for search
         $this->renderSearch();
-        
-        // Add events for search
         $this->renderCartPage();
-
-        // Render begin checkout
         $this->renderBeginCheckout();
+        $this->renderLogin();
+        $this->renderRegistration();
 
         // TODO
-        // Sign_up event after registration, we need to check if the register was submitted
-        // Login event, we need to check if the login was done in this request
+        // Unify wrappers - add proper quantities for cart items
         // Cart actions adding/removing
+        // Shipping info
 
         return $gaTagHandler->generate($this->gaScripts);
         die;
@@ -83,8 +82,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         $controller_name = Tools::getValue('controller');
 
         if (count($gacarts) > 0 && $controller_name != 'product') {
-            $this->module->filterable = 0;
-
             foreach ($gacarts as $key => $gacart) {
                 if (isset($gacart['quantity'])) {
                     if ($gacart['quantity'] > 0) {
@@ -153,8 +150,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
     /**
      * This method renders tracking code for product listings, like category pages.
-     *
-     * @return string
      */
     private function renderProductListing()
     {
@@ -166,20 +161,13 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
         // Prepare items to our format
         $productWrapper = new ProductWrapper($this->context);
-        $items = [];
-        $counter = 0;
-        foreach ($listing['products'] as $product) {
-            $product = $productWrapper->prepareItemFromProductLazyArray($product);
-            $product['index'] = $counter;
-            $items[] = $product;
-            $counter++;
-        }
-
+        $items = $productWrapper->prepareItemListFromProductList($listing['products']);
+        
         // Prepare info about the list
         $item_list_id = $this->context->controller->php_self;
         $item_list_name = $listing['label'];
 
-        // Render the listing event
+        // Render the event
         $eventData = [
             'item_list_id' => $item_list_id,
             'item_list_name' => $item_list_name,
@@ -201,7 +189,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             return;
         }
 
-        // Render the listing event
+        // Render the event
         $eventData = [
             'search_term' => (string) $_GET['s'],
         ];
@@ -213,8 +201,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
     /**
      * This method renders tracking code for product listings, like category pages.
-     *
-     * @return string
      */
     private function renderCartpage()
     {
@@ -231,16 +217,9 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
         // Prepare items to our format
         $productWrapper = new ProductWrapper($this->context);
-        $items = [];
-        $counter = 0;
-        foreach ($cart['products'] as $product) {
-            $product = $productWrapper->prepareItemFromProductLazyArray($product);
-            $product['index'] = $counter;
-            $items[] = $product;
-            $counter++;
-        }
-
-        // Render the listing event
+        $items = $productWrapper->prepareItemListFromProductList($cart['products'], true);
+        
+        // Render the event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
             'value' => $cart['totals']['total']['amount'],
@@ -254,8 +233,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
     /**
      * This method renders tracking code for product listings, like category pages.
-     *
-     * @return string
      */
     private function renderBeginCheckout()
     {
@@ -284,16 +261,9 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
         // Prepare items to our format
         $productWrapper = new ProductWrapper($this->context);
-        $items = [];
-        $counter = 0;
-        foreach ($cart['products'] as $product) {
-            $product = $productWrapper->prepareItemFromProductLazyArray($product);
-            $product['index'] = $counter;
-            $items[] = $product;
-            $counter++;
-        }
+        $items = $productWrapper->prepareItemListFromProductList($cart['products'], true);
 
-        // Render the listing event
+        // Render the event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
             'value' => $cart['totals']['total']['amount'],
@@ -303,5 +273,54 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             'begin_checkout',
             $eventData
         );
+    }
+
+    /**
+     * This method renders tracking code after user logs in.
+     */
+    private function renderLogin()
+    {
+        // Render it only on login page AND if we are not creating a new account in older PS versions
+        // For newer versions, registrations are handled with standalone registration controller.
+        if ($this->context->controller->php_self != 'authentication' || isset($_GET['create_account'])) {
+            return;
+        }
+
+        // Render the event
+        $this->gaScripts .= $this->module->getTools()->renderEvent('login', []);
+    }
+
+    /**
+     * This method renders tracking code after user registers.
+     */
+    private function renderRegistration()
+    {
+        if ($this->context->controller->php_self != 'registration' &&
+            ($this->context->controller->php_self != 'authentication' || !isset($_GET['create_account']))
+        ) {
+            return;
+        }
+
+        // Render the event
+        $this->gaScripts .= $this->module->getTools()->renderEvent('sign_up', []);
+    }
+
+    /**
+     * Saves information about last visited product listing, so we can later use it for select_item event.
+     */
+    private function saveInformationAboutListing()
+    {
+        // Try to get product list variable
+        $listing = $this->context->smarty->getTemplateVars('listing');
+        if (empty($listing['products']) || empty($listing['label'])) {
+            return;
+        }
+
+        // Save this information to a cookie
+        $this->context->cookie->ga_last_listing = json_encode([
+            'item_list_url' => $_SERVER['REQUEST_URI'],
+            'item_list_id' => $this->context->controller->php_self,
+            'item_list_name' => $listing['label'],
+        ]);
     }
 }

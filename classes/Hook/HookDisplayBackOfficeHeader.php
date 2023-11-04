@@ -167,9 +167,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
         $orderProducts = [];
         $cart = new Cart($order->id_cart);
         if (Validate::isLoadedObject($cart)) {
-            foreach ($cart->getProducts() as $order_product) {
-                $orderProducts[] = $productWrapper->wrapProduct($order_product);
-            }
+            $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
         }
 
         // Render transaction code

@@ -69,7 +69,7 @@ class HookDisplayOrderConfirmation implements HookInterface
 
         // If the customer is revisiting confirmation screen and the order was already sent, we don't do anything
         if ($ganalyticsRepository->hasOrderBeenAlreadySent((int) $order->id)) {
-            return $gaScripts;
+            // return $gaScripts;
         }
 
         // Prepare transaction data
@@ -88,9 +88,7 @@ class HookDisplayOrderConfirmation implements HookInterface
         $orderProducts = [];
         $cart = new Cart($order->id_cart);
         if (Validate::isLoadedObject($cart)) {
-            foreach ($cart->getProducts() as $order_product) {
-                $orderProducts[] = $productWrapper->wrapProduct($order_product);
-            }
+            $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
         }
 
         // Render transaction code

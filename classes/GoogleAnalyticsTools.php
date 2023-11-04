@@ -25,23 +25,6 @@ use Configuration;
 class GoogleAnalyticsTools
 {
     /**
-     * filter
-     *
-     * @param string $gaScripts
-     * @param int $filterable
-     *
-     * @return string
-     */
-    public function filter($gaScripts, $filterable)
-    {
-        if (1 == $filterable) {
-            return implode(';', array_unique(explode(';', $gaScripts)));
-        }
-
-        return $gaScripts;
-    }
-
-    /**
      * Renders purchase event for order
      *
      * @param array $orderProducts
@@ -68,20 +51,11 @@ class GoogleAnalyticsTools
             'tax' => (float) $orderData['tax'],
             'shipping' => (float) $orderData['shipping'],
             'currency' => $orderData['currency'],
-            'items' => [],
+            'items' => $orderProducts,
             'event_callback' => "function() {
                 $.get('" . $callbackUrl . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
             }',
         ];
-
-        foreach ($orderProducts as $product) {
-            $eventData['items'][] = [
-                'item_id' => (int) $product['id'],
-                'item_name' => $product['name'],
-                'quantity' => (int) $product['quantity'],
-                'price' => (float) $product['price'],
-            ];
-        }
 
         return $this->renderEvent(
             'purchase',

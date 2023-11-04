@@ -22,14 +22,13 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
 use Configuration;
 use Context;
-use Currency;
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
 use Product;
 use Tools;
 use Shop;
-use Validate;
+use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductLazyArray;
+use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingLazyArray;
 
-class ProductWrapper implements WrapperInterface
+class ProductWrapper
 {
     private $context;
 
@@ -68,20 +67,12 @@ class ProductWrapper implements WrapperInterface
             $product_id .= '-' . $product['id_product_attribute'];
         }
 
-        $product_type = 'typical';
-        if (isset($product['pack']) && $product['pack'] == 1) {
-            $product_type = 'pack';
-        } elseif (isset($product['virtual']) && $product['virtual'] == 1) {
-            $product_type = 'virtual';
-        }
-
         return [
             'id' => (int) $product_id,
             'name' => (string) $product['name'],
             'category' => (string) $product['category'],
             'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
             'variant' => (string) $variant,
-            'type' => (string) $product_type,
             'position' => (int) $index ? $index : '0',
             'quantity' => (int) $product_qty,
             'list' => (string) Tools::getValue('controller'),
@@ -90,7 +81,57 @@ class ProductWrapper implements WrapperInterface
         ];
     }
 
-    public function prepareItemFromProductLazyArray($product) {
+    /**
+     * Takes provided list of product (lazy) arrays and converts it to a format that GA4 requires.
+     * 
+     * @param array $productList
+     * 
+     * @return array Item data standardized for GA
+     */
+    public function prepareItemListFromProductList($productList, $isCartList = false)
+    {
+        $items = [];
+
+        // Check we actually got some product
+        if (empty($productList)) {
+            return [];
+        }
+
+        // Prepare each item and override the counter
+        $counter = 0;
+        foreach ($productList as $product) {
+            $product = $this->prepareItemFromProduct($product, $isCartList);
+            $product['index'] = $counter;
+            $items[] = $product;
+            $counter++;
+        }
+
+        return $items;
+    }
+
+    /**
+     * Takes provided (lazy) array and converts it to a format that GA4 requires. It can handle:
+     * - ProductLazyArray from product page
+     * - ProductListingLazyArray from presented listings
+     * - ProductListingLazyArray from presented cart
+     * - Raw $cart->getProducts()
+     * 
+     * @param ProductLazyArray|ProductListingLazyArray|array $product
+     * 
+     * @return array Item data standardized for GA
+     */
+    public function prepareItemFromProduct($product, $isCartList = false)
+    {
+        // Now, let's standardize some data in case of raw data.
+        if (!($product instanceof ProductLazyArray) && !($product instanceof ProductListingLazyArray)) {
+            // There may not be "id" property, we will use "id_product" instead.
+            if (empty($product['id'])) {
+                $product['id'] = $product['id_product'];
+            }
+            if (empty($product['price_amount'])) {
+                $product['price_amount'] = $product['price'];
+            }
+        }
 
         $item = [
             'item_id' => (int) $product['id'],
@@ -106,6 +147,23 @@ class ProductWrapper implements WrapperInterface
             $item['item_brand'] = $product['manufacturer_name'];
         }
 
+        if ($isCartList === true) {
+            // Info about quantity in cart, if we have it
+            if (isset($product['cart_quantity'])) {
+                $item['quantity'] = $product['quantity'];
+            }
+
+            // In case of products from a cart, we will add more information
+            // Information about a chosen variant, if we have it
+            if (!empty($product['attributes_small'])) {
+                $item['item_variant'] = $product['attributes_small'];
+            }
+
+            if (!empty($product['id_product_attribute'])) {
+                $item['item_id'] .= '-' . $product['id_product_attribute'];
+            }
+        }
+
         // Prepare category information, put default category as the main one
         $productCategories1 = [];
         $productCategories2 = [];
@@ -117,6 +175,9 @@ class ProductWrapper implements WrapperInterface
             }
         }
         $productCategories = array_merge($productCategories1, $productCategories2);
+
+        // Limit categories to 5
+        $productCategories = array_slice($productCategories, 0, 5, true);
 
         // Add it to our item
         $counter = 1;

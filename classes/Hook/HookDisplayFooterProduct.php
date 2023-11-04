@@ -59,11 +59,11 @@ class HookDisplayFooterProduct implements HookInterface
 
         // Prepare it and format it for our purpose
         $productWrapper = new ProductWrapper($this->context);
-        $item = $productWrapper->prepareItemFromProductLazyArray($product);
+        $item = $productWrapper->prepareItemFromProduct($product);
 
         $js = '';
 
-        // Prepare and render view_item event
+        // Prepare and render event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
             'value' => $product['price_amount'],
@@ -75,13 +75,21 @@ class HookDisplayFooterProduct implements HookInterface
         );
 
         // If the user got to the product page from previous page on our shop,
-        // we will also send select_item event
+        // we will also send select_item event.
         if ($this->wasPreviousPageOurShop()) {
             $eventData = [
-                'currency' => $this->context->currency->iso_code,
-                'value' => $product['price_amount'],
                 'items' => [$item],
             ];
+
+            // We will also try to get the information about the last visited listing.
+            // We save this information into a cookie. If it's the page that got the user here,
+            // we will use it.
+            $previousListingData = $this->getLastVisitedListing();
+            if (!empty($previousListingData)) {
+                $eventData = array_merge($previousListingData, $eventData);
+            }
+
+            // Render the event
             $js .= $this->module->getTools()->renderEvent(
                 'select_item',
                 $eventData
@@ -91,9 +99,43 @@ class HookDisplayFooterProduct implements HookInterface
         return $gaTagHandler->generate($js);
     }
 
+    /**
+     * Checks HTTP_REFERER to see if the previous page that got user to this product
+     * was our shop.
+     *
+     * @return bool
+     */
     private function wasPreviousPageOurShop() {
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) !== false) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Tries to get details of previous listing from the cookie.
+     *
+     * @return bool|array
+     */
+    private function getLastVisitedListing()
+    {
+        // Fetch it from the cookie
+        $last_listing = $this->context->cookie->ga_last_listing;
+        if (empty($last_listing)) {
+            return false;
+        }
+
+        // Decode the data and check if it contains something sensible
+        $last_listing = json_decode($last_listing, true);
+        if (empty($last_listing['item_list_id'])) {
+            return false;
+        }
+
+        // Check if the last listing is the page the user came from
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $last_listing['item_list_url']) !== false) {
+            unset($last_listing['item_list_url']);
+            return $last_listing;
         }
 
         return false;

@@ -23,10 +23,9 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 use Configuration;
 use Context;
 use Currency;
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
 use Shop;
 
-class OrderWrapper implements WrapperInterface
+class OrderWrapper
 {
     private $context;
 

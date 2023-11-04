@@ -38,7 +38,6 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $filterable = 1;
     public $products = [];
     public $_debug = 0;
     private $tools = null;
