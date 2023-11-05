@@ -51,6 +51,75 @@ class HookActionCartSave implements HookInterface
      */
     public function run()
     {
+        // Check if this request is coming to cart controller, we have some product ID and some action to do
+        if ($this->context->controller->php_self != 'cart' ||
+            !Tools::isSubmit('id_product') ||
+            !Tools::isSubmit('action')
+        ) {
+            return;
+        }
+
+        // Resolve action and required parameters
+        $id_product = null;
+        $id_product_attribute = null;
+        $event = null;
+        $event_quantity = null;
+
+        /* 
+         * Add to cart from product page
+         * POST - [id_product] => 1, [qty] => 1, [add] => 1
+         */
+        if (Tools::isSubmit('add')) {
+            $id_product = (int) Tools::getValue('id_product');
+            $id_product_attribute = 0; // This information is not passed, we would need to somehow get it from the attributes
+            $event = 'add_to_cart';
+            $event_quantity = (int) Tools::getValue('qty');
+
+        /* 
+         * Up from cart page
+         * GET - [id_product] => 1, [id_product_attribute] => 1
+         * POST - [qty] => 2, [op] => up
+         */
+        } else if (Tools::isSubmit('op') && Tools::getValue('op') == 'up') {
+            $id_product = (int) Tools::getValue('id_product');
+            $id_product_attribute = (int) Tools::getValue('id_product_attribute');
+            $event = 'add_to_cart';
+            $event_quantity = (int) Tools::getValue('qty');
+
+        /* 
+         * Down from cart page
+         * GET - [id_product] => 1, [id_product_attribute] => 1
+         * POST - [qty] => 2, [op] => down
+         */
+        } else if (Tools::isSubmit('op') && Tools::getValue('op') == 'down') {
+            $id_product = (int) Tools::getValue('id_product');
+            $id_product_attribute = (int) Tools::getValue('id_product_attribute');
+            $event = 'remove_from_cart';
+            $event_quantity = (int) Tools::getValue('qty');
+
+        /* 
+         * Delete from cart page
+         * GET - [id_product] => 1, [id_product_attribute] => 1, [delete] => 1
+         */
+        } else if (Tools::isSubmit('delete')) {
+            $id_product = (int) Tools::getValue('id_product');
+            $id_product_attribute = (int) Tools::getValue('id_product_attribute');
+            $event = 'remove_from_cart';
+            $event_quantity = 1; // We have no easy way to distinguish this
+        }
+
+        // Get our tag handler
+        $ganalyticsDataHandler = new GanalyticsDataHandler(
+            $this->context->cart->id,
+            $this->context->shop->id
+        );
+
+        $ganalyticsDataHandler->persistData("Event " . $event . ", id_product " . $id_product . ", id_product_attribute " . $id_product_attribute . ", event_quantity " . $event_quantity . "");
+        return;
+
+        // Render the event
+        // $this->gaScripts .= $this->module->getTools()->renderEvent('sign_up', []);
+
         if (!isset($this->context->cart)) {
             return;
         }
@@ -113,7 +182,7 @@ class HookActionCartSave implements HookInterface
                 $productId = Tools::getValue('id_product');
             }
 
-            $gaCart = $ganalyticsDataHandler->manageData('', 'R');
+            $gaCart = $ganalyticsDataHandler->readData();
 
             if ($cart['removeAction'] == 'delete') {
                 $gaProducts['quantity'] = -1;
@@ -130,7 +199,7 @@ class HookActionCartSave implements HookInterface
             }
 
             $gaCart[$productId] = $gaProducts;
-            $ganalyticsDataHandler->manageData($gaCart, 'W');
+            $ganalyticsDataHandler->persistData($gaCart);
         }
     }
 }

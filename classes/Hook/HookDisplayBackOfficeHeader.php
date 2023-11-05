@@ -154,21 +154,22 @@ class HookDisplayBackOfficeHeader implements HookInterface
         // Empty script for the current order
         $gaScripts = '';
 
-        // Add payment event
-        $gaScripts .= $this->module->getTools()->renderEvent(
-            'add_payment_info',
-            [
-                'currency' => $orderData['currency'],
-                'payment_type' => $orderData['payment_type'],
-            ]
-        );
-
         // Prepare order products, if the cart still exists
         $orderProducts = [];
         $cart = new Cart($order->id_cart);
         if (Validate::isLoadedObject($cart)) {
             $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
         }
+
+        // Add payment event
+        $gaScripts .= $this->module->getTools()->renderEvent(
+            'add_payment_info',
+            [
+                'currency' => $orderData['currency'],
+                'payment_type' => $orderData['payment_type'],
+                'items' => $orderProducts
+            ]
+        );
 
         // Render transaction code
         $gaScripts .= $this->module->getTools()->renderPurchaseEvent(

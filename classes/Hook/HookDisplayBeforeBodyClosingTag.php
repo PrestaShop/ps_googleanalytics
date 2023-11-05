@@ -50,11 +50,19 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
      */
     public function run()
     {
+        $ganalyticsDataHandler = new GanalyticsDataHandler(
+            $this->context->cart->id,
+            $this->context->shop->id
+        );
+
         // Prepare our tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
 
         // Log information about product listing
         $this->saveInformationAboutListing();
+
+        // Flush events stored in data storage from previous pages
+        $this->outputStoredEvents();        
 
         // Add events
         $this->renderProductListing();
@@ -77,7 +85,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             $this->context->shop->id
         );
 
-        $gacarts = $ganalyticsDataHandler->manageData('', 'R');
+        $gacarts = $ganalyticsDataHandler->readData();
         $controller_name = Tools::getValue('controller');
 
         if (count($gacarts) > 0 && $controller_name != 'product') {
@@ -140,8 +148,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
                     $this->gaScripts .= $gacart;
                 }
             }
-
-            $ganalyticsDataHandler->manageData('', 'D');
         }
 
         return $gaTagHandler->generate($this->gaScripts);
@@ -321,5 +327,32 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             'item_list_id' => $this->context->controller->php_self,
             'item_list_name' => $listing['label'],
         ]);
+    }
+
+    /**
+     * Outputs all events we stored into data repository during previous AJAX requests
+     * on previous page.
+     */
+    private function outputStoredEvents()
+    {
+        // Prepare handler responsible for storing our data
+        $ganalyticsDataHandler = new GanalyticsDataHandler(
+            $this->context->cart->id,
+            $this->context->shop->id
+        );
+
+        // Get all stored events
+        $storedEvents = $ganalyticsDataHandler->readData();
+        if (empty($storedEvents)) {
+            return;
+        }
+
+        foreach ($storedEvents as $event) {
+            $this->gaScripts .= $event;
+            dump($event);
+        }
+
+        // Delete the repository because everything has been flushed
+        $ganalyticsDataHandler->deleteData();
     }
 }

@@ -51,10 +51,22 @@ class HookActionCarrierProcess implements HookInterface
                 $this->context->shop->id
             );
 
-            $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-            $js = $this->getGoogleAnalytics4($carrierName);
+            // Load carrier name
+            $carrierName = (string) $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
+            
+            // Prepare and render the event
+            $eventData = [
+                'currency' => $this->context->currency->iso_code,
+                'value' => (float) $this->context->cart->getSummaryDetails()['total_price'],
+                'shipping_tier' => $carrierName,
+            ];
+            $js = $this->module->getTools()->renderEvent(
+                'add_shipping_info',
+                $eventData
+            );
 
-            $ganalyticsDataHandler->manageData($js, 'A');
+            // Store it into our repository so we can flush it on next page load
+            $ganalyticsDataHandler->persistData($js);
         }
     }
 
@@ -64,22 +76,5 @@ class HookActionCarrierProcess implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
-    }
-
-    /**
-     * @param string $carrierName
-     */
-    protected function getGoogleAnalytics4($carrierName)
-    {
-        $eventData = [
-            'currency' => $this->context->currency->iso_code,
-            'value' => (float) $this->context->cart->getSummaryDetails()['total_price'],
-            'shipping_tier' => $carrierName,
-        ];
-
-        return $this->module->getTools()->renderEvent(
-            'add_shipping_info',
-            $eventData
-        );
     }
 }
