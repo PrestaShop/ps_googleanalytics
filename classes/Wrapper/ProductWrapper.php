@@ -38,57 +38,13 @@ class ProductWrapper
     }
 
     /**
-     * wrap product to provide a standard product information for google analytics script
-     */
-    public function wrapProduct($product, $extras = [], $index = 0)
-    {
-        $variant = null;
-        if (isset($product['attributes_small'])) {
-            $variant = $product['attributes_small'];
-        } elseif (isset($extras['attributes_small'])) {
-            $variant = $extras['attributes_small'];
-        }
-
-        $product_qty = 1;
-        if (isset($extras['qty'])) {
-            $product_qty = $extras['qty'];
-        } elseif (isset($product['cart_quantity'])) {
-            $product_qty = $product['cart_quantity'];
-        }
-
-        $product_id = 0;
-        if (!empty($product['id_product'])) {
-            $product_id = $product['id_product'];
-        } elseif (!empty($product['id'])) {
-            $product_id = $product['id'];
-        }
-
-        if (!empty($product['id_product_attribute'])) {
-            $product_id .= '-' . $product['id_product_attribute'];
-        }
-
-        return [
-            'id' => (int) $product_id,
-            'name' => (string) $product['name'],
-            'category' => (string) $product['category'],
-            'brand' => isset($product['manufacturer_name']) ? (string) $product['manufacturer_name'] : '',
-            'variant' => (string) $variant,
-            'position' => (int) $index ? $index : '0',
-            'quantity' => (int) $product_qty,
-            'list' => (string) Tools::getValue('controller'),
-            'url' => isset($product['link']) ? (string) urlencode($product['link']) : '',
-            'price' => (float) preg_replace('/[^0-9.]/', '', $product['price']),
-        ];
-    }
-
-    /**
      * Takes provided list of product (lazy) arrays and converts it to a format that GA4 requires.
      *
      * @param array $productList
      *
      * @return array Item data standardized for GA
      */
-    public function prepareItemListFromProductList($productList, $isCartList = false)
+    public function prepareItemListFromProductList($productList, $isCartItem = false)
     {
         $items = [];
 
@@ -100,7 +56,7 @@ class ProductWrapper
         // Prepare each item and override the counter
         $counter = 0;
         foreach ($productList as $product) {
-            $product = $this->prepareItemFromProduct($product, $isCartList);
+            $product = $this->prepareItemFromProduct($product, $isCartItem);
             $product['index'] = $counter;
             $items[] = $product;
             ++$counter;
@@ -120,21 +76,23 @@ class ProductWrapper
      *
      * @return array Item data standardized for GA
      */
-    public function prepareItemFromProduct($product, $isCartList = false)
+    public function prepareItemFromProduct($product, $isCartItem = false)
     {
-        // Now, let's standardize some data in case of raw data.
-        if (!($product instanceof ProductLazyArray) && !($product instanceof ProductListingLazyArray)) {
-            // There may not be "id" property, we will use "id_product" instead.
-            if (empty($product['id'])) {
-                $product['id'] = $product['id_product'];
-            }
-            if (empty($product['price_amount'])) {
-                $product['price_amount'] = $product['price'];
-            }
+        // Standardize product ID
+        $product_id = 0;
+        if (!empty($product['id_product'])) {
+            $product_id = $product['id_product'];
+        } elseif (!empty($product['id'])) {
+            $product_id = $product['id'];
+        }
+
+        // Standardize product price
+        if (empty($product['price_amount'])) {
+            $product['price_amount'] = $product['price'];
         }
 
         $item = [
-            'item_id' => (int) $product['id'],
+            'item_id' => (int) $product_id,
             'item_name' => (string) $product['name'],
             'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
             'index' => 0,
@@ -147,7 +105,11 @@ class ProductWrapper
             $item['item_brand'] = $product['manufacturer_name'];
         }
 
-        if ($isCartList === true) {
+        if ($isCartItem === true) {
+            if (!empty($product['id_product_attribute'])) {
+                $item['item_id'] .= '-' . $product['id_product_attribute'];
+            }
+
             // Info about quantity in cart, if we have it
             if (isset($product['cart_quantity'])) {
                 $item['quantity'] = $product['quantity'];
@@ -157,10 +119,6 @@ class ProductWrapper
             // Information about a chosen variant, if we have it
             if (!empty($product['attributes_small'])) {
                 $item['item_variant'] = $product['attributes_small'];
-            }
-
-            if (!empty($product['id_product_attribute'])) {
-                $item['item_id'] .= '-' . $product['id_product_attribute'];
             }
         }
 

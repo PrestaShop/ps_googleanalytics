@@ -177,12 +177,13 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Save cart event hook.
+     * Hook to process add and remove items from cart events
      * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
-    public function hookActionCartSave()
+    public function hookActionCartUpdateQuantityBefore($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartUpdateQuantityBefore($this, $this->context);
+        $hook->setParams($params);
         $hook->run();
     }
 

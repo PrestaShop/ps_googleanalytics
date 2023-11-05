@@ -50,11 +50,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
      */
     public function run()
     {
-        $ganalyticsDataHandler = new GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
-        );
-
         // Prepare our tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
 
@@ -62,7 +57,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         $this->saveInformationAboutListing();
 
         // Flush events stored in data storage from previous pages
-        $this->outputStoredEvents();        
+        $this->outputStoredEvents();
 
         // Add events
         $this->renderProductListing();
@@ -72,84 +67,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         $this->renderLogin();
         $this->renderRegistration();
 
-        // TODO
-        // Unify wrappers - add proper quantities for cart items
-        // Cart actions adding/removing
-        // Shipping info
-
-        return $gaTagHandler->generate($this->gaScripts);
-        die;
-
-        $ganalyticsDataHandler = new GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
-        );
-
-        $gacarts = $ganalyticsDataHandler->readData();
-        $controller_name = Tools::getValue('controller');
-
-        if (count($gacarts) > 0 && $controller_name != 'product') {
-            foreach ($gacarts as $key => $gacart) {
-                if (isset($gacart['quantity'])) {
-                    if ($gacart['quantity'] > 0) {
-                        $eventData = [
-                            'currency' => $this->context->currency->iso_code,
-                            'value' => $gacart['price'],
-                            'items' => [
-                                [
-                                    'item_id' => (int) $gacart['id'],
-                                    'item_name' => $gacart['name'],
-                                    'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
-                                    'currency' => $this->context->currency->iso_code,
-                                    'index' => (int) $key,
-                                    'item_brand' => $gacart['brand'],
-                                    'item_category' => $gacart['category'],
-                                    'item_variant' => $gacart['variant'],
-                                    'price' => (float) $gacart['price'],
-                                    'quantity' => (int) $gacart['quantity'],
-                                ],
-                            ],
-                        ];
-                        $this->gaScripts .= $this->module->getTools()->renderEvent(
-                            'add_to_cart',
-                            $eventData
-                        );
-                    } elseif ($gacart['quantity'] < 0) {
-                        $gacart['quantity'] = abs($gacart['quantity']);
-                        $eventData = [
-                            'currency' => $this->context->currency->iso_code,
-                            'value' => $gacart['price'],
-                            'items' => [
-                                [
-                                    'item_id' => (int) $gacart['id'],
-                                    'item_name' => $gacart['name'],
-                                    'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
-                                    'currency' => $this->context->currency->iso_code,
-                                    'index' => (int) $key,
-                                    'item_brand' => $gacart['brand'],
-                                    'item_category' => $gacart['category'],
-                                    'item_variant' => $gacart['variant'],
-                                    'price' => (float) $gacart['price'],
-                                    'quantity' => (int) $gacart['quantity'],
-                                ],
-                            ],
-                        ];
-                        $this->gaScripts .= $this->module->getTools()->renderEvent(
-                            'remove_from_cart',
-                            $eventData
-                        );
-                    }
-                } elseif (is_array($gacart)) {
-                    $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
-                    foreach ($it as $v) {
-                        $this->gaScripts .= $v;
-                    }
-                } else {
-                    $this->gaScripts .= $gacart;
-                }
-            }
-        }
-
+        // Output everything
         return $gaTagHandler->generate($this->gaScripts);
     }
 
@@ -247,15 +165,10 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             return;
         }
 
-        // If using default OrderController that comes with prestashop, we will check if we are
-        // on step 1 of the checkout. Otherwise, we will flush the output anyway. It's probably OPC
-        // handling everything with javascript, so our code will load only once.
-        if (get_class($this->context->controller) == 'OrderController') {
-            // If we are not in the first step of checkout, we don't do anything
-            // TODO test how it behaves with logged in customer
-            if (!$this->context->controller->getCheckoutProcess()->getSteps()[0]->isCurrent()) {
-                return;
-            }
+        // If the user reliably came from previous page, we won't render this event
+        // We want to do it just for first visiting checkout
+        if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['REQUEST_URI']) !== false) {
+            return;
         }
 
         // Try to get product list variable and check if it's not empty
@@ -349,6 +262,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
         foreach ($storedEvents as $event) {
             $this->gaScripts .= $event;
+            // Temp for test
             dump($event);
         }
 
