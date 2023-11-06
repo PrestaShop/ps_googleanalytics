@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
 use Ps_Googleanalytics;
 
@@ -46,10 +45,6 @@ class HookActionCarrierProcess implements HookInterface
     {
         if (isset($this->params['cart']->id_carrier)) {
             $carrierRepository = new CarrierRepository();
-            $ganalyticsDataHandler = new GanalyticsDataHandler(
-                $this->context->cart->id,
-                $this->context->shop->id
-            );
 
             // Load carrier name
             $carrierName = (string) $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
@@ -65,13 +60,13 @@ class HookActionCarrierProcess implements HookInterface
                 'value' => (float) $this->context->cart->getSummaryDetails()['total_price'],
                 'shipping_tier' => $carrierName,
             ];
-            $js = $this->module->getTools()->renderEvent(
+            $jsCode = $this->module->getTools()->renderEvent(
                 'add_shipping_info',
                 $eventData
             );
 
             // Store it into our repository so we can flush it on next page load
-            $ganalyticsDataHandler->persistData($js);
+            $this->module->getDataHandler()->persistData($jsCode);
         }
     }
 

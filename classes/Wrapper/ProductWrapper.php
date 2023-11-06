@@ -41,10 +41,11 @@ class ProductWrapper
      * Takes provided list of product (lazy) arrays and converts it to a format that GA4 requires.
      *
      * @param array $productList
+     * @param bool $useProvidedQuantity Should provided quantity be used, usually for cart related events
      *
      * @return array Item data standardized for GA
      */
-    public function prepareItemListFromProductList($productList, $isCartItem = false)
+    public function prepareItemListFromProductList($productList, $useProvidedQuantity = false)
     {
         $items = [];
 
@@ -56,7 +57,7 @@ class ProductWrapper
         // Prepare each item and override the counter
         $counter = 0;
         foreach ($productList as $product) {
-            $product = $this->prepareItemFromProduct($product, $isCartItem);
+            $product = $this->prepareItemFromProduct($product, $useProvidedQuantity);
             $product['index'] = $counter;
             $items[] = $product;
             ++$counter;
@@ -71,12 +72,14 @@ class ProductWrapper
      * - ProductListingLazyArray from presented listings
      * - ProductListingLazyArray from presented cart
      * - Raw $cart->getProducts()
+     * - Legacy product object converted to an array enriched with Product::getProductProperties
      *
      * @param ProductLazyArray|ProductListingLazyArray|array $product
+     * @param bool $useProvidedQuantity Should provided quantity be used, usually for cart related events
      *
      * @return array Item data standardized for GA
      */
-    public function prepareItemFromProduct($product, $isCartItem = false)
+    public function prepareItemFromProduct($product, $useProvidedQuantity = false)
     {
         // Standardize product ID
         $product_id = 0;
@@ -103,23 +106,23 @@ class ProductWrapper
         // Add manufacturer info if we have it
         if (!empty($product['manufacturer_name'])) {
             $item['item_brand'] = $product['manufacturer_name'];
+            // TODO - missing in some events?
         }
 
-        if ($isCartItem === true) {
-            if (!empty($product['id_product_attribute'])) {
-                $item['item_id'] .= '-' . $product['id_product_attribute'];
-            }
+        // We will specify variant ID if we have it
+        if (!empty($product['id_product_attribute'])) {
+            $item['item_id'] .= '-' . $product['id_product_attribute'];
+        }
 
+        // Information about a chosen variant, if we have it
+        if (!empty($product['attributes_small'])) {
+            $item['item_variant'] = $product['attributes_small'];
+            // TODO - get manually if missing and we have id_product_attribute
+        }
+
+        if ($useProvidedQuantity === true) {
             // Info about quantity in cart, if we have it
-            if (isset($product['cart_quantity'])) {
-                $item['quantity'] = $product['quantity'];
-            }
-
-            // In case of products from a cart, we will add more information
-            // Information about a chosen variant, if we have it
-            if (!empty($product['attributes_small'])) {
-                $item['item_variant'] = $product['attributes_small'];
-            }
+            $item['quantity'] = $product['quantity'];
         }
 
         // Prepare category information, put default category as the main one

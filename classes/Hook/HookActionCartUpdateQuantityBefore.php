@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Product;
 use Ps_Googleanalytics;
@@ -49,12 +48,6 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
      */
     public function run()
     {
-        // Get our tag handler
-        $ganalyticsDataHandler = new GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
-        );
-
         /* 
          * The hook passes a legacy Product object to add, but no attribute information.
          * But thankfully, we can use id_product_attribute for this.
@@ -81,9 +74,8 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
         if (!empty($this->params['id_product_attribute'])) {
             $product['id_product_attribute'] = (int) $this->params['id_product_attribute'];
         }
-        $product['price_amount'] = $product['price'];
 
-        // Add informationa about quantity difference
+        // Add information about quantity difference
         $product['quantity'] = (int) $this->params['quantity'];
 
         // Prepare it and format it for our purpose
@@ -93,7 +85,7 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
         // Prepare and render event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
-            'value' => $product['price_amount'] * $product['quantity'],
+            'value' => $item['price'] * $item['quantity'],
             'items' => [$item],
         ];
         $jsCode = $this->module->getTools()->renderEvent(
@@ -102,7 +94,7 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
         );
 
         // Store this event
-        $ganalyticsDataHandler->persistData($jsCode);
+        $this->module->getDataHandler()->persistData($jsCode);
     }
 
     /**

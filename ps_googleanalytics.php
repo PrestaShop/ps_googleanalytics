@@ -41,6 +41,7 @@ class Ps_Googleanalytics extends Module
     public $products = [];
     public $_debug = 0;
     private $tools = null;
+    private $dataHandler = null;
 
     public function __construct()
     {
@@ -187,6 +188,17 @@ class Ps_Googleanalytics extends Module
         $hook->run();
     }
 
+    /**
+     * Hook to process remove items from cart events
+     * This function is run to implement 'remove from cart' functionalities
+     */
+    public function hookActionObjectProductInCartDeleteBefore($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionObjectProductInCartDeleteBefore($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
     public function hookActionCarrierProcess($params)
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
@@ -250,5 +262,20 @@ class Ps_Googleanalytics extends Module
         }
 
         return $this->tools;
+    }
+
+    /**
+     * Returns instance of GanalyticsDataHandler
+     */
+    public function getDataHandler()
+    {
+        if ($this->dataHandler === null) {
+            $this->dataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
+                $this->context->cart->id,
+                $this->context->shop->id
+            );
+        }
+
+        return $this->dataHandler;
     }
 }

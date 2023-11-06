@@ -61,15 +61,15 @@ class HookDisplayFooterProduct implements HookInterface
         $productWrapper = new ProductWrapper($this->context);
         $item = $productWrapper->prepareItemFromProduct($product);
 
-        $js = '';
+        $jsCode = '';
 
         // Prepare and render event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
-            'value' => $product['price_amount'],
+            'value' => $item['price'],
             'items' => [$item],
         ];
-        $js .= $this->module->getTools()->renderEvent(
+        $jsCode .= $this->module->getTools()->renderEvent(
             'view_item',
             $eventData
         );
@@ -90,13 +90,13 @@ class HookDisplayFooterProduct implements HookInterface
             }
 
             // Render the event
-            $js .= $this->module->getTools()->renderEvent(
+            $jsCode .= $this->module->getTools()->renderEvent(
                 'select_item',
                 $eventData
             );
         }
 
-        return $gaTagHandler->generate($js);
+        return $gaTagHandler->generate($jsCode);
     }
 
     /**

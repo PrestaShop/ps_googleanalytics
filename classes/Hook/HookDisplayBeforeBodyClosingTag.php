@@ -20,16 +20,10 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
-use Shop;
-use Tools;
 
 class HookDisplayBeforeBodyClosingTag implements HookInterface
 {
@@ -248,14 +242,8 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
      */
     private function outputStoredEvents()
     {
-        // Prepare handler responsible for storing our data
-        $ganalyticsDataHandler = new GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
-        );
-
         // Get all stored events
-        $storedEvents = $ganalyticsDataHandler->readData();
+        $storedEvents = $this->module->getDataHandler()->readData();
         if (empty($storedEvents)) {
             return;
         }
@@ -267,6 +255,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         }
 
         // Delete the repository because everything has been flushed
-        $ganalyticsDataHandler->deleteData();
+        $this->module->getDataHandler()->deleteData();
     }
 }
