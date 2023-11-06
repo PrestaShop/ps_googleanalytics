@@ -40,14 +40,14 @@ class GoogleAnalyticsTools
         }
 
         $callbackData = [
-            'orderid' => $orderData['id'],
+            'orderid' => $orderData['transaction_id'],
             'customer' => $orderData['customer'],
         ];
 
         $eventData = [
-            'transaction_id' => (int) $orderData['id'],
+            'transaction_id' => (int) $orderData['transaction_id'],
             'affiliation' => $orderData['affiliation'],
-            'value' => (float) $orderData['revenue'],
+            'value' => (float) $orderData['value'],
             'tax' => (float) $orderData['tax'],
             'shipping' => (float) $orderData['shipping'],
             'currency' => $orderData['currency'],

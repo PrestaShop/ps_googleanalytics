@@ -166,6 +166,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
             'add_payment_info',
             [
                 'currency' => $orderData['currency'],
+                'value' => (float) $orderData['value'],
                 'payment_type' => $orderData['payment_type'],
                 'items' => $orderProducts,
             ]
