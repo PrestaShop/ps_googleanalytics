@@ -94,6 +94,27 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
             'view_item_list',
             $eventData
         );
+
+        // Render quickview events
+        foreach ($items as $item) {
+            $eventData = [
+                'item_list_id' => $item_list_id,
+                'item_list_name' => $item_list_name,
+                'items' => [$item],
+            ];
+
+            // Keep only product ID if id_product_attribute was appended
+            $productId = explode('-', $item['item_id']);
+            $productId = $productId[0];
+
+            // Render the event wrapped in onclick
+            $this->gaScripts .= '
+            $(\'article[data-id-product="' . $productId . '"] a.quick-view\').on(
+                "click",
+                function() {' . $this->module->getTools()->renderEvent('select_item', $eventData) . '}
+            );
+            ';
+        }
     }
 
     /**
