@@ -84,7 +84,8 @@ class ProductWrapper
      *
      * @param array $productIds
      */
-    private function loadCategories($productIds) {
+    private function loadCategories($productIds)
+    {
         if (empty($productIds)) {
             return;
         }
@@ -94,12 +95,12 @@ class ProductWrapper
 
         // Initialize our cache
         $this->categories = [];
-        foreach($productIds as $id) {
+        foreach ($productIds as $id) {
             $this->categories[(int) $id] = [];
         }
 
         // Load categories for all products
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
+        $result = Db::getInstance()->executeS(
             '
             SELECT cp.`id_category`, cp.`id_product`, cl.`name` FROM `' . _DB_PREFIX_ . 'category_product` cp
             LEFT JOIN `' . _DB_PREFIX_ . 'category` c ON (c.id_category = cp.id_category)
