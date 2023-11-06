@@ -21,12 +21,12 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
 use Configuration;
+use Db;
 use Context;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductLazyArray;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingLazyArray;
 use Product;
 use Shop;
-use Tools;
 
 class ProductWrapper
 {
@@ -80,7 +80,7 @@ class ProductWrapper
      * @return array Item data standardized for GA
      */
     public function prepareItemFromProduct($product, $useProvidedQuantity = false)
-    {
+    {        
         // Standardize product ID
         $product_id = 0;
         if (!empty($product['id_product'])) {
@@ -106,7 +106,12 @@ class ProductWrapper
         // Add manufacturer info if we have it
         if (!empty($product['manufacturer_name'])) {
             $item['item_brand'] = $product['manufacturer_name'];
-            // TODO - missing in some events?
+        // If we don't, which can happen due to some bugs in getProductProperties, we will fetch it manually
+        } else if (!empty($product['id_manufacturer'])) {
+            $manufacturerName = Manufacturer::getNameById((int) $product['id_manufacturer']);
+            if (!empty($manufacturerName)) {
+                $item['item_brand'] = $manufacturerName;
+            }
         }
 
         // We will specify variant ID if we have it
@@ -114,10 +119,16 @@ class ProductWrapper
             $item['item_id'] .= '-' . $product['id_product_attribute'];
         }
 
-        // Information about a chosen variant, if we have it
+        // Information about a chosen variant, if we have it (cart list has this out of the box)
         if (!empty($product['attributes_small'])) {
             $item['item_variant'] = $product['attributes_small'];
-            // TODO - get manually if missing and we have id_product_attribute
+
+        // If we don't, we will construct it in the same format
+        } else if (!empty($product['id_product_attribute'])) {
+            $variant = $this->getProductVariant((int) $product['id_product_attribute']);
+            if (!empty($variant)) {
+                $item['item_variant'] = $variant;
+            }
         }
 
         if ($useProvidedQuantity === true) {
@@ -148,5 +159,39 @@ class ProductWrapper
         }
 
         return $item;
+    }
+
+    /**
+     * Method that will provide product combination attribute in the same format and order as cart does.
+     *
+     * @param int $id_product_attribute ID of the combination
+     *
+     * @return string Attribute list
+     */
+    public function getProductVariant($id_product_attribute)
+    {
+        $result = Db::getInstance()->executeS(
+            'SELECT al.`name` AS attribute_name
+            FROM `' . _DB_PREFIX_ . 'product_attribute_combination` pac
+            LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON a.`id_attribute` = pac.`id_attribute`
+            LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
+            LEFT JOIN `' . _DB_PREFIX_ . 'attribute_lang` al ON (
+                a.`id_attribute` = al.`id_attribute`
+                AND al.`id_lang` = ' . (int) $this->context->language->id . '
+            )
+            WHERE pac.`id_product_attribute` = ' . $id_product_attribute . '
+            ORDER BY ag.`position` ASC, a.`position` ASC'
+        );
+
+        $attributes = array_column($result, 'attribute_name');
+
+        // Prepare our separator
+        $separator = Configuration::get('PS_ATTRIBUTE_ANCHOR_SEPARATOR');
+        if ($separator === '-') {
+            // Add a space before the dash between attributes
+            $separator = ' - ';
+        }
+
+        return implode($separator, $attributes);
     }
 }
