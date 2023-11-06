@@ -24,8 +24,9 @@ use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Product;
 use Ps_Googleanalytics;
+use Validate;
 
-class HookActionCartUpdateQuantityBefore implements HookInterface
+class HookActionObjectProductInCartDeleteBefore implements HookInterface
 {
     private $module;
 
@@ -48,23 +49,12 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
      */
     public function run()
     {
-        /*
-         * The hook passes a legacy Product object to add, but no attribute information.
-         * But thankfully, we can use id_product_attribute for this.
-         *
-         * Other info is fairly standard:
-         *
-         * Add to cart from product page + up from cart page
-         * $this->params['operator'] == up
-         * $this->params['quantity'] to determine quantity
-         *
-         * Down from cart page
-         * $this->params['operator'] == down
-         * $this->params['quantity'] to determine quantity
-         */
-
         // Format product and standardize ID
-        $product = (array) $this->params['product'];
+        $product = new Product((int) $this->params['id_product'], false, (int) $this->context->language->id);
+        if (!Validate::isLoadedObject($product)) {
+            return;
+        }
+        $product = (array) $product; 
         $product['id_product'] = $product['id'];
 
         // Get some basic information
@@ -75,12 +65,9 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
             $product['id_product_attribute'] = (int) $this->params['id_product_attribute'];
         }
 
-        // Add information about quantity difference
-        $product['quantity'] = (int) $this->params['quantity'];
-
         // Prepare it and format it for our purpose
         $productWrapper = new ProductWrapper($this->context);
-        $item = $productWrapper->prepareItemFromProduct($product, true);
+        $item = $productWrapper->prepareItemFromProduct($product, false);
 
         // Prepare and render event
         $eventData = [
@@ -89,7 +76,7 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
             'items' => [$item],
         ];
         $jsCode = $this->module->getTools()->renderEvent(
-            $this->params['operator'] == 'up' ? 'add_to_cart' : 'remove_from_cart',
+            'remove_from_cart',
             $eventData
         );
 
