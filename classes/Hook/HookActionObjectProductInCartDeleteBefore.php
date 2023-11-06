@@ -54,7 +54,7 @@ class HookActionObjectProductInCartDeleteBefore implements HookInterface
         if (!Validate::isLoadedObject($product)) {
             return;
         }
-        $product = (array) $product; 
+        $product = (array) $product;
         $product['id_product'] = $product['id'];
 
         // Get some basic information

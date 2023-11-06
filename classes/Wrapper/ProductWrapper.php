@@ -26,12 +26,13 @@ use Db;
 use Manufacturer;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductLazyArray;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingLazyArray;
-use Product;
 use Shop;
 
 class ProductWrapper
 {
     private $context;
+    private $categories = [];
+    private $homeCategory = 0;
 
     public function __construct(Context $context)
     {
@@ -55,6 +56,17 @@ class ProductWrapper
             return [];
         }
 
+        // Preload categories for the whole list
+        $productIds = [];
+        foreach ($productList as $product) {
+            if (!empty($product['id_product'])) {
+                $productIds[] = $product['id_product'];
+            } elseif (!empty($product['id'])) {
+                $productIds[] = $product['id'];
+            }
+        }
+        $this->loadCategories($productIds);
+
         // Prepare each item and override the counter
         $counter = 0;
         foreach ($productList as $product) {
@@ -65,6 +77,42 @@ class ProductWrapper
         }
 
         return $items;
+    }
+
+    /**
+     * Loads all product categories for provided product IDs
+     *
+     * @param array $productIds
+     */
+    private function loadCategories($productIds) {
+        if (empty($productIds)) {
+            return;
+        }
+
+        // Initialize home category
+        $this->homeCategory = (int) Configuration::get('PS_HOME_CATEGORY');
+
+        // Initialize our cache
+        $this->categories = [];
+        foreach($productIds as $id) {
+            $this->categories[(int) $id] = [];
+        }
+
+        // Load categories for all products
+        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
+            '
+            SELECT cp.`id_category`, cp.`id_product`, cl.`name` FROM `' . _DB_PREFIX_ . 'category_product` cp
+            LEFT JOIN `' . _DB_PREFIX_ . 'category` c ON (c.id_category = cp.id_category)
+            LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (cp.`id_category` = cl.`id_category`' . Shop::addSqlRestrictionOnLang('cl') . ')
+            ' . Shop::addSqlAssociation('category', 'c') . '
+            WHERE cp.`id_product` IN (' . implode(',', $productIds) . ') AND cl.`id_lang` = ' . (int) $this->context->language->id . '
+            ORDER BY c.`level_depth` DESC'
+        );
+
+        // Store it by product ID
+        foreach ($result as $row) {
+            $this->categories[(int) $row['id_product']][] = $row;
+        }
     }
 
     /**
@@ -137,25 +185,34 @@ class ProductWrapper
             $item['quantity'] = $product['quantity'];
         }
 
-        // Prepare category information, put default category as the main one
-        $productCategories1 = [];
-        $productCategories2 = [];
-        foreach (Product::getProductCategoriesFull((int) $product['id']) as $productCategory) {
-            if ($productCategory['id_category'] == $product['id_category_default']) {
-                $productCategories1[] = $productCategory;
-            } else {
-                $productCategories2[] = $productCategory;
+        // Prepare category information, if not loaded before, we will fetch it
+        if (!isset($this->categories[(int) $product_id])) {
+            $this->loadCategories([(int) $product_id]);
+        }
+
+        $productCategories = $this->categories[(int) $product_id];
+
+        // If the category is our default one, we will move it to the beginning of that list
+        foreach ($productCategories as $key => $category) {
+            if ($category['id_category'] == $product['id_category_default']) {
+                $productCategories = [$key => $category] + $productCategories;
+                break;
             }
         }
-        $productCategories = array_merge($productCategories1, $productCategories2);
-
-        // Limit categories to 5
-        $productCategories = array_slice($productCategories, 0, 5, true);
 
         // Add it to our item
         $counter = 1;
         foreach ($productCategories as $productCategory) {
+            // Skip home category if we have more than 1 category
+            if (count($productCategories) > 1 && $productCategory['id_category'] == $this->homeCategory) {
+                continue;
+            }
+
+            // Add it with proper key
             $item[$counter == 1 ? 'item_category' : 'item_category' . $counter] = $productCategory['name'];
+            if ($counter == 5) {
+                break;
+            }
             ++$counter;
         }
 
