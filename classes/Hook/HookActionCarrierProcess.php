@@ -48,7 +48,7 @@ class HookActionCarrierProcess implements HookInterface
 
             // Load carrier name
             $carrierName = (string) $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-            
+
             // Check if we actually have some name
             if (empty($carrierName)) {
                 return;

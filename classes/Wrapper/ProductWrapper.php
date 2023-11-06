@@ -21,8 +21,9 @@
 namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
 use Configuration;
-use Db;
 use Context;
+use Db;
+use Manufacturer;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductLazyArray;
 use PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingLazyArray;
 use Product;
@@ -80,7 +81,7 @@ class ProductWrapper
      * @return array Item data standardized for GA
      */
     public function prepareItemFromProduct($product, $useProvidedQuantity = false)
-    {        
+    {
         // Standardize product ID
         $product_id = 0;
         if (!empty($product['id_product'])) {
@@ -89,7 +90,7 @@ class ProductWrapper
             $product_id = $product['id'];
         }
 
-        // Standardize product price
+        // Standardize product price, make sure this price went through calculation before you pass it here
         if (empty($product['price_amount'])) {
             $product['price_amount'] = $product['price'];
         }
@@ -107,7 +108,7 @@ class ProductWrapper
         if (!empty($product['manufacturer_name'])) {
             $item['item_brand'] = $product['manufacturer_name'];
         // If we don't, which can happen due to some bugs in getProductProperties, we will fetch it manually
-        } else if (!empty($product['id_manufacturer'])) {
+        } elseif (!empty($product['id_manufacturer'])) {
             $manufacturerName = Manufacturer::getNameById((int) $product['id_manufacturer']);
             if (!empty($manufacturerName)) {
                 $item['item_brand'] = $manufacturerName;
@@ -124,7 +125,7 @@ class ProductWrapper
             $item['item_variant'] = $product['attributes_small'];
 
         // If we don't, we will construct it in the same format
-        } else if (!empty($product['id_product_attribute'])) {
+        } elseif (!empty($product['id_product_attribute'])) {
             $variant = $this->getProductVariant((int) $product['id_product_attribute']);
             if (!empty($variant)) {
                 $item['item_variant'] = $variant;

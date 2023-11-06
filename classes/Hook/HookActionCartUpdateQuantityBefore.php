@@ -51,20 +51,20 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
         /* 
          * The hook passes a legacy Product object to add, but no attribute information.
          * But thankfully, we can use id_product_attribute for this.
-         * 
+         *
          * Other info is fairly standard:
-         * 
+         *
          * Add to cart from product page + up from cart page
          * $this->params['operator'] == up
          * $this->params['quantity'] to determine quantity
-         * 
+         *
          * Down from cart page
          * $this->params['operator'] == down
          * $this->params['quantity'] to determine quantity
          */
 
         // Format product and standardize ID
-        $product = (array) $this->params['product']; 
+        $product = (array) $this->params['product'];
         $product['id_product'] = $product['id'];
 
         // Get some basic information
