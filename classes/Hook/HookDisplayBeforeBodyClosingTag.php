@@ -271,8 +271,6 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
 
         foreach ($storedEvents as $event) {
             $this->gaScripts .= $event;
-            // Temp for test
-            dump($event);
         }
 
         // Delete the repository because everything has been flushed
