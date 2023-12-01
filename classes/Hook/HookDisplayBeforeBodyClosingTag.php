@@ -20,21 +20,16 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
-use Shop;
-use Tools;
 
 class HookDisplayBeforeBodyClosingTag implements HookInterface
 {
     private $module;
     private $context;
+    private $gaScripts = '';
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -49,100 +44,236 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
      */
     public function run()
     {
+        // Prepare our tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $ganalyticsDataHandler = new GanalyticsDataHandler(
-            $this->context->cart->id,
-            $this->context->shop->id
+
+        // Log information about product listing
+        $this->saveInformationAboutListing();
+
+        // Flush events stored in data storage from previous pages
+        $this->outputStoredEvents();
+
+        // Add events
+        $this->renderProductListing();
+        $this->renderSearch();
+        $this->renderCartPage();
+        $this->renderBeginCheckout();
+        $this->renderLogin();
+        $this->renderRegistration();
+
+        // Output everything
+        return $gaTagHandler->generate($this->gaScripts);
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     */
+    private function renderProductListing()
+    {
+        // Try to get product list variable
+        $listing = $this->context->smarty->getTemplateVars('listing');
+        if (empty($listing['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = $productWrapper->prepareItemListFromProductList($listing['products']);
+
+        // Prepare info about the list
+        $item_list_id = $this->context->controller->php_self;
+        $item_list_name = $listing['label'];
+
+        // Render the event
+        $eventData = [
+            'item_list_id' => $item_list_id,
+            'item_list_name' => $item_list_name,
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'view_item_list',
+            $eventData
         );
 
-        $gaScripts = '';
-        $gacarts = $ganalyticsDataHandler->manageData('', 'R');
-        $controller_name = Tools::getValue('controller');
-
-        if (count($gacarts) > 0 && $controller_name != 'product') {
-            $this->module->filterable = 0;
-
-            foreach ($gacarts as $key => $gacart) {
-                if (isset($gacart['quantity'])) {
-                    if ($gacart['quantity'] > 0) {
-                        $eventData = [
-                            'currency' => $this->context->currency->iso_code,
-                            'value' => $gacart['price'],
-                            'items' => [
-                                [
-                                    'item_id' => (int) $gacart['id'],
-                                    'item_name' => $gacart['name'],
-                                    'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
-                                    'currency' => $this->context->currency->iso_code,
-                                    'index' => (int) $key,
-                                    'item_brand' => $gacart['brand'],
-                                    'item_category' => $gacart['category'],
-                                    'item_variant' => $gacart['variant'],
-                                    'price' => (float) $gacart['price'],
-                                    'quantity' => (int) $gacart['quantity'],
-                                ],
-                            ],
-                        ];
-                        $gaScripts .= $this->module->getTools()->renderEvent(
-                            'add_to_cart',
-                            $eventData
-                        );
-                    } elseif ($gacart['quantity'] < 0) {
-                        $gacart['quantity'] = abs($gacart['quantity']);
-                        $eventData = [
-                            'currency' => $this->context->currency->iso_code,
-                            'value' => $gacart['price'],
-                            'items' => [
-                                [
-                                    'item_id' => (int) $gacart['id'],
-                                    'item_name' => $gacart['name'],
-                                    'affiliation' => (Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME')),
-                                    'currency' => $this->context->currency->iso_code,
-                                    'index' => (int) $key,
-                                    'item_brand' => $gacart['brand'],
-                                    'item_category' => $gacart['category'],
-                                    'item_variant' => $gacart['variant'],
-                                    'price' => (float) $gacart['price'],
-                                    'quantity' => (int) $gacart['quantity'],
-                                ],
-                            ],
-                        ];
-                        $gaScripts .= $this->module->getTools()->renderEvent(
-                            'remove_from_cart',
-                            $eventData
-                        );
-                    }
-                } elseif (is_array($gacart)) {
-                    $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($gacart));
-                    foreach ($it as $v) {
-                        $gaScripts .= $v;
-                    }
-                } else {
-                    $gaScripts .= $gacart;
-                }
-            }
-
-            $ganalyticsDataHandler->manageData('', 'D');
-        }
-
-        $listing = $this->context->smarty->getTemplateVars('listing');
-        $productWrapper = new ProductWrapper($this->context);
-        $products = $productWrapper->wrapProductList(isset($listing['products']) ? $listing['products'] : []);
-
-        if ($controller_name == 'order' || $controller_name == 'orderopc') {
+        // Render quickview events
+        foreach ($items as $item) {
             $eventData = [
-                'currency' => $this->context->currency->iso_code,
+                'item_list_id' => $item_list_id,
+                'item_list_name' => $item_list_name,
+                'items' => [$item],
             ];
-            $gaScripts = $this->module->getTools()->renderEvent(
-                'begin_checkout',
-                $eventData
+
+            // Keep only product ID if id_product_attribute was appended
+            $productId = explode('-', $item['item_id']);
+            $productId = $productId[0];
+
+            // Render the event wrapped in onclick
+            $this->gaScripts .= '
+            $(\'article[data-id-product="' . $productId . '"] a.quick-view\').on(
+                "click",
+                function() {' . $this->module->getTools()->renderEvent('select_item', $eventData) . '}
             );
+            ';
+        }
+    }
+
+    /**
+     * This method renders tracking code when user searches on the shop.
+     */
+    private function renderSearch()
+    {
+        // Check if we are on search page and we have a search string
+        if ($this->context->controller->php_self != 'search' || empty($_GET['s'])) {
+            return;
         }
 
-        if (isset($products) && count($products) && $controller_name != 'index') {
-            $gaScripts .= $this->module->getTools()->addProductClick($products, $this->context->currency->iso_code);
+        // Render the event
+        $eventData = [
+            'search_term' => (string) $_GET['s'],
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'search',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     */
+    private function renderCartpage()
+    {
+        // Check if we are on cart page
+        if ($this->context->controller->php_self != 'cart') {
+            return;
         }
 
-        return $gaTagHandler->generate($gaScripts);
+        // Try to get product list variable and check if it's not empty
+        $cart = $this->context->smarty->getTemplateVars('cart');
+        if (empty($cart['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = $productWrapper->prepareItemListFromProductList($cart['products'], true);
+
+        // Render the event
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $cart['totals']['total']['amount'],
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'view_cart',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code for product listings, like category pages.
+     */
+    private function renderBeginCheckout()
+    {
+        // Check if we are on some supported order controller
+        $allowed_controllers = ['order', 'orderopc', 'checkout'];
+        if (!in_array($this->context->controller->php_self, $allowed_controllers)) {
+            return;
+        }
+
+        // If the user reliably came from previous page, we won't render this event
+        // We want to do it just for first visiting checkout
+        if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['REQUEST_URI']) !== false) {
+            return;
+        }
+
+        // Try to get product list variable and check if it's not empty
+        $cart = $this->context->smarty->getTemplateVars('cart');
+        if (empty($cart['products'])) {
+            return;
+        }
+
+        // Prepare items to our format
+        $productWrapper = new ProductWrapper($this->context);
+        $items = $productWrapper->prepareItemListFromProductList($cart['products'], true);
+
+        // Render the event
+        $eventData = [
+            'currency' => $this->context->currency->iso_code,
+            'value' => $cart['totals']['total']['amount'],
+            'items' => $items,
+        ];
+        $this->gaScripts .= $this->module->getTools()->renderEvent(
+            'begin_checkout',
+            $eventData
+        );
+    }
+
+    /**
+     * This method renders tracking code after user logs in.
+     */
+    private function renderLogin()
+    {
+        // Render it only on login page AND if we are not creating a new account in older PS versions
+        // For newer versions, registrations are handled with standalone registration controller.
+        if ($this->context->controller->php_self != 'authentication' || isset($_GET['create_account'])) {
+            return;
+        }
+
+        // Render the event
+        $this->gaScripts .= $this->module->getTools()->renderEvent('login', []);
+    }
+
+    /**
+     * This method renders tracking code after user registers.
+     */
+    private function renderRegistration()
+    {
+        if ($this->context->controller->php_self != 'registration' &&
+            ($this->context->controller->php_self != 'authentication' || !isset($_GET['create_account']))
+        ) {
+            return;
+        }
+
+        // Render the event
+        $this->gaScripts .= $this->module->getTools()->renderEvent('sign_up', []);
+    }
+
+    /**
+     * Saves information about last visited product listing, so we can later use it for select_item event.
+     */
+    private function saveInformationAboutListing()
+    {
+        // Try to get product list variable
+        $listing = $this->context->smarty->getTemplateVars('listing');
+        if (empty($listing['products']) || empty($listing['label'])) {
+            return;
+        }
+
+        // Save this information to a cookie
+        $this->context->cookie->ga_last_listing = json_encode([
+            'item_list_url' => $_SERVER['REQUEST_URI'],
+            'item_list_id' => $this->context->controller->php_self,
+            'item_list_name' => $listing['label'],
+        ]);
+    }
+
+    /**
+     * Outputs all events we stored into data repository during previous AJAX requests
+     * on previous page.
+     */
+    private function outputStoredEvents()
+    {
+        // Get all stored events
+        $storedEvents = $this->module->getDataHandler()->readData();
+        if (empty($storedEvents)) {
+            return;
+        }
+
+        foreach ($storedEvents as $event) {
+            $this->gaScripts .= $event;
+        }
+
+        // Delete the repository because everything has been flushed
+        $this->module->getDataHandler()->deleteData();
     }
 }

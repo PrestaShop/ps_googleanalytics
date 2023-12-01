@@ -38,10 +38,10 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $filterable = 1;
     public $products = [];
     public $_debug = 0;
     private $tools = null;
+    private $dataHandler = null;
 
     public function __construct()
     {
@@ -113,10 +113,9 @@ class Ps_Googleanalytics extends Module
      * Product page footer hook
      * This function is run to load JS for product details view
      */
-    public function hookDisplayFooterProduct($params)
+    public function hookDisplayFooterProduct()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
-        $hook->setParams($params);
 
         return $hook->run();
     }
@@ -179,12 +178,24 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Save cart event hook.
+     * Hook to process add and remove items from cart events
      * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
-    public function hookActionCartSave()
+    public function hookActionCartUpdateQuantityBefore($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartUpdateQuantityBefore($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
+     * Hook to process remove items from cart events
+     * This function is run to implement 'remove from cart' functionalities
+     */
+    public function hookActionObjectProductInCartDeleteBefore($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionObjectProductInCartDeleteBefore($this, $this->context);
+        $hook->setParams($params);
         $hook->run();
     }
 
@@ -251,5 +262,20 @@ class Ps_Googleanalytics extends Module
         }
 
         return $this->tools;
+    }
+
+    /**
+     * Returns instance of GanalyticsDataHandler
+     */
+    public function getDataHandler()
+    {
+        if ($this->dataHandler === null) {
+            $this->dataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
+                $this->context->cart->id,
+                $this->context->shop->id
+            );
+        }
+
+        return $this->dataHandler;
     }
 }

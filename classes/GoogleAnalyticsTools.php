@@ -25,23 +25,6 @@ use Configuration;
 class GoogleAnalyticsTools
 {
     /**
-     * filter
-     *
-     * @param string $gaScripts
-     * @param int $filterable
-     *
-     * @return string
-     */
-    public function filter($gaScripts, $filterable)
-    {
-        if (1 == $filterable) {
-            return implode(';', array_unique(explode(';', $gaScripts)));
-        }
-
-        return $gaScripts;
-    }
-
-    /**
      * Renders purchase event for order
      *
      * @param array $orderProducts
@@ -57,125 +40,28 @@ class GoogleAnalyticsTools
         }
 
         $callbackData = [
-            'orderid' => $orderData['id'],
+            'orderid' => $orderData['transaction_id'],
             'customer' => $orderData['customer'],
         ];
 
         $eventData = [
-            'transaction_id' => (int) $orderData['id'],
+            'transaction_id' => (int) $orderData['transaction_id'],
             'affiliation' => $orderData['affiliation'],
-            'value' => (float) $orderData['revenue'],
+            'value' => (float) $orderData['value'],
             'tax' => (float) $orderData['tax'],
             'shipping' => (float) $orderData['shipping'],
             'currency' => $orderData['currency'],
-            'items' => [],
+            'items' => $orderProducts,
             'event_callback' => "function() {
                 $.get('" . $callbackUrl . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
             }',
         ];
-
-        foreach ($orderProducts as $product) {
-            $eventData['items'][] = [
-                'item_id' => (int) $product['id'],
-                'item_name' => $product['name'],
-                'quantity' => (int) $product['quantity'],
-                'price' => (float) $product['price'],
-            ];
-        }
 
         return $this->renderEvent(
             'purchase',
             $eventData,
             ['event_callback']
         );
-    }
-
-    /**
-     * addProductClick
-     *
-     * @param array $products
-     * @param string $currencyIsoCode
-     *
-     * @return string|void
-     */
-    public function addProductClick($products, $currencyIsoCode)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $key => $product) {
-            $eventData = [
-                'items' => [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                    'currency' => $currencyIsoCode,
-                    'index' => (int) $product['position'],
-                    'item_brand' => $product['brand'],
-                    'item_category' => $product['category'],
-                    'item_list_id' => $product['list'],
-                    'item_variant' => $product['variant'],
-                ],
-            ];
-
-            // Add send_to parameter to avoid sending extra events
-            // to other gtag configs (Ads for example).
-            $eventData = array_merge(
-                ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
-                $eventData
-            );
-
-            $productId = explode('-', $product['id']);
-            $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
-            "click",
-            function() {
-                gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
-            });';
-        }
-
-        return $js;
-    }
-
-    /**
-     * addProductClickByHttpReferal
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductClickByHttpReferal($products, $currencyIsoCode)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        foreach ($products as $key => $product) {
-            $eventData = [
-                'items' => [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                    'currency' => $currencyIsoCode,
-                    'index' => (int) $product['position'],
-                    'item_brand' => $product['brand'],
-                    'item_category' => $product['category'],
-                    'item_list_id' => $product['list'],
-                    'item_variant' => $product['variant'],
-                ],
-            ];
-
-            $js .= $this->renderEvent(
-                'select_item',
-                $eventData
-            );
-        }
-
-        return $js;
     }
 
     /**

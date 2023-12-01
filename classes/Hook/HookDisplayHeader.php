@@ -20,13 +20,9 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Category;
 use Configuration;
 use Context;
 use Customer;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler;
-use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
 use Tools;
 
@@ -83,33 +79,6 @@ class HookDisplayHeader implements HookInterface
         return $this->module->display(
             $this->module->getLocalPath() . $this->module->name,
             'ps_googleanalytics.tpl'
-        ) . $this->displayGaTag();
-    }
-
-    private function displayGaTag()
-    {
-        $moduleHandler = new ModuleHandler();
-        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $gaScripts = '';
-
-        // Home featured products
-        if ($moduleHandler->isModuleEnabledAndHookedOn('ps_featuredproducts', 'displayHome')
-            && $this->context->customer instanceof Customer) {
-            $category = new Category($this->context->shop->getCategory(), $this->context->language->id);
-            $productWrapper = new ProductWrapper($this->context);
-            $homeFeaturedProducts = $productWrapper->wrapProductList(
-                $category->getProducts(
-                    (int) $this->context->language->id,
-                    1,
-                    (Configuration::get('HOME_FEATURED_NBR') ? (int) Configuration::get('HOME_FEATURED_NBR') : 8),
-                    'position'
-                )
-            );
-            $gaScripts .= $this->module->getTools()->addProductClick($homeFeaturedProducts, $this->context->currency->iso_code);
-        }
-
-        return $gaTagHandler->generate(
-            $this->module->getTools()->filter($gaScripts, $this->module->filterable)
         );
     }
 

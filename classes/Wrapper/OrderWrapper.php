@@ -23,10 +23,9 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 use Configuration;
 use Context;
 use Currency;
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
 use Shop;
 
-class OrderWrapper implements WrapperInterface
+class OrderWrapper
 {
     private $context;
 
@@ -44,14 +43,14 @@ class OrderWrapper implements WrapperInterface
         $currency = new Currency((int) $order->id_currency);
 
         return [
-            'id' => (int) $order->id,
+            'transaction_id' => (int) $order->id,
             'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-            'revenue' => (float) $order->total_paid,
+            'value' => (float) $order->total_paid,
             'shipping' => (float) $order->total_shipping,
             'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
             'customer' => (int) $order->id_customer,
             'currency' => $currency->iso_code,
-            'payment_type' => (int) $order->payment,
+            'payment_type' => (string) $order->payment,
         ];
     }
 }

@@ -64,14 +64,14 @@ class HookActionProductCancel implements HookInterface
         }
 
         $idProduct = empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id;
-        $js = $this->getGoogleAnalytics4(
+        $jsCode = $this->getGoogleAnalytics4(
             (int) $this->params['order']->id,
             $idProduct,
             (float) $this->params['cancel_quantity'],
             $orderDetail->product_name
         );
 
-        $this->context->cookie->ga_admin_refund = $js;
+        $this->context->cookie->ga_admin_refund = $jsCode;
         $this->context->cookie->write();
     }
 

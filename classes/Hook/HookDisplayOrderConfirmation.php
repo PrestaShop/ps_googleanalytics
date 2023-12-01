@@ -75,23 +75,23 @@ class HookDisplayOrderConfirmation implements HookInterface
         // Prepare transaction data
         $orderData = $orderWrapper->wrapOrder($order);
 
+        // Prepare order products, if the cart still exists
+        $orderProducts = [];
+        $cart = new Cart($order->id_cart);
+        if (Validate::isLoadedObject($cart)) {
+            $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
+        }
+
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(
             'add_payment_info',
             [
                 'currency' => $orderData['currency'],
+                'value' => (float) $orderData['value'],
                 'payment_type' => $orderData['payment_type'],
+                'items' => $orderProducts,
             ]
         );
-
-        // Prepare order products, if the cart still exists
-        $orderProducts = [];
-        $cart = new Cart($order->id_cart);
-        if (Validate::isLoadedObject($cart)) {
-            foreach ($cart->getProducts() as $order_product) {
-                $orderProducts[] = $productWrapper->wrapProduct($order_product);
-            }
-        }
 
         // Render transaction code
         $gaScripts .= $this->module->getTools()->renderPurchaseEvent(

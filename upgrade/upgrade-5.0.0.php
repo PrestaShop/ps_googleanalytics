@@ -31,6 +31,9 @@ function upgrade_module_5_0_0($object)
     return
         Configuration::deleteByName('GA_V4_ENABLED') &&
         $object->registerHook('actionValidateOrder') &&
+        $object->unregisterHook('actionCartSave') &&
+        $object->registerHook('actionCartUpdateQuantityBefore') &&
+        $object->registerHook('actionObjectProductInCartDeleteBefore') &&
         $database->installTab() &&
         Configuration::updateValue('GA_BACKLOAD_ENABLED', false) &&
         Configuration::updateValue('GA_BACKLOAD_DAYS', 30);

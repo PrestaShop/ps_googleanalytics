@@ -110,7 +110,8 @@ class Install
             $this->module->registerHook('actionProductCancel') &&
             $this->module->registerHook('actionValidateOrder') &&
             $this->module->registerHook('actionOrderStatusPostUpdate') &&
-            $this->module->registerHook('actionCartSave') &&
+            $this->module->registerHook('actionCartUpdateQuantityBefore') &&
+            $this->module->registerHook('actionObjectProductInCartDeleteBefore') &&
             $this->module->registerHook('displayBackOfficeHeader') &&
             $this->module->registerHook('actionCarrierProcess');
     }
