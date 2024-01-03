@@ -2,13 +2,13 @@
 
 ## About
 
-Gain clear insights into important metrics about your customers, using Google Analytics.
+Gain clear insights into important metrics about your customers, using Google Analytics 4.
 
 To use it, you will need to create a Google Analytics account and insert your Google Analytics Identifier into the Module configuration page.
 
 ## Compatibility
 
-PrestaShop: `1.7.6.0` or later
+PrestaShop: `1.7.7.0` or later
 
 ### Notes
 
@@ -25,7 +25,7 @@ Enhanced Ecommerce must be enabled in Google Analytics settings for full functio
 
 PrestaShop modules are open-source extensions to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Google Analytics is compatible with PrestaShop 1.7.6 and newer.
+Google Analytics is compatible with PrestaShop 1.7.7 and newer.
 
 ### Requirements
 
