@@ -36,10 +36,12 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 
         if (!Validate::isLoadedObject($order) || $order->id_customer != (int) Tools::getValue('customer')) {
             $this->ajaxRender('KO');
+            exit;
         }
 
         (new GanalyticsRepository())->markOrderAsSent((int) $orderId);
 
         $this->ajaxRender('OK');
+        exit;
     }
 }
