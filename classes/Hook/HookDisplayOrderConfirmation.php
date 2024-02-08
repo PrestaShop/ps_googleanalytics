@@ -25,9 +25,9 @@ use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
+use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
-use Shop;
 use Validate;
 
 class HookDisplayOrderConfirmation implements HookInterface
@@ -49,69 +49,58 @@ class HookDisplayOrderConfirmation implements HookInterface
      */
     public function run()
     {
-        if (true === $this->module->psVersionIs17) {
-            $order = $this->params['order'];
-        } else {
-            $order = $this->params['objOrder'];
+        $gaScripts = '';
+        $order = $this->params['order'];
+
+        if (!Validate::isLoadedObject($order) || $order->getCurrentState() == (int) Configuration::get('PS_OS_ERROR')) {
+            return $gaScripts;
         }
 
-        if (Validate::isLoadedObject($order) && $order->getCurrentState() != (int) Configuration::get('PS_OS_ERROR')) {
-            $ganalyticsRepository = new GanalyticsRepository();
-            $gaOrderSent = $ganalyticsRepository->findGaOrderByOrderId((int) $order->id);
+        // Load up our handlers and repositories
+        $ganalyticsRepository = new GanalyticsRepository();
+        $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
+        $productWrapper = new ProductWrapper($this->context);
+        $orderWrapper = new OrderWrapper($this->context);
 
-            if (false === $gaOrderSent) {
-                $ganalyticsRepository->addNewRow(
-                    [
-                        'id_order' => (int) $order->id,
-                        'id_shop' => (int) $this->context->shop->id,
-                        'sent' => 0,
-                        'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
-                    ]
-                );
-
-                $cart = new Cart($order->id_cart);
-                $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
-                $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-                $productWrapper = new ProductWrapper($this->context);
-
-                // Add payment data
-                if ($isV4Enabled) {
-                    $eventData = [
-                        'currency' => $this->context->currency->iso_code,
-                        'payment_type' => $order->payment,
-                    ];
-                    $gaScripts = $this->module->getTools()->renderEvent(
-                        'add_payment_info',
-                        $eventData
-                    );
-                } else {
-                    $gaScripts = 'MBG.addCheckoutOption(3,\'' . $order->payment . '\');';
-                }
-
-                // Prepare transaction data
-                $transaction = [
-                    'id' => (int) $order->id,
-                    'affiliation' => (Shop::isFeatureActive()) ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                    'revenue' => (float) $order->total_paid,
-                    'shipping' => (float) $order->total_shipping,
-                    'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                    'url' => $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true),
-                    'customer' => (int) $order->id_customer,
-                    'currency' => $this->context->currency->iso_code,
-                ];
-
-                // Prepare order products
-                $orderProducts = [];
-                foreach ($cart->getProducts() as $order_product) {
-                    $orderProducts[] = $productWrapper->wrapProduct($order_product, [], 0, true);
-                }
-                $gaScripts .= $this->module->getTools()->addTransaction($orderProducts, $transaction);
-
-                return $gaTagHandler->generate($gaScripts);
-            }
+        // If it's a completely new order, add order to repository, so we can later mark it as sent
+        if (empty($ganalyticsRepository->findGaOrderByOrderId((int) $order->id))) {
+            $ganalyticsRepository->addOrder((int) $order->id, (int) $order->id_shop);
         }
 
-        return '';
+        // If the customer is revisiting confirmation screen and the order was already sent, we don't do anything
+        if ($ganalyticsRepository->hasOrderBeenAlreadySent((int) $order->id)) {
+            return $gaScripts;
+        }
+
+        // Prepare transaction data
+        $orderData = $orderWrapper->wrapOrder($order);
+
+        // Prepare order products, if the cart still exists
+        $orderProducts = [];
+        $cart = new Cart($order->id_cart);
+        if (Validate::isLoadedObject($cart)) {
+            $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
+        }
+
+        // Add payment event
+        $gaScripts .= $this->module->getTools()->renderEvent(
+            'add_payment_info',
+            [
+                'currency' => $orderData['currency'],
+                'value' => (float) $orderData['value'],
+                'payment_type' => $orderData['payment_type'],
+                'items' => $orderProducts,
+            ]
+        );
+
+        // Render transaction code
+        $gaScripts .= $this->module->getTools()->renderPurchaseEvent(
+            $orderProducts,
+            $orderData,
+            $this->context->link->getModuleLink('ps_googleanalytics', 'ajax', [], true)
+        );
+
+        return $gaTagHandler->generate($gaScripts);
     }
 
     /**

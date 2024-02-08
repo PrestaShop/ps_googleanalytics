@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
 use OrderDetail;
 use Ps_Googleanalytics;
@@ -65,21 +64,14 @@ class HookActionProductCancel implements HookInterface
         }
 
         $idProduct = empty($orderDetail->product_attribute_id) ? $orderDetail->product_id : $orderDetail->product_id . '-' . $orderDetail->product_attribute_id;
-        if ((bool) Configuration::get('GA_V4_ENABLED')) {
-            $js = $this->getGoogleAnalytics4(
-                (int) $this->params['order']->id,
-                $idProduct,
-                (float) $this->params['cancel_quantity'],
-                $orderDetail->product_name
-            );
-        } else {
-            $js = $this->getUniversalAnalytics(
-                (int) $this->params['order']->id,
-                $idProduct,
-                (float) $this->params['cancel_quantity']
-            );
-        }
-        $this->context->cookie->__set('ga_admin_refund', $js);
+        $jsCode = $this->getGoogleAnalytics4(
+            (int) $this->params['order']->id,
+            $idProduct,
+            (float) $this->params['cancel_quantity'],
+            $orderDetail->product_name
+        );
+
+        $this->context->cookie->ga_admin_refund = $jsCode;
         $this->context->cookie->write();
     }
 
@@ -91,24 +83,6 @@ class HookActionProductCancel implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
-    }
-
-    /**
-     * @param int $idOrder
-     * @param string $idProduct
-     * @param float $quantity
-     */
-    protected function getUniversalAnalytics($idOrder, $idProduct, $quantity)
-    {
-        $js = 'MBG.add(' . json_encode(
-            [
-                'id' => $idProduct,
-                'quantity' => $quantity,
-            ])
-        . ');';
-        $js .= 'MBG.refundByProduct(' . json_encode(['id' => $idOrder]) . ');';
-
-        return $js;
     }
 
     /**

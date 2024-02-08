@@ -20,27 +20,25 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
-use Customer;
 use Ps_Googleanalytics;
-use Tools;
 
-class HookDisplayHeader implements HookInterface
+class HookActionValidateOrder implements HookInterface
 {
     /**
      * @var Ps_Googleanalytics
      */
     private $module;
+
     /**
      * @var Context
      */
     private $context;
 
     /**
-     * @var bool
+     * @var array
      */
-    private $backOffice;
+    private $params;
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -49,44 +47,41 @@ class HookDisplayHeader implements HookInterface
     }
 
     /**
-     * @return false|string
+     * run
+     *
+     * @return void
      */
     public function run()
     {
-        if (!Configuration::get('GA_ACCOUNT_ID')) {
-            return '';
+        // Check if we are creating backoffice order
+        if ($this->context->controller->controller_name != 'AdminOrders' && $this->context->controller->controller_name != 'Admin') {
+            return;
         }
 
-        // Resolve if we should add user ID into the code
-        $userId = null;
-        if (Configuration::get('GA_USERID_ENABLED')
-            && $this->context->customer instanceof Customer
-            && $this->context->customer->isLogged()
-        ) {
-            $userId = (int) $this->context->customer->id;
+        // Mark this ID to immediately display it on next page load
+        $order = $this->params['order'];
+
+        // We are checking this, because in case of multishipping, there could be multiple orders
+        if (!empty($this->context->cookie->ga_admin_order)) {
+            $ga_admin_order = sprintf(
+                '%1$s,%2$s',
+                $this->context->cookie->ga_admin_order,
+                $order->id
+            );
+        } else {
+            $ga_admin_order = $order->id;
         }
-
-        $this->context->smarty->assign(
-            [
-                'backOffice' => $this->backOffice,
-                'trackBackOffice' => Configuration::get('GA_TRACK_BACKOFFICE_ENABLED'),
-                'userId' => $userId,
-                'gaAccountId' => Tools::safeOutput(Configuration::get('GA_ACCOUNT_ID')),
-                'gaAnonymizeEnabled' => Configuration::get('GA_ANONYMIZE_ENABLED'),
-            ]
-        );
-
-        return $this->module->display(
-            $this->module->getLocalPath() . $this->module->name,
-            'ps_googleanalytics.tpl'
-        );
+        $this->context->cookie->ga_admin_order = $ga_admin_order;
+        $this->context->cookie->write();
     }
 
     /**
-     * @param bool $backOffice
+     * setParams
+     *
+     * @param array $params
      */
-    public function setBackOffice($backOffice)
+    public function setParams($params)
     {
-        $this->backOffice = $backOffice;
+        $this->params = $params;
     }
 }

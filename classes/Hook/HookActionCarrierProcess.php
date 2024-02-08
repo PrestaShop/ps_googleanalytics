@@ -20,9 +20,7 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
-use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\CarrierRepository;
 use Ps_Googleanalytics;
 
@@ -47,19 +45,28 @@ class HookActionCarrierProcess implements HookInterface
     {
         if (isset($this->params['cart']->id_carrier)) {
             $carrierRepository = new CarrierRepository();
-            $ganalyticsDataHandler = new GanalyticsDataHandler(
-                $this->context->cart->id,
-                $this->context->shop->id
+
+            // Load carrier name
+            $carrierName = (string) $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
+
+            // Check if we actually have some name
+            if (empty($carrierName)) {
+                return;
+            }
+
+            // Prepare and render the event
+            $eventData = [
+                'currency' => $this->context->currency->iso_code,
+                'value' => (float) $this->context->cart->getSummaryDetails()['total_price'],
+                'shipping_tier' => $carrierName,
+            ];
+            $jsCode = $this->module->getTools()->renderEvent(
+                'add_shipping_info',
+                $eventData
             );
 
-            $carrierName = $carrierRepository->findByCarrierId((int) $this->params['cart']->id_carrier);
-
-            if ((bool) Configuration::get('GA_V4_ENABLED')) {
-                $js = $this->getGoogleAnalytics4($carrierName);
-            } else {
-                $js = $this->getUniversalAnalytics($carrierName);
-            }
-            $ganalyticsDataHandler->manageData($js, 'A');
+            // Store it into our repository so we can flush it on next page load
+            $this->module->getDataHandler()->persistData($jsCode);
         }
     }
 
@@ -69,30 +76,5 @@ class HookActionCarrierProcess implements HookInterface
     public function setParams($params)
     {
         $this->params = $params;
-    }
-
-    /**
-     * @param string $carrierName
-     */
-    protected function getUniversalAnalytics($carrierName)
-    {
-        return 'MBG.addCheckoutOption(2,\'' . $carrierName . '\');';
-    }
-
-    /**
-     * @param string $carrierName
-     */
-    protected function getGoogleAnalytics4($carrierName)
-    {
-        $eventData = [
-            'currency' => $this->context->currency->iso_code,
-            'value' => (float) $this->context->cart->getSummaryDetails()['total_price'],
-            'shipping_tier' => $carrierName,
-        ];
-
-        return $this->module->getTools()->renderEvent(
-            'add_shipping_info',
-            $eventData
-        );
     }
 }

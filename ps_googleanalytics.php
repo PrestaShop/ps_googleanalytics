@@ -28,11 +28,6 @@ if (file_exists($autoloadPath)) {
 
 class Ps_Googleanalytics extends Module
 {
-    /**
-     * @var string Name of the module running on PS 1.6.x. Used for data migration.
-     */
-    const PS_16_EQUIVALENT_MODULE = 'ganalytics';
-
     public $name;
     public $tab;
     public $version;
@@ -43,29 +38,26 @@ class Ps_Googleanalytics extends Module
     public $displayName;
     public $description;
     public $confirmUninstall;
-    public $eligible = 0;
-    public $filterable = 1;
     public $products = [];
     public $_debug = 0;
-    public $psVersionIs17;
     private $tools = null;
+    private $dataHandler = null;
 
     public function __construct()
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '4.2.2';
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+        $this->version = '5.0.0';
+        $this->ps_versions_compliancy = ['min' => '1.7.7', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
         $this->bootstrap = true;
 
         parent::__construct();
 
-        $this->displayName = $this->trans('Google Analytics', [], 'Modules.GAnalytics.Admin');
-        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.GAnalytics.Admin');
-        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.GAnalytics.Admin');
-        $this->psVersionIs17 = (bool) version_compare(_PS_VERSION_, '1.7', '>=');
+        $this->displayName = $this->trans('Google Analytics', [], 'Modules.Googleanalytics.Admin');
+        $this->description = $this->trans('Gain clear insights into important metrics about your customers, using Google Analytics', [], 'Modules.Googleanalytics.Admin');
+        $this->confirmUninstall = $this->trans('Are you sure you want to uninstall Google Analytics? You will lose all the data related to this module.', [], 'Modules.Googleanalytics.Admin');
     }
 
     /**
@@ -107,29 +99,12 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Footer hook for 1.6
-     * This function is run to load JS script for standards actions such as product clicks
-     */
-    public function hookDisplayFooter()
-    {
-        if ($this->psVersionIs17) {
-            return;
-        }
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
-
-        return $hook->run();
-    }
-
-    /**
-     * Footer hook for 1.7
+     * Footer hook
      * This function is run to load JS script for standards actions such as product clicks
      */
     public function hookDisplayBeforeBodyClosingTag()
     {
-        if (!$this->psVersionIs17) {
-            return;
-        }
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooter($this, $this->context);
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBeforeBodyClosingTag($this, $this->context);
 
         return $hook->run();
     }
@@ -138,10 +113,9 @@ class Ps_Googleanalytics extends Module
      * Product page footer hook
      * This function is run to load JS for product details view
      */
-    public function hookDisplayFooterProduct($params)
+    public function hookDisplayFooterProduct()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
-        $hook->setParams($params);
 
         return $hook->run();
     }
@@ -154,8 +128,8 @@ class Ps_Googleanalytics extends Module
     {
         $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        $output = $gaTagHandler->generate($this->context->cookie->__get('ga_admin_refund'));
-        $this->context->cookie->__unset('ga_admin_refund');
+        $output = $gaTagHandler->generate($this->context->cookie->ga_admin_refund);
+        unset($this->context->cookie->ga_admin_refund);
         $this->context->cookie->write();
 
         return $output;
@@ -184,6 +158,16 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
+     * Hook used to detect backoffice orders and store their IDs into cookie.
+     */
+    public function hookActionValidateOrder($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionValidateOrder($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
      * Hook called after order status change, used to "refund" order after cancelling it
      */
     public function hookActionOrderStatusPostUpdate($params)
@@ -194,12 +178,24 @@ class Ps_Googleanalytics extends Module
     }
 
     /**
-     * Save cart event hook.
+     * Hook to process add and remove items from cart events
      * This function is run to implement 'add to cart' and 'remove from cart' functionalities
      */
-    public function hookActionCartSave()
+    public function hookActionCartUpdateQuantityBefore($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartSave($this, $this->context);
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartUpdateQuantityBefore($this, $this->context);
+        $hook->setParams($params);
+        $hook->run();
+    }
+
+    /**
+     * Hook to process remove items from cart events
+     * This function is run to implement 'remove from cart' functionalities
+     */
+    public function hookActionObjectProductInCartDeleteBefore($params)
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionObjectProductInCartDeleteBefore($this, $this->context);
+        $hook->setParams($params);
         $hook->run();
     }
 
@@ -232,14 +228,12 @@ class Ps_Googleanalytics extends Module
      */
     public function install()
     {
-        $moduleHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\ModuleHandler();
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($this);
-
-        $moduleHandler->uninstallModule(self::PS_16_EQUIVALENT_MODULE);
 
         return parent::install() &&
             $database->registerHooks() &&
             $database->setDefaultConfiguration() &&
+            $database->installTab() &&
             $database->installTables();
     }
 
@@ -254,24 +248,8 @@ class Ps_Googleanalytics extends Module
         $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Uninstall();
 
         return parent::uninstall() &&
+            $database->uninstallTab() &&
             $database->uninstallTables();
-    }
-
-    /**
-     * Intermediate method added only to keep backward compatibility with PrestaShop 1.6
-     *
-     * @param string $id
-     * @param array $parameters
-     * @param string|null $domain
-     * @param string|null $locale
-     */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
-    {
-        if (method_exists('Module', 'trans')) {
-            return parent::trans($id, $parameters, $domain, $locale);
-        } else {
-            return $this->l($id);
-        }
     }
 
     /**
@@ -280,11 +258,24 @@ class Ps_Googleanalytics extends Module
     public function getTools()
     {
         if ($this->tools === null) {
-            $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools(
-                (bool) Configuration::get('GA_V4_ENABLED')
-            );
+            $this->tools = new PrestaShop\Module\Ps_Googleanalytics\GoogleAnalyticsTools();
         }
 
         return $this->tools;
+    }
+
+    /**
+     * Returns instance of GanalyticsDataHandler
+     */
+    public function getDataHandler()
+    {
+        if ($this->dataHandler === null) {
+            $this->dataHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsDataHandler(
+                $this->context->cart->id,
+                $this->context->shop->id
+            );
+        }
+
+        return $this->dataHandler;
     }
 }

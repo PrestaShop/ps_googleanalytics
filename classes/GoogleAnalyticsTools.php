@@ -25,235 +25,43 @@ use Configuration;
 class GoogleAnalyticsTools
 {
     /**
-     * @var bool
-     */
-    protected $isV4Enabled = false;
-
-    public function __construct($isV4Enabled = false)
-    {
-        $this->isV4Enabled = $isV4Enabled;
-    }
-
-    /**
-     * filter
+     * Renders purchase event for order
      *
-     * @param string $gaScripts
-     * @param int $filterable
-     *
-     * @return string
-     */
-    public function filter($gaScripts, $filterable)
-    {
-        if (1 == $filterable) {
-            return implode(';', array_unique(explode(';', $gaScripts)));
-        }
-
-        return $gaScripts;
-    }
-
-    /**
-     * add order transaction
-     *
-     * @param array $products
-     * @param array $transaction
+     * @param array $orderProducts
+     * @param array $orderData
+     * @param string $callbackUrl
      *
      * @return string|void
      */
-    public function addTransaction($products, $transaction)
+    public function renderPurchaseEvent($orderProducts, $orderData, $callbackUrl)
     {
-        if (!is_array($products)) {
+        if (!is_array($orderProducts)) {
             return;
         }
 
-        if ($this->isV4Enabled) {
-            $callbackData = [
-                'orderid' => $transaction['id'],
-                'customer' => $transaction['customer'],
-            ];
+        $callbackData = [
+            'orderid' => $orderData['transaction_id'],
+            'customer' => $orderData['customer'],
+        ];
 
-            $eventData = [
-                'transaction_id' => (int) $transaction['id'],
-                'affiliation' => $transaction['affiliation'],
-                'value' => (float) $transaction['revenue'],
-                'tax' => (float) $transaction['tax'],
-                'shipping' => (float) $transaction['shipping'],
-                'currency' => $transaction['currency'],
-                'items' => [],
-                'event_callback' => "function() {
-                    $.get('" . $transaction['url'] . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
-                }',
-            ];
+        $eventData = [
+            'transaction_id' => (int) $orderData['transaction_id'],
+            'affiliation' => $orderData['affiliation'],
+            'value' => (float) $orderData['value'],
+            'tax' => (float) $orderData['tax'],
+            'shipping' => (float) $orderData['shipping'],
+            'currency' => $orderData['currency'],
+            'items' => $orderProducts,
+            'event_callback' => "function() {
+                $.get('" . $callbackUrl . "', " . json_encode($callbackData, JSON_UNESCAPED_UNICODE) . ');
+            }',
+        ];
 
-            foreach ($products as $product) {
-                $eventData['items'][] = [
-                    'item_id' => (int) $product['id'],
-                    'item_name' => $product['name'],
-                    'quantity' => (int) $product['quantity'],
-                    'price' => (float) $product['price'],
-                ];
-            }
-
-            $js = $this->renderEvent(
-                'purchase',
-                $eventData,
-                ['event_callback']
-            );
-        } else {
-            unset($transaction['currency']);
-            $js = '';
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ');';
-            }
-            $js .= 'MBG.addTransaction(' . json_encode($transaction) . ');';
-        }
-
-        return $js;
-    }
-
-    /**
-     * add product impression js and product click js
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductImpression($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if (!$this->isV4Enabled) {
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ",'',true);";
-            }
-        }
-
-        return $js;
-    }
-
-    /**
-     * addProductClick
-     *
-     * @param array $products
-     * @param string $currencyIsoCode
-     *
-     * @return string|void
-     */
-    public function addProductClick($products, $currencyIsoCode)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if ($this->isV4Enabled) {
-            foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
-
-                // Add send_to parameter to avoid sending extra events
-                // to other gtag configs (Ads for example).
-                $eventData = array_merge(
-                    ['send_to' => Configuration::get('GA_ACCOUNT_ID')],
-                    $eventData
-                );
-
-                $productId = explode('-', $product['id']);
-                $js .= '$(\'article[data-id-product="' . $productId[0] . '"] a.quick-view\').on(
-                "click",
-                function() {
-                    gtag("event", "select_item", ' . json_encode($eventData, JSON_UNESCAPED_UNICODE) . ')
-                });';
-            }
-        } else {
-            foreach ($products as $product) {
-                $js .= 'MBG.addProductClick(' . json_encode($product) . ');';
-            }
-        }
-
-        return $js;
-    }
-
-    /**
-     * addProductClickByHttpReferal
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductClickByHttpReferal($products, $currencyIsoCode)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if ($this->isV4Enabled) {
-            foreach ($products as $key => $product) {
-                $eventData = [
-                    'items' => [
-                        'item_id' => (int) $product['id'],
-                        'item_name' => $product['name'],
-                        'quantity' => (int) $product['quantity'],
-                        'price' => (float) $product['price'],
-                        'currency' => $currencyIsoCode,
-                        'index' => (int) $product['position'],
-                        'item_brand' => $product['brand'],
-                        'item_category' => $product['category'],
-                        'item_list_id' => $product['list'],
-                        'item_variant' => $product['variant'],
-                    ],
-                ];
-
-                $js .= $this->renderEvent(
-                    'select_item',
-                    $eventData
-                );
-            }
-        } else {
-            foreach ($products as $product) {
-                $js .= 'MBG.addProductClickByHttpReferal(' . json_encode($product) . ');';
-            }
-        }
-
-        return $js;
-    }
-
-    /**
-     * Add product checkout info
-     *
-     * @param array $products
-     *
-     * @return string|void
-     */
-    public function addProductFromCheckout($products)
-    {
-        if (!is_array($products)) {
-            return;
-        }
-
-        $js = '';
-        if (!$this->isV4Enabled) {
-            foreach ($products as $product) {
-                $js .= 'MBG.add(' . json_encode($product) . ');';
-            }
-        }
-
-        return $js;
+        return $this->renderEvent(
+            'purchase',
+            $eventData,
+            ['event_callback']
+        );
     }
 
     /**

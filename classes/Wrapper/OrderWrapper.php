@@ -22,12 +22,10 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Wrapper;
 
 use Configuration;
 use Context;
-use Order;
-use PrestaShop\Module\Ps_Googleanalytics\Hooks\WrapperInterface;
+use Currency;
 use Shop;
-use Validate;
 
-class OrderWrapper implements WrapperInterface
+class OrderWrapper
 {
     private $context;
 
@@ -39,20 +37,20 @@ class OrderWrapper implements WrapperInterface
     /**
      * Return a detailed transaction for Google Analytics
      */
-    public function wrapOrder($id_order)
+    public function wrapOrder($order)
     {
-        $order = new Order((int) $id_order);
+        // Prepare currency information
+        $currency = new Currency((int) $order->id_currency);
 
-        if (Validate::isLoadedObject($order)) {
-            return [
-                'id' => $id_order,
-                'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
-                'revenue' => $order->total_paid,
-                'shipping' => $order->total_shipping,
-                'tax' => $order->total_paid_tax_incl - $order->total_paid_tax_excl,
-                'url' => $this->context->link->getAdminLink('AdminGanalyticsAjax'),
-                'customer' => $order->id_customer,
-            ];
-        }
+        return [
+            'transaction_id' => (int) $order->id,
+            'affiliation' => Shop::isFeatureActive() ? $this->context->shop->name : Configuration::get('PS_SHOP_NAME'),
+            'value' => (float) $order->total_paid,
+            'shipping' => (float) $order->total_shipping,
+            'tax' => (float) $order->total_paid_tax_incl - $order->total_paid_tax_excl,
+            'customer' => (int) $order->id_customer,
+            'currency' => $currency->iso_code,
+            'payment_type' => (string) $order->payment,
+        ];
     }
 }

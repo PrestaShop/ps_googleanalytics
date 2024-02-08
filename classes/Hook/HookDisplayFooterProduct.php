@@ -20,19 +20,15 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 
-use Configuration;
 use Context;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
-use Product;
 use Ps_Googleanalytics;
-use Tools;
 
 class HookDisplayFooterProduct implements HookInterface
 {
     private $module;
     private $context;
-    private $params;
 
     public function __construct(Ps_Googleanalytics $module, Context $context)
     {
@@ -43,90 +39,107 @@ class HookDisplayFooterProduct implements HookInterface
     /**
      * run
      *
-     * @return string
+     * @return string|void
      */
     public function run()
     {
-        $isV4Enabled = (bool) Configuration::get('GA_V4_ENABLED');
+        // Check we are really on product page
+        if ($this->context->controller->php_self !== 'product') {
+            return;
+        }
+
+        // Get lazy array from context
+        $product = $this->context->smarty->getTemplateVars('product');
+        if (empty($product)) {
+            return;
+        }
+
+        // Initialize tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
-        $controllerName = Tools::getValue('controller');
 
-        if ('product' !== $controllerName) {
-            return '';
-        }
+        // Prepare it and format it for our purpose
+        $productWrapper = new ProductWrapper($this->context);
+        $item = $productWrapper->prepareItemFromProduct($product);
 
-        if ($this->params['product'] instanceof Product) {
-            $this->params['product'] = (array) $this->params['product'];
-        }
-        // Add product view
-        if ($isV4Enabled) {
-            $js = $this->getGoogleAnalytics4();
-        } else {
-            $js = $this->getUniversalAnalytics();
-        }
+        $jsCode = '';
 
-        return $gaTagHandler->generate($js);
-    }
-
-    /**
-     * setParams
-     *
-     * @param array $params
-     */
-    public function setParams($params)
-    {
-        $this->params = $params;
-    }
-
-    protected function getUniversalAnalytics()
-    {
-        $gaProduct = $this->getProduct();
-
-        $js = 'MBG.addProductDetailView(' . json_encode($gaProduct) . ');';
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
-        }
-
-        return $js;
-    }
-
-    protected function getGoogleAnalytics4()
-    {
-        $gaProduct = $this->getProduct();
+        // Prepare and render event
         $eventData = [
             'currency' => $this->context->currency->iso_code,
-            'value' => $this->params['product']['price_amount'],
-            'items' => [
-                [
-                    'item_id' => (int) $gaProduct['id'],
-                    'item_name' => $this->params['product']['name'],
-                    'currency' => $this->context->currency->iso_code,
-                    'item_brand' => $this->params['product']['manufacturer_name'],
-                    'item_category' => $this->params['product']['category_name'],
-                    'price' => (float) $this->params['product']['price_amount'],
-                    'quantity' => (int) $gaProduct['quantity'],
-                ],
-            ],
+            'value' => $item['price'],
+            'items' => [$item],
         ];
-        $js = $this->module->getTools()->renderEvent(
+        $jsCode .= $this->module->getTools()->renderEvent(
             'view_item',
             $eventData
         );
 
-        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) > 0) {
-            $js .= $this->module->getTools()->addProductClickByHttpReferal([$gaProduct], $this->context->currency->iso_code);
+        // If the user got to the product page from previous page on our shop,
+        // we will also send select_item event.
+        if ($this->wasPreviousPageOurShop()) {
+            $eventData = [
+                'items' => [$item],
+            ];
+
+            // We will also try to get the information about the last visited listing.
+            // We save this information into a cookie. If it's the page that got the user here,
+            // we will use it.
+            $previousListingData = $this->getLastVisitedListing();
+            if (!empty($previousListingData)) {
+                $eventData = array_merge($previousListingData, $eventData);
+            }
+
+            // Render the event
+            $jsCode .= $this->module->getTools()->renderEvent(
+                'select_item',
+                $eventData
+            );
         }
 
-        return $js;
+        return $gaTagHandler->generate($jsCode);
     }
 
     /**
-     * @return array
+     * Checks HTTP_REFERER to see if the previous page that got user to this product
+     * was our shop.
+     *
+     * @return bool
      */
-    protected function getProduct()
+    private function wasPreviousPageOurShop()
     {
-        $productWrapper = new ProductWrapper($this->context);
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) !== false) {
+            return true;
+        }
 
-        return $productWrapper->wrapProduct($this->params['product'], null, 0, true);
+        return false;
+    }
+
+    /**
+     * Tries to get details of previous listing from the cookie.
+     *
+     * @return bool|array
+     */
+    private function getLastVisitedListing()
+    {
+        // Fetch it from the cookie
+        $last_listing = $this->context->cookie->ga_last_listing;
+        if (empty($last_listing)) {
+            return false;
+        }
+
+        // Decode the data and check if it contains something sensible
+        $last_listing = json_decode($last_listing, true);
+        if (empty($last_listing['item_list_id'])) {
+            return false;
+        }
+
+        // Check if the last listing is the page the user came from
+        if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $last_listing['item_list_url']) !== false) {
+            unset($last_listing['item_list_url']);
+
+            return $last_listing;
+        }
+
+        return false;
     }
 }

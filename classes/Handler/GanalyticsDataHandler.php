@@ -42,47 +42,11 @@ class GanalyticsDataHandler
     }
 
     /**
-     * manageData
-     *
-     * @param string|array $data
-     * @param string $action
-     *
-     * @return mixed
-     */
-    public function manageData($data, $action)
-    {
-        if ('R' === $action) {
-            return $this->readData();
-        }
-
-        if ('W' === $action) {
-            return $this->ganalyticsDataRepository->addNewRow(
-                (int) $this->cartId,
-                (int) $this->shopId,
-                json_encode($data)
-            );
-        }
-
-        if ('A' === $action) {
-            return $this->appendData($data);
-        }
-
-        if ('D' === $action) {
-            return $this->ganalyticsDataRepository->deleteRow(
-                $this->cartId,
-                $this->shopId
-            );
-        }
-
-        return false;
-    }
-
-    /**
      * readData
      *
      * @return array
      */
-    private function readData()
+    public function readData()
     {
         $dataReturned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
             $this->cartId,
@@ -97,23 +61,38 @@ class GanalyticsDataHandler
     }
 
     /**
-     * appendData
-     *
-     * @param string $data
+     * Deletes all persisted data, probably because it was flushed.
      *
      * @return bool
      */
-    private function appendData($data)
+    public function deleteData()
     {
-        $dataReturned = $this->ganalyticsDataRepository->findDataByCartIdAndShopId(
+        return $this->ganalyticsDataRepository->deleteRow(
             $this->cartId,
             $this->shopId
         );
+    }
 
-        if (false === $dataReturned) {
-            $newData = [$data];
+    /**
+     * Stores event into data repository so we can output it
+     * on first available chance.
+     *
+     * @param string $dataToPersist
+     *
+     * @return bool
+     */
+    public function persistData($dataToPersist)
+    {
+        // Try to get current data
+        $currentData = $this->readData();
+
+        // If no data has been persisted yet, we create a new array, otherwise
+        // we add it to the previous events stored.
+        if (!empty($currentData)) {
+            $newData = $currentData;
+            $newData[] = $dataToPersist;
         } else {
-            $newData[] = $this->jsonDecodeValidJson($dataReturned);
+            $newData = [$dataToPersist];
         }
 
         return $this->ganalyticsDataRepository->addNewRow(

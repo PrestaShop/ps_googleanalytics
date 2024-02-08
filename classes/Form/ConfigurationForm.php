@@ -26,7 +26,6 @@ use Context;
 use HelperForm;
 use OrderState;
 use Ps_Googleanalytics;
-use Shop;
 use Tools;
 
 class ConfigurationForm
@@ -45,9 +44,6 @@ class ConfigurationForm
      */
     public function generate()
     {
-        // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();
-
         // Get default language
         $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
@@ -70,13 +66,13 @@ class ConfigurationForm
         $helper->submit_action = 'submit' . $this->module->name;
         $helper->toolbar_btn = [
             'save' => [
-                'desc' => $this->module->trans('Save', [], 'Modules.GAnalytics.Admin'),
+                'desc' => $this->module->getTranslator()->trans('Save', [], 'Modules.Googleanalytics.Admin'),
                 'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save=' . $this->module->name .
                 '&token=' . $helper->token,
             ],
             'back' => [
                 'href' => AdminController::$currentIndex . '&token=' . $helper->token,
-                'desc' => $this->module->trans('Back to list', [], 'Modules.GAnalytics.Admin'),
+                'desc' => $this->module->getTranslator()->trans('Back to list', [], 'Modules.Googleanalytics.Admin'),
             ],
         ];
 
@@ -84,93 +80,76 @@ class ConfigurationForm
         // Init Fields form array
         $fields_form[0]['form'] = [
             'legend' => [
-                'title' => $this->module->trans('Settings', [], 'Modules.GAnalytics.Admin'),
+                'title' => $this->module->getTranslator()->trans('Settings', [], 'Modules.Googleanalytics.Admin'),
             ],
             'input' => [
                 [
-                    'type' => 'switch',
-                    'label' => $this->module->trans('Enable Google Analytics 4', [], 'Modules.GAnalytics.Admin'),
-                    'name' => 'GA_V4_ENABLED',
-                    'values' => [
-                        [
-                            'id' => 'GA_V4_ENABLED',
-                            'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
-                        ],
-                        [
-                            'id' => 'GA_V4_ENABLED',
-                            'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
-                        ],
-                    ],
-                    'desc' => $this->module->trans('Universal analytics will stop processing data on July 1, 2023. We recommend switching to Google Analytics 4 as soon as possible.', [], 'Modules.GAnalytics.Admin'),
-                ],
-                [
                     'type' => 'text',
-                    'label' => $this->module->trans('Google Analytics Tracking ID', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Google Analytics Tracking ID', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ACCOUNT_ID',
                     'size' => 20,
                     'required' => true,
-                    'desc' => $this->module->trans('This information is available in your Google Analytics account. GA4 tracking ID starts with "G-", Universal Analytics with "UA-".', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('This information is available in your Google Analytics account. Google Analytics 4 tracking ID starts with "G-".', [], 'Modules.Googleanalytics.Admin'),
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Enable User ID tracking', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Enable User ID tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_USERID_ENABLED',
+                    'desc' => $this->module->getTranslator()->trans('This option adds unique user ID to the tag to better track the customer. Use this option only if it complies with laws in your country.', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_userid_enabled',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_userid_disabled',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Anonymize IP', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Anonymize IP', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_ANONYMIZE_ENABLED',
-                    'hint' => $this->module->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Use this option to anonymize the visitor’s IP to comply with data privacy laws in some countries', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_anonymize_enabled',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_anonymize_disabled',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'switch',
-                    'label' => $this->module->trans('Enable Back Office Tracking', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Enable Back Office Tracking', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_TRACK_BACKOFFICE_ENABLED',
-                    'hint' => $this->module->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Use this option to enable the tracking inside the Back Office', [], 'Modules.Googleanalytics.Admin'),
                     'values' => [
                         [
                             'id' => 'ga_track_backoffice',
                             'value' => 1,
-                            'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
                         ],
                         [
                             'id' => 'ga_do_not_track_backoffice',
                             'value' => 0,
-                            'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
+                            'label' => $this->module->getTranslator()->trans('No', [], 'Modules.Googleanalytics.Admin'),
                         ],
                     ],
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->module->trans('Canceled order states', [], 'Modules.GAnalytics.Admin'),
+                    'label' => $this->module->getTranslator()->trans('Canceled order states', [], 'Modules.Googleanalytics.Admin'),
                     'name' => 'GA_CANCELLED_STATES',
-                    'desc' => $this->module->trans('Choose order states in which you consider the given order canceled. This will usually be the default "Canceled" state, but some stores may have extra states like "Returned", etc.', [], 'Modules.GAnalytics.Admin'),
+                    'desc' => $this->module->getTranslator()->trans('Choose order states in which you consider the given order canceled. This will usually be the default "Canceled" state, but some stores may have extra states like "Returned", etc.', [], 'Modules.Googleanalytics.Admin'),
                     'class' => 'chosen',
                     'multiple' => true,
                     'options' => [
@@ -179,40 +158,46 @@ class ConfigurationForm
                         'name' => 'name',
                     ],
                 ],
+                [
+                    'type' => 'switch',
+                    'label' => $this->module->getTranslator()->trans('Re-send failed orders', [], 'Modules.Googleanalytics.Admin'),
+                    'name' => 'GA_BACKLOAD_ENABLED',
+                    'desc' => $this->module->getTranslator()->trans('This option will resend all orders that failed to be sent normally in front-office, due to failures or ad-blockers.', [], 'Modules.Googleanalytics.Admin'),
+                    'values' => [
+                        [
+                            'id' => 'ga_backload_enabled',
+                            'value' => 1,
+                            'label' => $this->module->getTranslator()->trans('Yes', [], 'Modules.Googleanalytics.Admin'),
+                        ],
+                        [
+                            'id' => 'ga_backload_enabled',
+                            'value' => 0,
+                            'label' => $this->module->getTranslator()->trans('No', [], 'Modules.Googleanalytics.Admin'),
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'text',
+                    'label' => $this->module->getTranslator()->trans('Failed orders period', [], 'Modules.Googleanalytics.Admin'),
+                    'name' => 'GA_BACKLOAD_DAYS',
+                    'class' => 'input fixed-width-md',
+                    'suffix' => 'days',
+                    'desc' => $this->module->getTranslator()->trans('If you want to resend failed orders, specify how many days back the module should look for them. Default: 30.', [], 'Modules.Googleanalytics.Admin'),
+                ],
             ],
             'submit' => [
-                'title' => $this->module->trans('Save', [], 'Modules.GAnalytics.Admin'),
+                'title' => $this->module->getTranslator()->trans('Save', [], 'Modules.Googleanalytics.Admin'),
             ],
         ];
 
-        if ($is_multistore_active) {
-            $fields_form[0]['form']['input'][] = [
-                'type' => 'switch',
-                'label' => $this->module->trans('Enable Cross-Domain tracking', [], 'Modules.GAnalytics.Admin'),
-                'name' => 'GA_CROSSDOMAIN_ENABLED',
-                'values' => [
-                    [
-                        'id' => 'ga_crossdomain_enabled',
-                        'value' => 1,
-                        'label' => $this->module->trans('Yes', [], 'Modules.GAnalytics.Admin'),
-                    ],
-                    [
-                        'id' => 'ga_crossdomain_disabled',
-                        'value' => 0,
-                         'label' => $this->module->trans('No', [], 'Modules.GAnalytics.Admin'),
-                    ],
-                ],
-            ];
-        }
-
         // Load current value
         $helper->fields_value['GA_ACCOUNT_ID'] = Configuration::get('GA_ACCOUNT_ID');
-        $helper->fields_value['GA_V4_ENABLED'] = Configuration::get('GA_V4_ENABLED');
-        $helper->fields_value['GA_USERID_ENABLED'] = Configuration::get('GA_USERID_ENABLED');
-        $helper->fields_value['GA_CROSSDOMAIN_ENABLED'] = Configuration::get('GA_CROSSDOMAIN_ENABLED');
-        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = Configuration::get('GA_ANONYMIZE_ENABLED');
-        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
+        $helper->fields_value['GA_USERID_ENABLED'] = (bool) Configuration::get('GA_USERID_ENABLED');
+        $helper->fields_value['GA_ANONYMIZE_ENABLED'] = (bool) Configuration::get('GA_ANONYMIZE_ENABLED');
+        $helper->fields_value['GA_TRACK_BACKOFFICE_ENABLED'] = (bool) Configuration::get('GA_TRACK_BACKOFFICE_ENABLED');
         $helper->fields_value['GA_CANCELLED_STATES[]'] = json_decode(Configuration::get('GA_CANCELLED_STATES'), true);
+        $helper->fields_value['GA_BACKLOAD_ENABLED'] = (bool) Configuration::get('GA_BACKLOAD_ENABLED');
+        $helper->fields_value['GA_BACKLOAD_DAYS'] = (int) Configuration::get('GA_BACKLOAD_DAYS');
 
         return $helper->generateForm($fields_form);
     }
@@ -224,32 +209,21 @@ class ConfigurationForm
      */
     public function treat()
     {
-        // Check if multistore is active
-        $is_multistore_active = Shop::isFeatureActive();
-
         $gaAccountId = Tools::getValue('GA_ACCOUNT_ID');
-        $gaV4Enabled = Tools::getValue('GA_V4_ENABLED');
         $gaUserIdEnabled = Tools::getValue('GA_USERID_ENABLED');
-        $gaCrossdomainEnabled = Tools::getValue('GA_CROSSDOMAIN_ENABLED');
         $gaAnonymizeEnabled = Tools::getValue('GA_ANONYMIZE_ENABLED');
         $gaTrackBackOffice = Tools::getValue('GA_TRACK_BACKOFFICE_ENABLED');
         $gaCancelledStates = Tools::getValue('GA_CANCELLED_STATES');
+        $gaBackloadEnabled = Tools::getValue('GA_BACKLOAD_ENABLED');
+        $gaBackloadDays = Tools::getValue('GA_BACKLOAD_DAYS');
 
         if (!empty($gaAccountId)) {
             Configuration::updateValue('GA_ACCOUNT_ID', $gaAccountId);
             Configuration::updateValue('GANALYTICS_CONFIGURATION_OK', true);
         }
 
-        if (null !== $gaV4Enabled) {
-            Configuration::updateValue('GA_V4_ENABLED', (bool) $gaV4Enabled);
-        }
-
         if (null !== $gaUserIdEnabled) {
             Configuration::updateValue('GA_USERID_ENABLED', (bool) $gaUserIdEnabled);
-        }
-
-        if ($is_multistore_active) {
-            Configuration::updateValue('GA_CROSSDOMAIN_ENABLED', (bool) $gaCrossdomainEnabled);
         }
 
         if (null !== $gaAnonymizeEnabled) {
@@ -260,12 +234,20 @@ class ConfigurationForm
             Configuration::updateValue('GA_TRACK_BACKOFFICE_ENABLED', (bool) $gaTrackBackOffice);
         }
 
+        if (null !== $gaBackloadEnabled) {
+            Configuration::updateValue('GA_BACKLOAD_ENABLED', (bool) $gaBackloadEnabled);
+        }
+
+        if (null !== $gaBackloadDays) {
+            Configuration::updateValue('GA_BACKLOAD_DAYS', (int) $gaBackloadDays);
+        }
+
         if ($gaCancelledStates === false) {
             Configuration::updateValue('GA_CANCELLED_STATES', '');
         } else {
             Configuration::updateValue('GA_CANCELLED_STATES', json_encode($gaCancelledStates));
         }
 
-        return $this->module->displayConfirmation($this->module->trans('Settings updated successfully.', [], 'Modules.GAnalytics.Admin'));
+        return $this->module->displayConfirmation($this->module->getTranslator()->trans('Settings updated successfully.', [], 'Modules.Googleanalytics.Admin'));
     }
 }

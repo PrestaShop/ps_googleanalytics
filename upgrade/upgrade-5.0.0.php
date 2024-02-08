@@ -17,12 +17,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-header('Expires: Mon, 26 Jul 1998 05:00:00 GMT');
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
+/**
+ * @param Ps_Googleanalytics $object
+ */
+function upgrade_module_5_0_0($object)
+{
+    $database = new PrestaShop\Module\Ps_Googleanalytics\Database\Install($object);
 
-header('Location: ../');
-exit;
+    return
+        Configuration::deleteByName('GA_V4_ENABLED') &&
+        $object->registerHook('actionValidateOrder') &&
+        $object->unregisterHook('actionCartSave') &&
+        $object->registerHook('actionCartUpdateQuantityBefore') &&
+        $object->registerHook('actionObjectProductInCartDeleteBefore') &&
+        $database->installTab() &&
+        Configuration::updateValue('GA_BACKLOAD_ENABLED', false) &&
+        Configuration::updateValue('GA_BACKLOAD_DAYS', 30);
+}
