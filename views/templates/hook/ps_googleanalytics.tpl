@@ -21,6 +21,14 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   {literal}function gtag(){dataLayer.push(arguments);}{/literal}
+
+  gtag('consent', 'default', {
+    'ad_storage': 'granted',
+    'analytics_storage': 'granted',
+    'ad_user_data': 'granted',
+    'ad_personalization': 'granted'
+  });
+
   gtag('js', new Date());
   gtag(
     'config',
