@@ -53,8 +53,10 @@ class HookActionValidateOrder implements HookInterface
      */
     public function run()
     {
-        // Check if we are creating backoffice order
-        if ($this->context->controller->controller_name != 'AdminOrders' && $this->context->controller->controller_name != 'Admin') {
+        // Check if we are creating backoffice order, we are only launching this hook when creating backoffice order
+        // For FO purposes, we use displayOrderConfirmation.
+        if (empty($this->context->controller->controller_name)
+        || !in_array($this->context->controller->controller_name, ['AdminOrders', 'Admin'])) {
             return;
         }
 
