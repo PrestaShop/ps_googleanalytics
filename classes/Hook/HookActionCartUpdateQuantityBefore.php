@@ -66,6 +66,7 @@ class HookActionCartUpdateQuantityBefore implements HookInterface
         // Format product and standardize ID
         $product = (array) $this->params['product'];
         $product['id_product'] = $product['id'];
+        $product['id_product_attribute'] = $this->params['id_product_attribute'];
 
         // Get some basic information
         $product = Product::getProductProperties($this->context->language->id, $product);
