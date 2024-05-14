@@ -8,7 +8,7 @@ To use it, you will need to create a Google Analytics account and insert your Go
 
 ## Compatibility
 
-PrestaShop: `1.7.7.0` or later
+PrestaShop: `1.7.7.0` or `8.x`
 
 ### Notes
 
