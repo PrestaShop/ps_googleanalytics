@@ -80,6 +80,13 @@ class Ps_Googleanalytics extends Module
 
     public function hookDisplayHeader($params, $back_office = false)
     {
+        if ($back_office === false) {
+            Media::addJsDef([
+                'psGoogleAnalyticsAjaxUrl' => $this->context->link->getModuleLink($this->name, 'ajax', [], true),
+            ]);
+            $this->context->controller->registerJavascript('modules-psgoogleanalytics', 'modules/' . $this->name . '/views/js/ganalytics.js');
+        }
+
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
         $hook->setBackOffice($back_office);
 

@@ -24,12 +24,26 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
 
+    /**
+     * @var Ps_Googleanalytics
+     */
+    public $module;
+
     /*
      * @see FrontController::initContent()
      */
     public function initContent()
     {
         parent::initContent();
+
+        if (Tools::getValue('action') == 'flushQueue') {
+            $output = $this->module->getDataHandler()->readData();
+
+            $this->module->getDataHandler()->deleteData();
+
+            $this->ajaxRender(json_encode($output));
+            exit;
+        }
 
         $orderId = (int) Tools::getValue('orderid');
         $order = new Order($orderId);
