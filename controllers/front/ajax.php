@@ -24,11 +24,6 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
 {
     public $ssl = true;
 
-    /**
-     * @var Ps_Googleanalytics
-     */
-    public $module;
-
     /*
      * @see FrontController::initContent()
      */
