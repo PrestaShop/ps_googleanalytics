@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
-use AdminController;
 use Configuration;
 use Context;
 use HelperForm;
