@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\Ps_Googleanalytics\Form;
 
-use AdminController;
 use Configuration;
 use Context;
 use HelperForm;
@@ -53,7 +52,11 @@ class ConfigurationForm
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->module->name;
+        $helper->currentIndex = Context::getContext()->link->getAdminLink('AdminModules', true, [], [
+            'configure' => $this->module->name,
+            'tab_module' => $this->module->tab,
+            'module_name' => $this->module->name,
+        ]);
 
         // Language
         $helper->default_form_language = $default_lang;
@@ -61,17 +64,21 @@ class ConfigurationForm
 
         // Title and toolbar
         $helper->title = $this->module->displayName;
-        $helper->show_toolbar = true;        // false -> remove toolbar
-        $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
+        $helper->show_toolbar = true; // false -> remove toolbar
+        $helper->toolbar_scroll = true; // yes - > Toolbar is always visible on the top of the screen.
         $helper->submit_action = 'submit' . $this->module->name;
         $helper->toolbar_btn = [
             'save' => [
                 'desc' => $this->module->getTranslator()->trans('Save', [], 'Modules.Googleanalytics.Admin'),
-                'href' => AdminController::$currentIndex . '&configure=' . $this->module->name . '&save=' . $this->module->name .
-                '&token=' . $helper->token,
+                'href' => Context::getContext()->link->getAdminLink('AdminModules', true, [], [
+                    'configure' => $this->module->name,
+                    'tab_module' => $this->module->tab,
+                    'module_name' => $this->module->name,
+                    'save' => $this->module->name,
+                ]),
             ],
             'back' => [
-                'href' => AdminController::$currentIndex . '&token=' . $helper->token,
+                'href' => Context::getContext()->link->getAdminLink('AdminModules', true),
                 'desc' => $this->module->getTranslator()->trans('Back to list', [], 'Modules.Googleanalytics.Admin'),
             ],
         ];
