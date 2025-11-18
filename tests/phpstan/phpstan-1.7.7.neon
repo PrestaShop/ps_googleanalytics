@@ -7,3 +7,5 @@ parameters:
 		- '#Access to an undefined property Cookie\:\:\$ga_admin_order.#'
 		- '#Access to an undefined property Cookie\:\:\$ga_admin_refund.#'
 		- '#Parameter \#1 \$value of method ControllerCore::ajaxRender\(\) expects null, string given.#'
+		- '#Parameter \#1 \$value of method ControllerCore::ajaxRender\(\) expects null, string\|false given.#'
+		- '#Call to an undefined method Module::getDataHandler\(\).#'
