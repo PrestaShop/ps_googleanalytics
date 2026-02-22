@@ -7,4 +7,3 @@ parameters:
     - '#Access to an undefined property Cookie\:\:\$ga_admin_order.#'
     - '#Access to an undefined property Cookie\:\:\$ga_admin_refund.#'
     - '#Property PrestaShop\\Module\\Ps_Googleanalytics\\Hooks\\HookActionValidateOrder::\$module is never read, only written\.#'
-    - '#Method PrestaShop\\Module\\Ps_Googleanalytics\\Hooks\\HookDisplayBeforeBodyClosingTag::renderCartpage\(\) is unused\.#'
