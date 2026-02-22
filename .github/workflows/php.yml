@@ -56,7 +56,7 @@ jobs:
           } > ${{ github.event.repository.name }}/.phpstan-php-ini/php.ini
 
       - name: Run PHPStan
-        uses: Touxten/.github/.github/actions/php-ci/phpstan@master
+        uses: PrestaShop/.github/.github/actions/php-ci/phpstan@master
         with:
           php-version: ${{ matrix.php_version }}
           presta-version: ${{ matrix.presta_version }}
@@ -92,7 +92,7 @@ jobs:
           } > ${{ github.event.repository.name }}/.phpstan-php-ini/php.ini
 
       - name: Run PHPStan
-        uses: Touxten/.github/.github/actions/php-ci/phpstan@master
+        uses: PrestaShop/.github/.github/actions/php-ci/phpstan@master
         with:
           php-version: ${{ matrix.php_version }}
           presta-version: ${{ matrix.presta_version }}
@@ -126,7 +126,7 @@ jobs:
           } > ${{ github.event.repository.name }}/.phpstan-php-ini/php.ini
 
       - name: Run PHPStan
-        uses: Touxten/.github/.github/actions/php-ci/phpstan@master
+        uses: PrestaShop/.github/.github/actions/php-ci/phpstan@master
         with:
           php-version: ${{ matrix.php_version }}
           presta-version: ${{ matrix.presta_version }}
