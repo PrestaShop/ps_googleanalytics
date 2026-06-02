@@ -70,7 +70,7 @@ class GanalyticsRepository
             FROM `' . _DB_PREFIX_ . self::TABLE_NAME . '`
             WHERE sent = 0
                 AND id_shop = ' . (int) $shopId . '
-                AND DATE_ADD(date_add, INTERVAL 30 minute) < NOW()'
+                AND DATE_ADD(date_add, INTERVAL 30 minute) < \'' . date('Y-m-d H:i:s') . '\''
         );
     }
 
@@ -108,7 +108,7 @@ class GanalyticsRepository
                 'id_order' => (int) $idOrder,
                 'id_shop' => (int) $idShop,
                 'sent' => 0,
-                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+                'date_add' => date('Y-m-d H:i:s'),
             ]
         );
     }
@@ -144,7 +144,7 @@ class GanalyticsRepository
         return Db::getInstance()->update(
             self::TABLE_NAME,
             [
-                'date_add' => ['value' => 'NOW()', 'type' => 'sql'],
+                'date_add' => date('Y-m-d H:i:s'),
                 'sent' => 1,
             ],
             'id_order = ' . (int) $idOrder

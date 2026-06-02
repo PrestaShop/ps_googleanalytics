@@ -89,7 +89,7 @@ class HookDisplayBackOfficeHeader implements HookInterface
         $failedOrders = Db::getInstance()->ExecuteS(
             'SELECT DISTINCT o.id_order, g.sent FROM `' . _DB_PREFIX_ . 'orders` o
             LEFT JOIN `' . _DB_PREFIX_ . GanalyticsRepository::TABLE_NAME . '` g ON o.id_order = g.id_order
-            WHERE (g.sent IS NULL OR g.sent = 0) AND o.date_add BETWEEN NOW() - INTERVAL ' . $backloadDays . ' DAY AND NOW() - INTERVAL 30 MINUTE'
+            WHERE (g.sent IS NULL OR g.sent = 0) AND o.date_add BETWEEN \'' . date('Y-m-d H:i:s', strtotime('-' . $backloadDays . ' days')) . '\' AND \'' . date('Y-m-d H:i:s', strtotime('-30 minutes')) . '\''
         );
 
         // Process each failed order
