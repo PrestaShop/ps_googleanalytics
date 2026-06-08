@@ -140,7 +140,7 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
     /**
      * This method renders tracking code for product listings, like category pages.
      */
-    private function renderCartpage()
+    private function renderCartPage()
     {
         // Check if we are on cart page
         if ($this->context->controller->php_self != 'cart') {
