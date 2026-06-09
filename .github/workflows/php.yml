@@ -11,11 +11,26 @@ jobs:
       - name: PHP syntax checker 7.2
         uses: prestashop/github-action-php-lint/7.2@master
 
+      - name: PHP syntax checker 7.3
+        uses: prestashop/github-action-php-lint/7.3@master
+
       - name: PHP syntax checker 7.4
         uses: prestashop/github-action-php-lint/7.4@master
 
       - name: PHP syntax checker 8.0
         uses: prestashop/github-action-php-lint/8.0@master
+
+      - name: PHP syntax checker 8.1
+        uses: prestashop/github-action-php-lint/8.1@master
+
+      - name: PHP syntax checker 8.2
+        uses: prestashop/github-action-php-lint/8.2@master
+
+      - name: PHP syntax checker 8.3
+        uses: prestashop/github-action-php-lint/8.3@master
+
+      - name: PHP syntax checker 8.4
+        uses: prestashop/github-action-php-lint/8.4@master
 
       - name: PHP syntax checker 8.5
         uses: prestashop/github-action-php-lint/8.5@master
@@ -30,14 +45,14 @@ jobs:
         with:
           php-version: '7.4'
 
-  # Run PHPStan against the module (PHP 7.4 – 8.1)
+  # Run PHPStan against the module (PHP 7.2 – 8.1)
   phpstan-74:
-    name: PHPStan (PHP 7.4 - 8.1)
+    name: PHPStan (PHP 7.2 - 8.1)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         presta_version: ['8.2.x']
-        php_version: ['7.4', '8.1']
+        php_version: ['7.2', '8.1']
       fail-fast: false
     env:
       PHPRC: ${{ github.workspace }}/${{ github.event.repository.name }}/.phpstan-php-ini
@@ -72,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta_version: ['9.1.x', 'develop']
+        presta_version: ['9.0.3', '9.1.x', 'develop']
         php_version: ['8.1', '8.5']
       fail-fast: false
     env:
