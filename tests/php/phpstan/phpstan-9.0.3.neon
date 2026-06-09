@@ -1,2 +1,15 @@
 includes:
-	- %currentWorkingDirectory%/tests/php/phpstan/phpstan.neon
+  - %currentWorkingDirectory%/tests/php/phpstan/phpstan.neon
+
+parameters:
+  ignoreErrors:
+    # Framework / structural limitations that cannot be fixed in module code:
+    # - uninstallModule() calls parent::uninstall() through a closure rebound to the
+    #   target module via Closure::bindTo(), a pattern PHPStan cannot statically resolve.
+    # - Cookie uses magic __get/__set, so its dynamic properties are undefined to PHPStan.
+    # - HookInterface mandates the constructor signature (Ps_Googleanalytics $module, Context),
+    #   so $module must be stored even in hooks that never read it back.
+    - '#PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler::uninstallModule\(\) calls parent::uninstall\(\) but PrestaShop\\Module\\Ps_Googleanalytics\\Handler\\ModuleHandler does not extend any class.#'
+    - '#Access to an undefined property Cookie\:\:\$ga_admin_order.#'
+    - '#Access to an undefined property Cookie\:\:\$ga_admin_refund.#'
+    - '#Property PrestaShop\\Module\\Ps_Googleanalytics\\Hooks\\HookActionValidateOrder::\$module is never read, only written\.#'

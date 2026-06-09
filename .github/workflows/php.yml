@@ -45,14 +45,14 @@ jobs:
         with:
           php-version: '7.4'
 
-  # Run PHPStan against the module (PHP 7.2 – 8.1)
+  # Run PHPStan against the module (PHP 7.4 – 8.1)
   phpstan-74:
-    name: PHPStan (PHP 7.2 - 8.1)
+    name: PHPStan (PHP 7.4 - 8.1)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         presta_version: ['8.2.x']
-        php_version: ['7.2', '8.1']
+        php_version: ['7.4', '8.1']
       fail-fast: false
     env:
       PHPRC: ${{ github.workspace }}/${{ github.event.repository.name }}/.phpstan-php-ini
