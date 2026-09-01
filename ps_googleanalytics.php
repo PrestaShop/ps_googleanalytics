@@ -80,10 +80,14 @@ class Ps_Googleanalytics extends Module
 
     public function hookDisplayHeader($params, $back_office = false)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
-        $hook->setBackOffice($back_office);
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
+            $hook->setBackOffice($back_office);
 
-        return $hook->run();
+            return $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -92,10 +96,14 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayOrderConfirmation($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
-        $hook->setParams($params);
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayOrderConfirmation($this, $this->context);
+            $hook->setParams($params);
 
-        return $hook->run();
+            return $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -104,9 +112,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayBeforeBodyClosingTag()
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBeforeBodyClosingTag($this, $this->context);
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBeforeBodyClosingTag($this, $this->context);
 
-        return $hook->run();
+            return $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -115,9 +127,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayFooterProduct()
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
 
-        return $hook->run();
+            return $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -126,13 +142,17 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayAdminOrder()
     {
-        $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
+        try {
+            $gaTagHandler = new PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler($this, $this->context);
 
-        $output = $gaTagHandler->generate($this->context->cookie->ga_admin_refund);
-        unset($this->context->cookie->ga_admin_refund);
-        $this->context->cookie->write();
+            $output = $gaTagHandler->generate($this->context->cookie->ga_admin_refund);
+            unset($this->context->cookie->ga_admin_refund);
+            $this->context->cookie->write();
 
-        return $output;
+            return $output;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -141,9 +161,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookDisplayBackOfficeHeader()
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayBackOfficeHeader($this, $this->context);
 
-        return $hook->run();
+            return $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -152,9 +176,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionProductCancel($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionProductCancel($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -162,9 +190,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionValidateOrder($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionValidateOrder($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionValidateOrder($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -172,9 +204,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionOrderStatusPostUpdate($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionOrderStatusPostUpdate($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionOrderStatusPostUpdate($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -183,9 +219,13 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionCartUpdateQuantityBefore($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartUpdateQuantityBefore($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCartUpdateQuantityBefore($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -194,16 +234,24 @@ class Ps_Googleanalytics extends Module
      */
     public function hookActionObjectProductInCartDeleteBefore($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionObjectProductInCartDeleteBefore($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionObjectProductInCartDeleteBefore($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     public function hookActionCarrierProcess($params)
     {
-        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
-        $hook->setParams($params);
-        $hook->run();
+        try {
+            $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookActionCarrierProcess($this, $this->context);
+            $hook->setParams($params);
+            $hook->run();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
     }
 
     protected function _debugLog($function, $log)
