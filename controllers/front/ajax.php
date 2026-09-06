@@ -32,9 +32,11 @@ class ps_GoogleanalyticsAjaxModuleFrontController extends ModuleFrontController
         parent::initContent();
 
         if (Tools::getValue('action') === 'flushQueue') {
-            $output = $this->module->getDataHandler()->readData();
+            /** @var Ps_Googleanalytics $module */
+            $module = $this->module;
 
-            $this->module->getDataHandler()->deleteData();
+            $output = $module->getDataHandler()->readData();
+            $module->getDataHandler()->deleteData();
 
             $this->ajaxRender(json_encode($output));
             exit;
