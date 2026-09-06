@@ -35,10 +35,6 @@ class GoogleAnalyticsTools
      */
     public function renderPurchaseEvent($orderProducts, $orderData, $callbackUrl)
     {
-        if (!is_array($orderProducts)) {
-            return;
-        }
-
         $callbackData = [
             'orderid' => $orderData['transaction_id'],
             'customer' => $orderData['customer'],
