@@ -80,7 +80,7 @@ class Ps_Googleanalytics extends Module
 
     public function hookDisplayHeader($params, $back_office = false)
     {
-        if ($back_office === false) {
+        if ($back_office === false && Configuration::get('GA_ACCOUNT_ID')) {
             Media::addJsDef([
                 'psGoogleAnalyticsAjaxUrl' => $this->context->link->getModuleLink($this->name, 'ajax', [], true),
             ]);
