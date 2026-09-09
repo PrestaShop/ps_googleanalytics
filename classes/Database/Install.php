@@ -106,6 +106,7 @@ class Install
             $this->module->registerHook('displayAdminOrder') &&
             $this->module->registerHook('displayBeforeBodyClosingTag') &&
             $this->module->registerHook('displayFooterProduct') &&
+            $this->module->registerHook('displayProductAdditionalInfo') &&
             $this->module->registerHook('displayOrderConfirmation') &&
             $this->module->registerHook('actionProductCancel') &&
             $this->module->registerHook('actionValidateOrder') &&
