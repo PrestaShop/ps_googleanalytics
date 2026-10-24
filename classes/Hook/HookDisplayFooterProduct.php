@@ -54,6 +54,14 @@ class HookDisplayFooterProduct implements HookInterface
             return;
         }
 
+        // The 'product' template variable is expected to be a ProductLazyArray (array-accessible).
+        // Some themes or modules assign a raw Product object instead, which prepareItemFromProduct()
+        // cannot consume (it accesses array keys) and would raise a fatal error on the product page.
+        // Skip tracking in that case rather than breaking the page.
+        if (!is_array($product) && !$product instanceof \ArrayAccess) {
+            return;
+        }
+
         // Initialize tag handler
         $gaTagHandler = new GanalyticsJsHandler($this->module, $this->context);
 
