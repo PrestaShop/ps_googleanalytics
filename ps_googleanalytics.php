@@ -47,7 +47,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '6.0.0';
+        $this->version = '6.1.0';
         $this->ps_versions_compliancy = ['min' => '8.2.0', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -116,6 +116,18 @@ class Ps_Googleanalytics extends Module
     public function hookDisplayFooterProduct()
     {
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayFooterProduct($this, $this->context);
+
+        return $hook->run();
+    }
+
+    /**
+     * Product page additional-info hook
+     * This block is re-rendered when the shopper picks another combination, which is where
+     * view_item has to be sent again
+     */
+    public function hookDisplayProductAdditionalInfo()
+    {
+        $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayProductAdditionalInfo($this, $this->context);
 
         return $hook->run();
     }

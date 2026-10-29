@@ -44,6 +44,33 @@ class GanalyticsJsHandler
      */
     public function generate($jsCode)
     {
+        return $this->render($jsCode, 'ga_tag.tpl');
+    }
+
+    /**
+     * Generate Google Analytics js that runs as soon as it is parsed.
+     *
+     * ga_tag.tpl defers to DOMContentLoaded, which never fires again once the page has loaded, so
+     * anything injected into an already-rendered page - a block swapped in by an AJAX refresh -
+     * has to run immediately or not at all.
+     *
+     * @param string $jsCode
+     *
+     * @return void|string
+     */
+    public function generateImmediate($jsCode)
+    {
+        return $this->render($jsCode, 'ga_tag_immediate.tpl');
+    }
+
+    /**
+     * @param string $jsCode
+     * @param string $template
+     *
+     * @return void|string
+     */
+    private function render($jsCode, $template)
+    {
         if (Configuration::get('GA_ACCOUNT_ID')) {
             $this->context->smarty->assign(
                 [
@@ -53,7 +80,7 @@ class GanalyticsJsHandler
 
             return $this->module->display(
                 $this->module->getLocalPath() . $this->module->name,
-                'ga_tag.tpl'
+                $template
             );
         }
     }
