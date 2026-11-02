@@ -32,6 +32,10 @@ class ProductWrapper
 {
     private $context;
     private $categories = [];
+    /**
+     * @var array<int, string> Variant label per combination ID
+     */
+    private $variants = [];
     private $homeCategory = 0;
 
     public function __construct(Context $context)
@@ -66,6 +70,15 @@ class ProductWrapper
             }
         }
         $this->loadCategories($productIds);
+
+        // Preload variants of the combinations whose label is not provided
+        $productAttributeIds = [];
+        foreach ($productList as $product) {
+            if (empty($product['attributes_small']) && !empty($product['id_product_attribute'])) {
+                $productAttributeIds[] = $product['id_product_attribute'];
+            }
+        }
+        $this->loadVariants($productAttributeIds);
 
         // Prepare each item and override the counter
         $counter = 0;
@@ -229,8 +242,28 @@ class ProductWrapper
      */
     public function getProductVariant($id_product_attribute)
     {
+        $id_product_attribute = (int) $id_product_attribute;
+        if (!isset($this->variants[$id_product_attribute])) {
+            $this->loadVariants([$id_product_attribute]);
+        }
+
+        return $this->variants[$id_product_attribute] ?? '';
+    }
+
+    /**
+     * Loads the variant label of all provided combination IDs in one query
+     *
+     * @param array $productAttributeIds
+     */
+    private function loadVariants(array $productAttributeIds)
+    {
+        $productAttributeIds = array_diff(array_unique(array_map('intval', $productAttributeIds)), [0], array_keys($this->variants));
+        if (empty($productAttributeIds)) {
+            return;
+        }
+
         $result = Db::getInstance()->executeS(
-            'SELECT al.`name` AS attribute_name
+            'SELECT pac.`id_product_attribute`, al.`name` AS attribute_name
             FROM `' . _DB_PREFIX_ . 'product_attribute_combination` pac
             LEFT JOIN `' . _DB_PREFIX_ . 'attribute` a ON a.`id_attribute` = pac.`id_attribute`
             LEFT JOIN `' . _DB_PREFIX_ . 'attribute_group` ag ON ag.`id_attribute_group` = a.`id_attribute_group`
@@ -238,11 +271,14 @@ class ProductWrapper
                 a.`id_attribute` = al.`id_attribute`
                 AND al.`id_lang` = ' . (int) $this->context->language->id . '
             )
-            WHERE pac.`id_product_attribute` = ' . $id_product_attribute . '
-            ORDER BY ag.`position` ASC, a.`position` ASC'
+            WHERE pac.`id_product_attribute` IN (' . implode(',', $productAttributeIds) . ')
+            ORDER BY pac.`id_product_attribute` ASC, ag.`position` ASC, a.`position` ASC'
         );
 
-        $attributes = array_column($result, 'attribute_name');
+        $attributes = array_fill_keys($productAttributeIds, []);
+        foreach ($result as $row) {
+            $attributes[(int) $row['id_product_attribute']][] = $row['attribute_name'];
+        }
 
         // Prepare our separator
         $separator = Configuration::get('PS_ATTRIBUTE_ANCHOR_SEPARATOR');
@@ -251,6 +287,8 @@ class ProductWrapper
             $separator = ' - ';
         }
 
-        return implode($separator, $attributes);
+        foreach ($attributes as $productAttributeId => $names) {
+            $this->variants[$productAttributeId] = implode($separator, $names);
+        }
     }
 }
