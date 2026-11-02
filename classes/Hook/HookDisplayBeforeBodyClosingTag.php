@@ -250,8 +250,10 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         }
 
         // Save this information to a cookie
+        // WHY: the query string is left out, listing filters can make it long enough for the cookie to exceed
+        // the 4096 bytes Cookie accepts, and Cookie then throws. The path still matches the product page referer.
         $this->context->cookie->ga_last_listing = json_encode([
-            'item_list_url' => $_SERVER['REQUEST_URI'],
+            'item_list_url' => substr(strtok($_SERVER['REQUEST_URI'], '?'), 0, 255),
             'item_list_id' => $this->context->controller->php_self,
             'item_list_name' => $listing['label'],
         ]);
