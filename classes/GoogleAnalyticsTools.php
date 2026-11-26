@@ -27,7 +27,7 @@ class GoogleAnalyticsTools
     /**
      * Renders purchase event for order
      *
-     * @param array $orderProducts
+     * @param mixed $orderProducts
      * @param array $orderData
      * @param string $callbackUrl
      *

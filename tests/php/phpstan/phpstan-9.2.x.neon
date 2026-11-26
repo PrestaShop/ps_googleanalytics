@@ -2,6 +2,8 @@ includes:
   - %currentWorkingDirectory%/tests/php/phpstan/phpstan.neon
 
 parameters:
+  # Analyse the minimum supported PHP version, including when running on PHP 8.5.
+  phpVersion: 80100
   ignoreErrors:
     # Framework / structural limitations that cannot be fixed in module code:
     # - uninstallModule() calls parent::uninstall() through a closure rebound to the
