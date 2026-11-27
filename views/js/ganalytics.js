@@ -27,6 +27,7 @@ $(document).ready(function () {
     prestashop.on('updateCart', flushQueue);
     prestashop.on('changedCheckoutStep', flushQueue);
     prestashop.on('clickQuickView', flushQueue);
+    prestashop.on('clickQuickview', flushQueue);
     prestashop.on('updatedProduct', flushQueue);
     prestashop.on('updateProductList', flushQueue);
 
