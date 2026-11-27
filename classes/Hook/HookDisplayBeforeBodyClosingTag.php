@@ -252,10 +252,12 @@ class HookDisplayBeforeBodyClosingTag implements HookInterface
         // Save this information to a cookie
         // WHY: the query string is left out, listing filters can make it long enough for the cookie to exceed
         // the 4096 bytes Cookie accepts, and Cookie then throws. The path still matches the product page referer.
+        // WHY: Cookie uses "|" and "¤" as internal separators and throws "Forbidden chars in cookie" on them.
+        // A category name may contain "|", so both chars are replaced (percent-encoded in the URL, as browsers send it).
         $this->context->cookie->ga_last_listing = json_encode([
-            'item_list_url' => substr(strtok($_SERVER['REQUEST_URI'], '?'), 0, 255),
+            'item_list_url' => str_replace(['|', '¤'], ['%7C', '%C2%A4'], substr(strtok($_SERVER['REQUEST_URI'], '?'), 0, 255)),
             'item_list_id' => $this->context->controller->php_self,
-            'item_list_name' => $listing['label'],
+            'item_list_name' => str_replace(['|', '¤'], '-', $listing['label']),
         ]);
     }
 
