@@ -47,7 +47,7 @@ class Ps_Googleanalytics extends Module
     {
         $this->name = 'ps_googleanalytics';
         $this->tab = 'analytics_stats';
-        $this->version = '6.0.0';
+        $this->version = '6.1.0';
         $this->ps_versions_compliancy = ['min' => '8.2.0', 'max' => _PS_VERSION_];
         $this->author = 'PrestaShop';
         $this->module_key = 'fd2aaefea84ac1bb512e6f1878d990b8';
@@ -80,6 +80,13 @@ class Ps_Googleanalytics extends Module
 
     public function hookDisplayHeader($params, $back_office = false)
     {
+        if ($back_office === false && Configuration::get('GA_ACCOUNT_ID')) {
+            Media::addJsDef([
+                'psGoogleAnalyticsAjaxUrl' => $this->context->link->getModuleLink($this->name, 'ajax', [], true),
+            ]);
+            $this->context->controller->registerJavascript('modules-psgoogleanalytics', 'modules/' . $this->name . '/views/js/ganalytics.js');
+        }
+
         $hook = new PrestaShop\Module\Ps_Googleanalytics\Hooks\HookDisplayHeader($this, $this->context);
         $hook->setBackOffice($back_office);
 

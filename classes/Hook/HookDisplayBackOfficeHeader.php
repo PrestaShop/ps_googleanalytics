@@ -23,13 +23,17 @@ namespace PrestaShop\Module\Ps_Googleanalytics\Hooks;
 use Cart;
 use Configuration;
 use Context;
+use Currency;
+use Customer;
 use Db;
+use Language;
 use Order;
 use PrestaShop\Module\Ps_Googleanalytics\Handler\GanalyticsJsHandler;
 use PrestaShop\Module\Ps_Googleanalytics\Repository\GanalyticsRepository;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\OrderWrapper;
 use PrestaShop\Module\Ps_Googleanalytics\Wrapper\ProductWrapper;
 use Ps_Googleanalytics;
+use Shop;
 use Tools;
 use Validate;
 
@@ -148,18 +152,47 @@ class HookDisplayBackOfficeHeader implements HookInterface
             return;
         }
 
-        // Prepare transaction data
-        $orderData = $orderWrapper->wrapOrder($order);
+        // Save the back-office context, including the translator locale and shop scope
+        $currentCart = $this->context->cart;
+        $currentCurrency = $this->context->currency;
+        $currentLanguage = $this->context->language;
+        $currentCustomer = $this->context->customer;
+        $currentShop = $this->context->shop;
+        $translator = $this->context->getTranslator();
+        $currentLocale = $translator->getLocale();
+        $currentShopContext = Shop::getContext();
+        $currentShopContextId = $currentShopContext === Shop::CONTEXT_GROUP ? Shop::getContextShopGroupID() : Shop::getContextShopID();
+
+        try {
+            // Set the order context for transaction data and cart pricing
+            Shop::setContext(Shop::CONTEXT_SHOP, (int) $order->id_shop);
+            $this->context->shop = new Shop((int) $order->id_shop);
+            $this->context->currency = new Currency((int) $order->id_currency);
+            $this->context->language = new Language((int) $order->id_lang);
+            $this->context->customer = new Customer((int) $order->id_customer);
+            $translator->setLocale($this->context->language->locale);
+            $cart = new Cart((int) $order->id_cart);
+            $this->context->cart = $cart;
+
+            // Prepare transaction data and order products if the cart still exists
+            $orderData = $orderWrapper->wrapOrder($order);
+            $orderProducts = [];
+            if (Validate::isLoadedObject($cart)) {
+                $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
+            }
+        } finally {
+            // Restore the back-office context for event rendering and subsequent orders
+            $this->context->cart = $currentCart;
+            $this->context->currency = $currentCurrency;
+            $this->context->language = $currentLanguage;
+            $this->context->customer = $currentCustomer;
+            $this->context->shop = $currentShop;
+            Shop::setContext($currentShopContext, $currentShopContextId);
+            $translator->setLocale($currentLocale);
+        }
 
         // Empty script for the current order
         $gaScripts = '';
-
-        // Prepare order products, if the cart still exists
-        $orderProducts = [];
-        $cart = new Cart($order->id_cart);
-        if (Validate::isLoadedObject($cart)) {
-            $orderProducts = $productWrapper->prepareItemListFromProductList($cart->getProducts(), true);
-        }
 
         // Add payment event
         $gaScripts .= $this->module->getTools()->renderEvent(
